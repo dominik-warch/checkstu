@@ -44,6 +44,24 @@ const de = {
         high: 'Hoch',
         urgent: 'Dringend',
     },
+    role: {
+        admin: 'Elternteil',
+        member: 'Kind',
+    },
+    family: {
+        title: 'Familie',
+        openTasks: 'offene Aufgaben',
+        addMember: 'Mitglied hinzufügen',
+        editMember: 'Mitglied bearbeiten',
+        name: 'Name',
+        username: 'Benutzername',
+        email: 'E-Mail (optional)',
+        password: 'Passwort',
+        passwordKeepHint: 'Leer lassen, um das Passwort nicht zu ändern',
+        roleParent: 'Elternteil (Admin)',
+        roleChild: 'Kind (Mitglied)',
+        deleteConfirm: 'Dieses Mitglied wirklich löschen?',
+    },
 } as const;
 
 type Dict = typeof de;

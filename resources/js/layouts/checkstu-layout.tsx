@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { House, ListChecks, LogOut } from 'lucide-react';
+import { House, ListChecks, LogOut, Users } from 'lucide-react';
 import { PropsWithChildren } from 'react';
 
 import { t } from '@/lib/i18n';
@@ -15,6 +15,7 @@ interface NavItem {
 const navItems: NavItem[] = [
     { label: t('nav.today'), icon: House, routeName: 'home', href: '/' },
     { label: t('nav.tasks'), icon: ListChecks, routeName: 'tasks.index', href: '/tasks' },
+    { label: t('nav.family'), icon: Users, routeName: 'family', href: '/family' },
 ];
 
 export default function CheckstuLayout({ children }: PropsWithChildren) {

@@ -32,3 +32,12 @@ export interface TaskAbilities {
     createTask: boolean;
     manageUsers?: boolean;
 }
+
+export interface FamilyMember {
+    id: number;
+    name: string;
+    username: string;
+    email: string | null;
+    role: 'admin' | 'member';
+    open_count: number;
+}
