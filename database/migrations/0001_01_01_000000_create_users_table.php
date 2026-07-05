@@ -14,9 +14,11 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('email')->unique();
+            $table->string('username')->unique();          // login identifier (see §6)
+            $table->string('email')->nullable()->unique(); // optional; kids won't have one
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('role')->default('member');     // 'admin' (parents) | 'member' (kids)
             $table->rememberToken();
             $table->timestamps();
         });
