@@ -61,12 +61,12 @@ actionable thing obvious.
 | DB | SQLite | — | WAL + foreign keys + busy_timeout |
 | Recurrence | `simshaun/recurr` | 2025-maintained | RRULE expansion |
 | Calendar | `sabre/vobject` + `Sabre\DAV\Client` | vobject 4.5.6, dav 4.7 | iCal generation + CalDAV HTTP (§10) |
-| Tests | Pest | **4.x** (on PHPUnit 12) | Includes browser testing |
+| Tests | PHPUnit | **11.5** (kit default) | Kit ships PHPUnit, not Pest |
 | Formatting | Pint / ESLint / Prettier | shipped by kit | |
 
 > **✅ Resolved at scaffold time (2026-07-05).** `composer create-project laravel/react-starter-kit`
 > pinned **Laravel 12.62 + Inertia 2 + React 19 + Tailwind 4 + Vite 6 + TypeScript 5.7**, tests via
-> **Pest**. (The planning agents' web research had guessed Laravel 13 / Inertia 3; the shipping kit
+> **PHPUnit 11.5** (not Pest). (The planning agents' web research had guessed Laravel 13 / Inertia 3; the shipping kit
 > is 12/2 — we take the kit's pin, as planned.) Everything in this plan works on Inertia 2;
 > optimistic updates are just slightly more manual than the v3 first-class API.
 
