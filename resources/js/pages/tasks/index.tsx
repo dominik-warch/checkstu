@@ -1,6 +1,6 @@
 import { Head, router } from '@inertiajs/react';
 
-import CreateTaskDialog from '@/components/tasks/create-task-dialog';
+import TaskFormDialog from '@/components/tasks/task-form-dialog';
 import TaskCard from '@/components/tasks/task-card';
 import { Button } from '@/components/ui/button';
 import CheckstuLayout from '@/layouts/checkstu-layout';
@@ -54,7 +54,7 @@ export default function TasksIndex({ occurrences, filters, members, can }: Tasks
                 ))}
             </div>
 
-            {can.createTask && <CreateTaskDialog members={members} />}
+            {can.createTask && <TaskFormDialog members={members} />}
         </CheckstuLayout>
     );
 }

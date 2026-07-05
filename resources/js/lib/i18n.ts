@@ -36,7 +36,16 @@ const de = {
         blocked: 'Blockiert',
         waitingOn: 'Wartet auf: :task',
         newTask: 'Neue Aufgabe',
+        editTask: 'Aufgabe bearbeiten',
         whoDidIt: 'Wer hat es erledigt?',
+        blockedBy: 'Blockiert durch',
+        blocks: 'Blockiert',
+        noDescription: 'Keine Beschreibung',
+        deleteConfirm: 'Diese Aufgabe wirklich löschen?',
+    },
+    upcoming: {
+        title: 'Demnächst',
+        empty: 'Nichts geplant.',
     },
     priority: {
         low: 'Niedrig',

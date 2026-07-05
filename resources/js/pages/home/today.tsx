@@ -1,7 +1,7 @@
 import { Head } from '@inertiajs/react';
 import { ReactNode } from 'react';
 
-import CreateTaskDialog from '@/components/tasks/create-task-dialog';
+import TaskFormDialog from '@/components/tasks/task-form-dialog';
 import TaskCard from '@/components/tasks/task-card';
 import CheckstuLayout from '@/layouts/checkstu-layout';
 import { t } from '@/lib/i18n';
@@ -48,7 +48,7 @@ export default function Today({ occurrences, members, can }: TodayProps) {
             {rest.length > 0 && <Section title="Zu erledigen">{rest.map(card)}</Section>}
             {blocked.length > 0 && <Section title="Blockiert">{blocked.map(card)}</Section>}
 
-            {can.createTask && <CreateTaskDialog members={members} />}
+            {can.createTask && <TaskFormDialog members={members} />}
         </CheckstuLayout>
     );
 }

@@ -1,4 +1,4 @@
-import { router } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 import { Check, Clock, Lock } from 'lucide-react';
 import { useState } from 'react';
 
@@ -68,7 +68,12 @@ export default function TaskCard({ occurrence, members, canCompleteOnBehalf }: T
         >
             <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
-                    <span className="truncate font-medium">{occurrence.title}</span>
+                    <Link
+                        href={route('tasks.show', occurrence.task_id)}
+                        className="truncate font-medium hover:underline"
+                    >
+                        {occurrence.title}
+                    </Link>
                     <Badge variant="secondary" className={cn('shrink-0', priorityClass[occurrence.priority])}>
                         {t(priorityLabel[occurrence.priority])}
                     </Badge>

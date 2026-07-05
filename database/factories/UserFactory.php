@@ -18,16 +18,25 @@ class UserFactory extends Factory
     protected static ?string $password;
 
     /**
+     * Process-wide counter for collision-free usernames/emails without relying on
+     * faker's unique() state (which persists across the whole test process and can
+     * flake a full suite).
+     */
+    protected static int $sequence = 0;
+
+    /**
      * Define the model's default state.
      *
      * @return array<string, mixed>
      */
     public function definition(): array
     {
+        $n = ++static::$sequence;
+
         return [
             'name' => fake()->firstName(),
-            'username' => fake()->unique()->userName(),
-            'email' => fake()->unique()->safeEmail(),
+            'username' => 'user'.$n,
+            'email' => 'user'.$n.'@example.test',
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'role' => Role::Member,

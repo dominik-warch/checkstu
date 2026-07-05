@@ -106,4 +106,57 @@ class TaskTest extends TestCase
 
         $this->assertSame(1, $task->occurrences()->whereNull('completed_at')->count());
     }
+
+    public function test_a_user_can_update_a_task_and_its_open_occurrence(): void
+    {
+        $user = User::factory()->create();
+        $task = Task::factory()->create(['title' => 'Alt']);
+        TaskOccurrence::factory()->for($task)->create(['due_date' => now()->toDateString()]);
+
+        $this->actingAs($user)
+            ->patch(route('tasks.update', $task), [
+                'title' => 'Neu',
+                'priority' => 3,
+                'due_date' => now()->addWeek()->toDateString(),
+            ])
+            ->assertRedirect(route('tasks.show', $task));
+
+        $task->refresh();
+        $this->assertSame('Neu', $task->title);
+        $this->assertSame(now()->addWeek()->toDateString(), $task->openOccurrence->due_date->toDateString());
+    }
+
+    public function test_member_cannot_delete_a_task(): void
+    {
+        $member = User::factory()->create();
+        $task = Task::factory()->create();
+
+        $this->actingAs($member)
+            ->delete(route('tasks.destroy', $task))
+            ->assertForbidden();
+
+        $this->assertNotSoftDeleted($task);
+    }
+
+    public function test_admin_can_delete_a_task(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $task = Task::factory()->create();
+
+        $this->actingAs($admin)
+            ->delete(route('tasks.destroy', $task))
+            ->assertRedirect(route('tasks.index'));
+
+        $this->assertSoftDeleted($task);
+    }
+
+    public function test_task_detail_and_upcoming_pages_render(): void
+    {
+        $user = User::factory()->create();
+        $task = Task::factory()->create();
+        TaskOccurrence::factory()->for($task)->create(['due_date' => now()->toDateString()]);
+
+        $this->actingAs($user)->get(route('tasks.show', $task))->assertOk();
+        $this->actingAs($user)->get(route('upcoming'))->assertOk();
+    }
 }
