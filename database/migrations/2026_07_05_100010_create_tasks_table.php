@@ -28,7 +28,8 @@ return new class extends Migration
             $table->date('recurrence_ends_on')->nullable();        // optional series end
 
             $table->boolean('is_active')->default(true);           // pause a series without deleting
-            $table->foreignId('created_by')->constrained('users');
+            $table->foreignId('created_by')->nullable()
+                ->constrained('users')->nullOnDelete();            // task persists if the creator is removed
             $table->timestamps();
             $table->softDeletes();
 

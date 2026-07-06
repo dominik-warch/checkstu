@@ -520,6 +520,14 @@ on a simple **Users** admin screen (name, username, role, password). **Email is 
 won't have one) and email verification is disabled. (If you'd rather allow self-registration, it's
 a one-line route toggle; default is closed for a family install.)
 
+**Deleting a user never fails, never destroys data.** Every FK from a household record to `users`
+(`tasks.created_by`/`default_assignee_id`, `task_occurrences.assignee_id`/`completed_by`,
+`task_completion_logs.user_id`/`acted_by_user_id`, `task_templates.created_by`) is nullable with
+`nullOnDelete()`. Deleting an account just nulls out that attribution on existing tasks/history —
+the records themselves persist (an unassigned task is already a normal, supported state — "up for
+grabs" — and a completion log with a null `user_id` just means "attribution unknown," not deleted
+history).
+
 **Authorization = Policies + a `role` check. No `spatie/laravel-permission`** (over-engineering for
 three roles). `TaskPolicy`, `UserPolicy`:
 - **Admin (parent) & member (kid)** share one pool: both may `view` / `create` / `update` /

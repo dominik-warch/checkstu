@@ -3,6 +3,9 @@
 namespace Tests\Feature;
 
 use App\Enums\Role;
+use App\Models\Task;
+use App\Models\TaskCompletionLog;
+use App\Models\TaskOccurrence;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -89,6 +92,39 @@ class UserManagementTest extends TestCase
             ->assertRedirect();
 
         $this->assertDatabaseMissing('users', ['id' => $other->id]);
+    }
+
+    public function test_deleting_a_user_who_created_or_completed_tasks_does_not_fail(): void
+    {
+        // Regression: tasks.created_by and task_completion_logs.user_id lacked
+        // nullOnDelete, so deleting anyone who had ever created or completed a
+        // task crashed with a foreign key constraint violation.
+        $admin = User::factory()->admin()->create();
+        $active = User::factory()->create();
+
+        $task = Task::factory()->create(['created_by' => $active->id, 'default_assignee_id' => $active->id]);
+        $occurrence = TaskOccurrence::factory()->for($task)->create([
+            'assignee_id' => $active->id,
+            'completed_by' => $active->id,
+            'completed_at' => now(),
+        ]);
+        TaskCompletionLog::create([
+            'task_occurrence_id' => $occurrence->id,
+            'task_id' => $task->id,
+            'user_id' => $active->id,
+            'action' => 'completed',
+            'created_at' => now(),
+        ]);
+
+        $this->actingAs($admin)
+            ->delete(route('users.destroy', $active))
+            ->assertRedirect();
+
+        $this->assertDatabaseMissing('users', ['id' => $active->id]);
+        // The task and its history survive, just with the attribution nulled out.
+        $this->assertDatabaseHas('tasks', ['id' => $task->id, 'created_by' => null]);
+        $this->assertDatabaseHas('task_occurrences', ['id' => $occurrence->id, 'assignee_id' => null, 'completed_by' => null]);
+        $this->assertDatabaseHas('task_completion_logs', ['task_id' => $task->id, 'user_id' => null]);
     }
 
     public function test_username_is_normalised_to_lowercase(): void

@@ -14,7 +14,8 @@ return new class extends Migration
             $table->foreignId('task_occurrence_id')->nullable()
                 ->constrained()->nullOnDelete();
             $table->foreignId('task_id')->constrained();
-            $table->foreignId('user_id')->constrained();         // attributed completer (whose it counts as)
+            $table->foreignId('user_id')->nullable()
+                ->constrained()->nullOnDelete();                 // attributed completer (whose it counts as)
             $table->foreignId('acted_by_user_id')->nullable()
                 ->constrained('users')->nullOnDelete();          // admin who did it on their behalf; null = self
             $table->string('action');                            // completed|skipped|reopened
