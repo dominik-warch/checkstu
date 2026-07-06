@@ -18,6 +18,7 @@ if [ "${ROLE}" = "app" ]; then
         /var/www/html/storage/framework/views \
         /var/www/html/storage/app/public \
         /var/www/html/storage/database \
+        /var/www/html/storage/backups \
         /var/www/html/bootstrap/cache
 
     # Ensure the SQLite database file exists.

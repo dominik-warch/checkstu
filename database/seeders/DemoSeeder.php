@@ -16,13 +16,24 @@ class DemoSeeder extends Seeder
 {
     public function run(): void
     {
+        // Fresh-install guard: this seeder plants a fixed demo family. Without this
+        // check, re-running it (e.g. RUN_SEEDER left on, or `db:seed` run by hand)
+        // against a real household would silently inject 5 fake users + demo tasks
+        // alongside real data — it wouldn't even crash, since demo usernames are
+        // unlikely to collide with real ones. Never run this against a live household.
+        if (User::query()->exists()) {
+            $this->command?->warn('Users already exist — skipping DemoSeeder (fresh-install only).');
+
+            return;
+        }
+
         // --- Family: 2 parents (admin), 2 kids (member) ---
-        $dominik = User::create(['name' => 'Dominik', 'username' => 'dominik', 'email' => 'dominik@home.local', 'password' => 'password', 'role' => Role::Admin]);
-        $sara = User::create(['name' => 'Sara', 'username' => 'sara', 'email' => 'sara@home.local', 'password' => 'password', 'role' => Role::Admin]);
-        $leo = User::create(['name' => 'Leo', 'username' => 'leo', 'email' => null, 'password' => 'password', 'role' => Role::Member]);
-        $leni = User::create(['name' => 'Leni', 'username' => 'leni', 'email' => null, 'password' => 'password', 'role' => Role::Member]);
+        $dominik = User::firstOrCreate(['username' => 'dominik'], ['name' => 'Dominik', 'email' => 'dominik@home.local', 'password' => 'password', 'role' => Role::Admin]);
+        $sara = User::firstOrCreate(['username' => 'sara'], ['name' => 'Sara', 'email' => 'sara@home.local', 'password' => 'password', 'role' => Role::Admin]);
+        $leo = User::firstOrCreate(['username' => 'leo'], ['name' => 'Leo', 'email' => null, 'password' => 'password', 'role' => Role::Member]);
+        $leni = User::firstOrCreate(['username' => 'leni'], ['name' => 'Leni', 'email' => null, 'password' => 'password', 'role' => Role::Member]);
         // A guest helper (e.g. grandparent) — only sees tasks assigned to them.
-        $opa = User::create(['name' => 'Opa', 'username' => 'opa', 'email' => null, 'password' => 'password', 'role' => Role::Guest]);
+        $opa = User::firstOrCreate(['username' => 'opa'], ['name' => 'Opa', 'email' => null, 'password' => 'password', 'role' => Role::Guest]);
 
         // --- Categories ---
         foreach (['Küche', 'Bad', 'Wohnzimmer', 'Schlafzimmer', 'Außen'] as $name) {
