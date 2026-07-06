@@ -1,15 +1,16 @@
 import { Head } from '@inertiajs/react';
 import { ReactNode } from 'react';
 
-import TaskFormDialog from '@/components/tasks/task-form-dialog';
 import TaskCard from '@/components/tasks/task-card';
+import TaskFormDialog from '@/components/tasks/task-form-dialog';
 import CheckstuLayout from '@/layouts/checkstu-layout';
 import { t } from '@/lib/i18n';
-import type { Member, Occurrence, TaskAbilities } from '@/types/checkstu';
+import type { Member, Occurrence, TaskAbilities, TaskTemplateSummary } from '@/types/checkstu';
 
 interface TodayProps {
     occurrences: Occurrence[];
     members: Member[];
+    templates: TaskTemplateSummary[];
     can: TaskAbilities;
 }
 
@@ -22,7 +23,7 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
     );
 }
 
-export default function Today({ occurrences, members, can }: TodayProps) {
+export default function Today({ occurrences, members, templates, can }: TodayProps) {
     const blocked = occurrences.filter((o) => o.is_blocked);
     const actionable = occurrences.filter((o) => !o.is_blocked);
     const overdue = actionable.filter((o) => o.status === 'overdue');
@@ -48,7 +49,7 @@ export default function Today({ occurrences, members, can }: TodayProps) {
             {rest.length > 0 && <Section title="Zu erledigen">{rest.map(card)}</Section>}
             {blocked.length > 0 && <Section title="Blockiert">{blocked.map(card)}</Section>}
 
-            {can.createTask && <TaskFormDialog members={members} />}
+            {can.createTask && <TaskFormDialog members={members} templates={templates} />}
         </CheckstuLayout>
     );
 }

@@ -1,21 +1,22 @@
 import { Head, router } from '@inertiajs/react';
 
-import TaskFormDialog from '@/components/tasks/task-form-dialog';
 import TaskCard from '@/components/tasks/task-card';
+import TaskFormDialog from '@/components/tasks/task-form-dialog';
 import { Button } from '@/components/ui/button';
 import CheckstuLayout from '@/layouts/checkstu-layout';
 import { t } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
-import type { Member, Occurrence, TaskAbilities } from '@/types/checkstu';
+import type { Member, Occurrence, TaskAbilities, TaskTemplateSummary } from '@/types/checkstu';
 
 interface TasksIndexProps {
     occurrences: Occurrence[];
     filters: { scope: 'all' | 'mine' };
     members: Member[];
+    templates: TaskTemplateSummary[];
     can: TaskAbilities;
 }
 
-export default function TasksIndex({ occurrences, filters, members, can }: TasksIndexProps) {
+export default function TasksIndex({ occurrences, filters, members, templates, can }: TasksIndexProps) {
     const setScope = (scope: 'all' | 'mine') => {
         router.get(route('tasks.index'), { scope }, { preserveState: true, preserveScroll: true, replace: true });
     };
@@ -54,7 +55,7 @@ export default function TasksIndex({ occurrences, filters, members, can }: Tasks
                 ))}
             </div>
 
-            {can.createTask && <TaskFormDialog members={members} />}
+            {can.createTask && <TaskFormDialog members={members} templates={templates} />}
         </CheckstuLayout>
     );
 }

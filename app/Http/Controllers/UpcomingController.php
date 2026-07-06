@@ -9,6 +9,7 @@ use App\Models\Task;
 use App\Models\TaskOccurrence;
 use App\Models\User;
 use App\Support\OccurrencePresenter;
+use App\Support\TaskTemplatePresenter;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -34,6 +35,7 @@ class UpcomingController extends Controller
             'occurrences' => $occurrences,
             'members' => User::orderBy('name')->get()
                 ->map(fn (User $u) => ['id' => $u->id, 'name' => $u->name, 'role' => $u->role->value]),
+            'templates' => TaskTemplatePresenter::forPicker(),
             'can' => [
                 'completeOnBehalf' => $request->user()->can('completeOnBehalf', Task::class),
                 'createTask' => $request->user()->can('create', Task::class),

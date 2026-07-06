@@ -4,11 +4,12 @@ import TaskCard from '@/components/tasks/task-card';
 import TaskFormDialog from '@/components/tasks/task-form-dialog';
 import CheckstuLayout from '@/layouts/checkstu-layout';
 import { t } from '@/lib/i18n';
-import type { Member, Occurrence, TaskAbilities } from '@/types/checkstu';
+import type { Member, Occurrence, TaskAbilities, TaskTemplateSummary } from '@/types/checkstu';
 
 interface UpcomingProps {
     occurrences: Occurrence[];
     members: Member[];
+    templates: TaskTemplateSummary[];
     can: TaskAbilities;
 }
 
@@ -23,7 +24,7 @@ function dayLabel(due: string): string {
     return new Intl.DateTimeFormat('de-DE', { weekday: 'long', day: '2-digit', month: 'long' }).format(date);
 }
 
-export default function Upcoming({ occurrences, members, can }: UpcomingProps) {
+export default function Upcoming({ occurrences, members, templates, can }: UpcomingProps) {
     // Group by due date (already sorted ascending server-side); overdue collapses under one label.
     const groups = new Map<string, Occurrence[]>();
     for (const o of occurrences) {
@@ -64,7 +65,7 @@ export default function Upcoming({ occurrences, members, can }: UpcomingProps) {
                 </section>
             ))}
 
-            {can.createTask && <TaskFormDialog members={members} />}
+            {can.createTask && <TaskFormDialog members={members} templates={templates} />}
         </CheckstuLayout>
     );
 }

@@ -14,6 +14,7 @@ use App\Models\Task;
 use App\Models\TaskOccurrence;
 use App\Models\User;
 use App\Support\OccurrencePresenter;
+use App\Support\TaskTemplatePresenter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -53,6 +54,7 @@ class TaskController extends Controller
             'filters' => ['scope' => $scope],
             'members' => $this->members(),
             'categories' => Category::orderBy('name')->get(['id', 'name', 'color']),
+            'templates' => TaskTemplatePresenter::forPicker(),
             'can' => [
                 'completeOnBehalf' => $request->user()->can('completeOnBehalf', Task::class),
                 'createTask' => $request->user()->can('create', Task::class),

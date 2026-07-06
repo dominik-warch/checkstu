@@ -34,6 +34,12 @@ export interface TaskAbilities {
     manageUsers?: boolean;
 }
 
+export interface TaskTemplateSummary {
+    id: number;
+    name: string;
+    usage_count: number;
+}
+
 export interface FamilyMember {
     id: number;
     name: string;

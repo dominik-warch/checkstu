@@ -11,7 +11,10 @@ use Illuminate\Support\Facades\DB;
 
 class CreateTaskAction
 {
-    public function __construct(private readonly MaterializeOccurrencesAction $materialize) {}
+    public function __construct(
+        private readonly MaterializeOccurrencesAction $materialize,
+        private readonly RecordTaskTitleUsageAction $recordTitleUsage,
+    ) {}
 
     /**
      * Create a task. What happens next depends on its recurrence type:
@@ -72,6 +75,8 @@ class CreateTaskAction
             if ($recurrenceType === RecurrenceType::Rrule || $recurrenceType === RecurrenceType::ExplicitDates) {
                 $this->materialize->handle($task);
             }
+
+            $this->recordTitleUsage->handle($data['title'], $creator);
 
             return $task;
         });

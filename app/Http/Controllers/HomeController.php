@@ -9,6 +9,7 @@ use App\Models\Task;
 use App\Models\TaskOccurrence;
 use App\Models\User;
 use App\Support\OccurrencePresenter;
+use App\Support\TaskTemplatePresenter;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -32,6 +33,7 @@ class HomeController extends Controller
         return Inertia::render('home/today', [
             'occurrences' => $occurrences,
             'members' => $this->members(),
+            'templates' => TaskTemplatePresenter::forPicker(),
             'can' => [
                 'completeOnBehalf' => $request->user()->can('completeOnBehalf', Task::class),
                 'createTask' => $request->user()->can('create', Task::class),

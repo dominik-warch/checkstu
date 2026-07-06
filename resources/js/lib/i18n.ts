@@ -19,6 +19,7 @@ const de = {
         create: 'Erstellen',
         search: 'Suchen',
         loading: 'Wird geladen …',
+        back: 'Zurück',
     },
     nav: {
         today: 'Heute',

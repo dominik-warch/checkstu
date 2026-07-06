@@ -10,9 +10,11 @@ _An internal household task-management web app for a small group of shared users
 
 ## 0. Build status — as of 2026-07-06
 
-**checkstu runs.** P0 (bootstrap) and P1 (core app) are complete, plus several follow-ups and a
-production Docker setup. **53 tests green** (PHPUnit), `tsc` clean, `npm run build` clean.
-⚠️ **No git commits yet** — the working tree *is* the current state (offer stands to baseline it).
+**checkstu runs, including the full recurrence engine.** P0, P1, and P2 are complete, plus several
+follow-ups and a production Docker setup. **84 tests green** (PHPUnit), `tsc` clean, `npm run build`
+clean, and the create/recurrence flows are **browser-verified end-to-end** (Playwright, not just
+unit tests). ⚠️ **No git commits yet** — the working tree *is* the current state (offer stands to
+baseline it).
 
 ### Shipped
 - **P0 — bootstrap.** Scaffolded via `composer create-project laravel/react-starter-kit`. Real
@@ -20,12 +22,30 @@ production Docker setup. **53 tests green** (PHPUnit), `tsc` clean, `npm run bui
   11.5 (not Pest), PHP 8.5.7.** SQLite (WAL + FK + busy_timeout). Locale `de`, timezone
   Europe/Berlin. German `lang/de/*` + frontend i18n (`resources/js/lib/i18n.ts`; German UI / English
   code).
-- **P1 — core.** Username login (self-registration disabled); domain schema per §4
-  (tasks/occurrences/categories/dependencies/recurrence_dates/templates/completion_logs) — **only
-  one-off tasks wired so far** (recurrence engine = P2, but the schema columns already exist);
-  create/edit/delete; complete + admin **complete-on-behalf** (attribution + `acted_by` log);
-  Today / Tasks (Meine·Alle) / Upcoming / Family screens; admin Users management; mobile bottom-nav
-  shell; **swipe-to-complete**; factories + `DemoSeeder` + `TaskTemplateSeeder`.
+- **P1 — core.** Username login (self-registration disabled); domain schema per §4; create/edit/
+  delete; complete + admin **complete-on-behalf** (attribution + `acted_by` log); Today / Tasks
+  (Meine·Alle) / Upcoming / Family screens; admin Users management; mobile bottom-nav shell;
+  **swipe-to-complete**; factories + `DemoSeeder`.
+- **P2 — recurrence engine (full).** `simshaun/recurr`-based RRULE expansion + explicit-dates
+  materialization (`MaterializeOccurrencesAction`), `tasks:materialize` scheduled command (daily
+  02:00, rolling 60-day horizon), recurrence config validated + wired into task creation
+  (materializes immediately, doesn't wait for cron), and a **create-mode recurrence picker**
+  (Einmalig/Regelmäßig/Unregelmäßig/Alle-X-Tage — a simplified freq+interval+weekday builder, never
+  exposes raw RRULE) in `TaskFormBody`. Editing recurrence after creation is explicitly out of scope
+  for v1 (delete + recreate instead) — enforced both by hiding the picker in edit mode and by the
+  backend ignoring those fields on update.
+  - **Title name catalogue** (revised design, §4.8 has the full history): NOT full templates — just
+    previously-used **names**. A row of the 8 most-used names as tappable chips above the title
+    field, plus a filter-as-you-type autocomplete dropdown (`TitleAutocomplete`). Every task
+    creation auto-records/bumps its title in the catalogue (case-insensitive), so brand-new names
+    join organically and climb the ranking with use. Nothing else is pre-filled.
+  - **Two real, latent-since-P1 bugs found and fixed:** (1) Eloquent's `date`-cast columns
+    serialize to full datetime strings on write but a raw `where()`/`firstOrCreate()` array
+    compares against the plain date string on read — never matches, so idempotency checks crashed
+    on the unique index. Fixed with `whereDate()` everywhere a date column is looked up (rule of
+    thumb for future code). (2) `Task::create()` without an explicit `is_active` left it `NULL` in
+    memory (Eloquent doesn't refresh DB defaults post-insert) — fixed at the model level
+    (`Task::$attributes`) so it can't recur elsewhere.
 - **Access control — three layered features:**
   - **Roles** admin (parents) / member (kids) / **guest** — guest sees & completes **only** tasks
     assigned to them (`TaskOccurrence::scopeVisibleTo`).
@@ -42,25 +62,30 @@ production Docker setup. **53 tests green** (PHPUnit), `tsc` clean, `npm run bui
   mode on navigation. Service worker / offline / install-prompt still open.
 
 ### Next up (in order)
-1. **P2 — recurrence engine** (the big one): `simshaun/recurr` for RRULE, explicit-date schedules
-   (garbage pickup), `tasks:materialize` scheduled command (rolling 60-day horizon),
-   generate-on-complete for `relative`. Only one-off is wired today — see §4.3–4.4.
-2. **Template-catalogue picker** in the create flow (§4.8) — land it with P2 (needs materialization).
-3. Then: dependency UX polish → **PWA** (§8.8) → **notifications** (§11, v2) → **CalDAV completion
-   sync** (§10, v2).
+1. Dependency UX polish (small — core already works, §5).
+2. **PWA** (§8.8) — service worker, offline shell, install prompt (manifest/meta tags already done).
+3. **v2:** notifications (§11) → **CalDAV completion sync** (§10).
 
 ### How to run / verify
 - **Dev:** `composer run dev`, then log in as **`dominik` / `password`** (seeded). Demo accounts:
   `dominik`,`sara` (admin) · `leo`,`leni` (member) · `opa` (guest).
-- **Tests** `php artisan test` (53) · **Types** `npx tsc --noEmit` · **Build** `npm run build`.
+- **Tests** `php artisan test` (84) · **Types** `npx tsc --noEmit` · **Build** `npm run build`.
 - **Docker:** `cp .env.docker.example .env` (set APP_KEY/APP_URL) → `docker compose up -d --build`
   → `docker compose exec app php artisan checkstu:create-user`; front with a TLS reverse proxy → `app:8080`.
+- **Browser smoke-testing:** no project run-skill exists yet for checkstu. Playwright works
+  (`npm install playwright` in a scratch dir + `npx playwright install chromium`, then drive
+  `php artisan serve` — don't add it to the project's own `package.json`). Consider
+  `/run-skill-generator` if this becomes routine.
 
 ### Gotchas for a returning session
 - Tests are **PHPUnit class-style**, not Pest (`tests/Pest.php` is vestigial, ignore it).
 - Base `app/Http/Controllers/Controller.php` is **bare** — use `Gate::authorize()` in controllers,
   not `$this->authorize()`.
 - `UserFactory` uses a process-wide **sequence** for username/email (faker `unique()` flaked the suite).
+- **Never compare a `date`-cast column with a raw `where(['col' => $string])`/`firstOrCreate()`** —
+  always `whereDate()` (see the P2 bug above). Same applies to any future date-column lookups.
+- `Task::$attributes` mirrors migration defaults (`is_active`) — extend this if a future column
+  needs a non-null default and gets set outside a factory.
 - Migrations are **edited in place** (greenfield, uncommitted); `php artisan migrate:fresh --seed` is fine.
 - `docker/prod/nginx.conf` must stay minimal (**only** `access_log off;`) — the base image already
   sets `client_max_body_size`/`gzip`; redeclaring them crashes nginx.
@@ -424,28 +449,32 @@ Overdue / due-soon change with the clock, so compute them at read time:
 Enable **WAL** (`PRAGMA journal_mode=WAL`) + `busy_timeout=5000` so web + queue + scheduler don't
 collide; run `ANALYZE` occasionally so the planner uses these indexes.
 
-### 4.8 Task template catalogue (fast recurring-task creation)
+### 4.8 Task name catalogue (fast recurring-task creation)
 
-Adding a recurring chore should take a couple of taps, so the create flow is backed by a
-**catalogue of predefined task templates** (`task_templates`). A template is a reusable blueprint —
-title, description, default `priority`, default recurrence (`recurrence_type` + `rrule` /
-`relative_interval_days`), and a suggested category — but it carries **no occurrences**. For an
-`explicit_dates` template (e.g. garbage collection) only the *type* + category is stored; creating
-a task from it opens the date-import step (dates are specific to a year/municipality — §4.3).
+> **Revised during implementation (2026-07-06).** The original design below this note described
+> full templates carrying priority/recurrence/category for one-tap pre-fill. Built and then
+> deliberately **replaced** at the user's request with something simpler: the create form is
+> always the normal full form; only the **title** gets help. This is what's actually implemented.
 
-- **Source:** the app ships a **seeded starter catalogue** (`created_by = null`) of common household
-  chores; anyone can add **custom templates** (`created_by` set). All templates are shared (one
-  space) and appear together in the picker, most-used first.
-- **Create-from-template:** `CreateTaskFromTemplateAction` copies the template's blueprint fields
-  into a new `tasks` row, then runs `MaterializeOccurrencesAction` (§4.4). The user only sets
-  assignee + start/due before saving. `usage_count` is incremented so the catalogue self-sorts by
-  what you actually use.
-- **Save-as-template:** any existing task can be promoted to a shared template to grow the
-  catalogue over time.
-- **Starter catalogue (seed examples):** Staubsaugen (weekly), Bad putzen (biweekly), Küche wischen
-  (weekly), Bettwäsche wechseln (~14 days, `relative`), Pflanzen gießen (~3 days, `relative`), Müll
-  rausstellen (`explicit_dates`, dates imported on creation), Fenster putzen (monthly), Kühlschrank
-  reinigen (monthly) — each with a sensible default priority + category.
+Adding a recurring chore should take a couple of taps, so the **title field** on the normal create
+form is backed by a **catalogue of previously-used names** (`task_templates`: `name`,
+`usage_count`, `created_by` — nothing else). It does **not** pre-fill priority, recurrence, or
+category — "the rest stays like creating a new task."
+
+- **Two ways to reuse a name:** a row of the **8 most-used names as tappable chips** above the
+  title input (re-sorts as usage changes), and a **filter-as-you-type dropdown** on the title input
+  itself for anything beyond those 8 (`TitleAutocomplete` component). Either just sets the title
+  text — every other field (priority, due date, assignee, private, recurrence) behaves exactly
+  like a brand-new task.
+- **Every task creation records usage — automatically, no extra step.** Whether the title came
+  from a chip, the dropdown, or was typed fresh, `RecordTaskTitleUsageAction` (case-insensitive
+  match) increments the matching catalogue entry, or creates a new one at `usage_count = 1` if the
+  name hasn't been seen before. This is how brand-new names organically join the catalogue and
+  climb the ranking with repeated use — no manual "save as template" step.
+- **Source:** a seeded starter list (`created_by = null`) of 8 common chore names, shared across
+  the household (one space), so the chips aren't empty on first use.
+- **Not built:** pre-filling recurrence/priority/category from a name, and a dedicated "save as
+  template" action — deliberately out of scope; the name catalogue is the whole feature.
 
 ---
 
@@ -594,19 +623,17 @@ opens a small **"who did it?"** selector (defaults to the assignee, else self) s
 attribute the completion to a kid; members just complete as themselves. **Dependencies** section
 (Blocked by / Blocks, tappable); plain-language **recurrence** line.
 
-**D. Create/edit (bottom sheet, minimal clicks)** — the FAB opens the **template catalogue first**:
-a searchable, most-used-first grid of predefined todos (§4.8) plus a **"＋ Custom"** tile. Tapping a
-template pre-fills title, recurrence, category, and priority, so you only set assignee + due and
-save — this is what makes adding recurring chores fast. "Custom" opens the blank form. The form
-itself: autofocused title (Enter saves); quick chips for Assignee (default: me — assignment is
-always manual), Due (Today/Tomorrow/Pick), Category (default: last used); a "More" expander for
-recurrence mode (**✅ implemented:** Einmalig / Regelmäßig / Unregelmäßig / Alle-X-Tage, replacing
-raw RRULE with a simple frequency+interval+weekday picker — see `TaskFormDialog` +
-`resources/js/lib/rrule.ts`) + depends-on multi-select. **Recurrence is create-only** — editing an
-existing task's pattern is out of scope for v1 (delete + recreate instead); the picker is hidden in
-edit mode and the backend ignores those fields on update regardless. An overflow action **saves the
-current task as a new template**. Never expose cron syntax. Optimistic save, sheet closes, toast
-confirms.
+**D. Create/edit (bottom sheet, minimal clicks)** — the FAB always opens the **normal full form**
+(no separate template grid/dialog — see §4.8 revision note). Title field: autofocused, **8
+most-used-name chips** above it + a **filter-as-you-type autocomplete dropdown** (`TitleAutocomplete`
+— §4.8), so reusing a chore name is fast without changing anything else about the flow. Quick chips
+for Assignee (default: me — assignment is always manual), Due (Today/Tomorrow/Pick), Category
+(default: last used); a "More" expander for recurrence mode (**✅ implemented:** Einmalig /
+Regelmäßig / Unregelmäßig / Alle-X-Tage, replacing raw RRULE with a simple frequency+interval+weekday
+picker — see `TaskFormBody` + `resources/js/lib/rrule.ts`) + depends-on multi-select. **Recurrence
+is create-only** — editing an existing task's pattern is out of scope for v1 (delete + recreate
+instead); the picker is hidden in edit mode and the backend ignores those fields on update
+regardless. Never expose cron syntax. Optimistic save, sheet closes, toast confirms.
 
 **E. Upcoming** — **agenda list grouped by day** (Today, Tomorrow, weekday, then dates) — far more
 phone-usable than a month grid; optional week-strip to jump. Irregular tasks appear under their
@@ -888,7 +915,7 @@ parallel. P6/P7 are v2.
 |---|---|---|
 | ✅ **P0 — Bootstrap** | **Done.** Scaffolded via `create-project` (no installer); SQLite WAL/FK/busy_timeout; German locale; demo seeder. Actual stack Laravel 12 / Inertia 2 / PHPUnit (not 13/Pest). | — |
 | ✅ **P1 — Core CRUD + Auth + Users** | **Done.** Username login; roles admin/member/**guest**; admin Users mgmt; policies; **complete-on-behalf**; one-off tasks + create/edit/delete/complete; task list. Extras: private tasks, unassigned "up-for-grabs". | P0 |
-| ◑ **P2 — Recurrence engine** | **Backend + frontend picker done:** `simshaun/recurr` RRULE + explicit-dates materialization (`MaterializeOccurrencesAction`), `tasks:materialize` scheduled command (daily 02:00, rolling 60-day horizon), recurrence config wired into task creation (validated + materializes immediately), and a create-mode recurrence picker (Einmalig/Regelmäßig/Unregelmäßig/Alle-X-Tage) in `TaskFormDialog` — browser-verified end-to-end. Editing recurrence after creation is out of scope for v1 (delete+recreate). *Remaining:* **template catalogue picker (§4.8)**. | P1 |
+| ✅ **P2 — Recurrence engine** | **Done.** `simshaun/recurr` RRULE + explicit-dates materialization (`MaterializeOccurrencesAction`), `tasks:materialize` scheduled command (daily 02:00, rolling 60-day horizon), recurrence config wired into task creation (validated + materializes immediately), a create-mode recurrence picker (Einmalig/Regelmäßig/Unregelmäßig/Alle-X-Tage) in `TaskFormBody`, and a **title name-catalogue** (most-used chips + autocomplete, §4.8 revised) — all browser-verified end-to-end. Editing recurrence after creation is out of scope for v1 (delete+recreate). | P1 |
 | ✅ **P3 — Dependencies** | **Done in P1:** `task_dependencies`, `ResolveDependenciesAction`, actionable-now filtering, blocked UI (greyed + "Wartet auf…"). | P2 |
 | ◑ **P4 — Filters / UX polish** | **Mostly done:** Meine/Alle filter, Upcoming agenda, detail/edit, swipe-to-complete, Family. *Remaining:* richer category/status filter bar. | P2, P3 |
 | ◑ **P5 — PWA** | **Manifest + Apple meta tags done** (fixes standalone break-out on iOS). *Remaining:* `vite-plugin-pwa` service worker, install prompt, offline shell, logout cache-clear. | P1 (best after P4) |
