@@ -128,7 +128,7 @@ class TaskController extends Controller
     private function members(): array
     {
         return User::orderBy('name')->get()
-            ->map(fn (User $u) => ['id' => $u->id, 'name' => $u->name, 'role' => $u->role->value])
+            ->map(fn (User $u) => ['id' => $u->id, 'name' => $u->name, 'role' => $u->role->value, 'color' => $u->color])
             ->all();
     }
 }

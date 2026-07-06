@@ -5,7 +5,9 @@ import MemberDialog from '@/components/family/member-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import CheckstuLayout from '@/layouts/checkstu-layout';
+import { contrastTextColor } from '@/lib/color-contrast';
 import { t } from '@/lib/i18n';
+import { cn } from '@/lib/utils';
 import type { FamilyMember } from '@/types/checkstu';
 
 interface FamilyProps {
@@ -41,7 +43,13 @@ export default function Family({ members, can }: FamilyProps) {
             <div className="flex flex-col gap-2">
                 {members.map((member) => (
                     <div key={member.id} className="flex items-center gap-3 rounded-xl border p-3">
-                        <div className="bg-muted flex size-10 shrink-0 items-center justify-center rounded-full font-medium">
+                        <div
+                            className={cn(
+                                'flex size-10 shrink-0 items-center justify-center rounded-full font-medium',
+                                !member.color && 'bg-muted',
+                            )}
+                            style={member.color ? { backgroundColor: member.color, color: contrastTextColor(member.color) } : undefined}
+                        >
                             {member.name.charAt(0).toUpperCase()}
                         </div>
                         <div className="min-w-0 flex-1">

@@ -1,6 +1,7 @@
 import { useForm } from '@inertiajs/react';
 import { FormEventHandler, ReactNode, useState } from 'react';
 
+import ColorPicker from '@/components/family/color-picker';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import {
@@ -31,6 +32,7 @@ export default function MemberDialog({ trigger, member }: MemberDialogProps) {
         email: member?.email ?? '',
         password: '',
         role: member?.role ?? 'member',
+        color: member?.color ?? (null as string | null),
     });
 
     const submit: FormEventHandler = (e) => {
@@ -104,6 +106,12 @@ export default function MemberDialog({ trigger, member }: MemberDialogProps) {
                             </SelectContent>
                         </Select>
                         <InputError message={errors.role} />
+                    </div>
+
+                    <div className="grid gap-2">
+                        <Label>{t('family.color')}</Label>
+                        <ColorPicker value={data.color} onChange={(color) => setData('color', color)} />
+                        <InputError message={errors.color} />
                     </div>
 
                     <Button type="submit" disabled={processing}>

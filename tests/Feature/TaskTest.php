@@ -221,4 +221,14 @@ class TaskTest extends TestCase
             ->get(route('tasks.index', ['scope' => 'mine']))
             ->assertInertia(fn (Assert $page) => $page->component('tasks/index')->has('occurrences', 2));
     }
+
+    public function test_assignee_color_is_exposed_on_occurrences(): void
+    {
+        $user = User::factory()->create();
+        $assignee = User::factory()->create(['color' => '#ec4899']);
+        TaskOccurrence::factory()->for(Task::factory())->create(['assignee_id' => $assignee->id]);
+
+        $this->actingAs($user)->get(route('home'))
+            ->assertInertia(fn (Assert $page) => $page->where('occurrences.0.assignee.color', '#ec4899'));
+    }
 }

@@ -27,6 +27,7 @@ class FamilyController extends Controller
                 'username' => $u->username,
                 'email' => $u->email,
                 'role' => $u->role->value,
+                'color' => $u->color,
                 'open_count' => $u->open_count,
             ]);
 

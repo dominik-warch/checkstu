@@ -9,7 +9,7 @@ use App\Models\User;
 class CreateUserAction
 {
     /**
-     * @param  array{name: string, username: string, email?: string|null, password: string, role: string}  $data
+     * @param  array{name: string, username: string, email?: string|null, password: string, role: string, color?: string|null}  $data
      */
     public function handle(array $data): User
     {
@@ -19,6 +19,7 @@ class CreateUserAction
             'email' => $data['email'] ?? null,
             'password' => $data['password'], // hashed via cast
             'role' => $data['role'],
+            'color' => $data['color'] ?? null,
         ]);
     }
 }

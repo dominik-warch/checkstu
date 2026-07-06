@@ -35,6 +35,7 @@ class StoreUserRequest extends FormRequest
             'email' => ['nullable', 'email', 'unique:users,email'],
             'password' => ['required', 'string', Password::defaults()],
             'role' => ['required', Rule::enum(Role::class)],
+            'color' => ['nullable', 'regex:/^#[0-9A-Fa-f]{6}$/'],
         ];
     }
 }

@@ -4,6 +4,7 @@ export interface Member {
     id: number;
     name: string;
     role: 'admin' | 'member' | 'guest';
+    color: string | null;
 }
 
 export interface CategoryTag {
@@ -23,7 +24,7 @@ export interface Occurrence {
     status: OccurrenceStatus;
     is_blocked: boolean;
     blocking_titles: string[];
-    assignee: { id: number; name: string } | null;
+    assignee: { id: number; name: string; color: string | null } | null;
     completed_by: { id: number; name: string } | null;
     categories: CategoryTag[];
 }
@@ -46,5 +47,6 @@ export interface FamilyMember {
     username: string;
     email: string | null;
     role: 'admin' | 'member' | 'guest';
+    color: string | null;
     open_count: number;
 }

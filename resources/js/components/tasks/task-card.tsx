@@ -12,6 +12,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { contrastTextColor } from '@/lib/color-contrast';
 import { useSwipeToComplete } from '@/hooks/use-swipe-to-complete';
 import { t } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
@@ -62,6 +63,13 @@ export default function TaskCard({ occurrence, members, canCompleteOnBehalf }: T
     const reached = swipe.dx >= 96;
     const overdue = occurrence.status === 'overdue';
 
+    const assigneeColor = occurrence.assignee?.color ?? null;
+    const textColor = assigneeColor ? contrastTextColor(assigneeColor) : null;
+    // Muted sub-text (due date/assignee/category line, private lock icon) can't use the
+    // fixed text-muted-foreground gray on a custom background — it'd have arbitrary,
+    // possibly-poor contrast. Dim the same contrast color instead so it always reads.
+    const mutedStyle = textColor ? { color: textColor, opacity: 0.75 } : undefined;
+
     return (
         <div className="relative overflow-hidden rounded-xl">
             {/* Swipe-reveal background */}
@@ -79,13 +87,15 @@ export default function TaskCard({ occurrence, members, canCompleteOnBehalf }: T
             {/* Foreground card (draggable) */}
             <div
                 className={cn(
-                    'bg-background flex items-center gap-3 border p-3',
+                    'flex items-center gap-3 border p-3',
+                    !assigneeColor && 'bg-background',
                     occurrence.is_blocked && 'opacity-60',
                 )}
                 style={{
                     transform: `translateX(${swipe.dx}px)`,
                     transition: swipe.animating ? 'transform 200ms ease-out' : undefined,
                     touchAction: 'pan-y',
+                    ...(assigneeColor ? { backgroundColor: assigneeColor, color: textColor ?? undefined } : {}),
                 }}
                 {...swipe.handlers}
             >
@@ -104,12 +114,24 @@ export default function TaskCard({ occurrence, members, canCompleteOnBehalf }: T
                             {t(priorityLabel[occurrence.priority])}
                         </Badge>
                         {occurrence.is_private && (
-                            <Lock className="text-muted-foreground size-3.5 shrink-0" aria-label={t('task.private')} />
+                            <Lock
+                                className={cn('size-3.5 shrink-0', !assigneeColor && 'text-muted-foreground')}
+                                style={mutedStyle}
+                                aria-label={t('task.private')}
+                            />
                         )}
                     </div>
 
-                    <div className="text-muted-foreground mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
-                        <span className={cn('inline-flex items-center gap-1', overdue && 'text-rose-600 dark:text-rose-400')}>
+                    <div
+                        className={cn('mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm', !assigneeColor && 'text-muted-foreground')}
+                        style={mutedStyle}
+                    >
+                        <span
+                            className={cn(
+                                'inline-flex items-center gap-1',
+                                overdue && !assigneeColor && 'text-rose-600 dark:text-rose-400',
+                            )}
+                        >
                             <Clock className="size-3.5" />
                             {formatDue(occurrence.due_date)}
                         </span>
@@ -123,7 +145,10 @@ export default function TaskCard({ occurrence, members, canCompleteOnBehalf }: T
                     </div>
 
                     {occurrence.is_blocked && occurrence.blocking_titles.length > 0 && (
-                        <div className="text-muted-foreground mt-1 inline-flex items-center gap-1 text-xs">
+                        <div
+                            className={cn('mt-1 inline-flex items-center gap-1 text-xs', !assigneeColor && 'text-muted-foreground')}
+                            style={mutedStyle}
+                        >
                             <Lock className="size-3" />
                             {t('task.waitingOn', { task: occurrence.blocking_titles.join(', ') })}
                         </div>

@@ -34,6 +34,57 @@ class UserManagementTest extends TestCase
         $this->assertNull($leo->email);
     }
 
+    public function test_admin_can_set_a_users_color(): void
+    {
+        $admin = User::factory()->admin()->create();
+
+        $this->actingAs($admin)
+            ->post(route('users.store'), [
+                'name' => 'Leni',
+                'username' => 'leni2',
+                'password' => 'password123',
+                'role' => 'member',
+                'color' => '#3b82f6',
+            ])
+            ->assertRedirect();
+
+        $this->assertSame('#3b82f6', User::firstWhere('username', 'leni2')->color);
+    }
+
+    public function test_invalid_color_format_is_rejected(): void
+    {
+        $admin = User::factory()->admin()->create();
+
+        $this->actingAs($admin)
+            ->post(route('users.store'), [
+                'name' => 'X',
+                'username' => 'colorbad',
+                'password' => 'password123',
+                'role' => 'member',
+                'color' => 'blue',
+            ])
+            ->assertSessionHasErrors('color');
+    }
+
+    public function test_admin_can_clear_a_users_color(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $user = User::factory()->create(['color' => '#ef4444']);
+
+        $this->actingAs($admin)
+            ->patch(route('users.update', $user), [
+                'name' => $user->name,
+                'username' => $user->username,
+                'email' => $user->email,
+                'password' => '',
+                'role' => 'member',
+                'color' => null,
+            ])
+            ->assertRedirect();
+
+        $this->assertNull($user->refresh()->color);
+    }
+
     public function test_member_cannot_create_users(): void
     {
         $member = User::factory()->create();

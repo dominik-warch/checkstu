@@ -97,6 +97,7 @@ const de = {
         roleParent: 'Elternteil (Admin)',
         roleChild: 'Kind (Mitglied)',
         roleGuest: 'Gast (nur eigene Aufgaben)',
+        color: 'Farbe',
         deleteConfirm: 'Dieses Mitglied wirklich löschen?',
     },
 } as const;

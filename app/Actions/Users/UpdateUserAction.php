@@ -10,7 +10,7 @@ use Illuminate\Support\Arr;
 class UpdateUserAction
 {
     /**
-     * @param  array{name: string, username: string, email?: string|null, password?: string|null, role: string}  $data
+     * @param  array{name: string, username: string, email?: string|null, password?: string|null, role: string, color?: string|null}  $data
      */
     public function handle(User $user, array $data): User
     {

@@ -34,6 +34,7 @@ class OccurrencePresenter
             'assignee' => $occurrence->assignee ? [
                 'id' => $occurrence->assignee->id,
                 'name' => $occurrence->assignee->name,
+                'color' => $occurrence->assignee->color,
             ] : null,
             'completed_by' => $occurrence->completedBy ? [
                 'id' => $occurrence->completedBy->id,

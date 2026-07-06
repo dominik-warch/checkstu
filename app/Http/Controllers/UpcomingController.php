@@ -34,7 +34,7 @@ class UpcomingController extends Controller
         return Inertia::render('upcoming/index', [
             'occurrences' => $occurrences,
             'members' => User::orderBy('name')->get()
-                ->map(fn (User $u) => ['id' => $u->id, 'name' => $u->name, 'role' => $u->role->value]),
+                ->map(fn (User $u) => ['id' => $u->id, 'name' => $u->name, 'role' => $u->role->value, 'color' => $u->color]),
             'templates' => TaskTemplatePresenter::forPicker(),
             'can' => [
                 'completeOnBehalf' => $request->user()->can('completeOnBehalf', Task::class),

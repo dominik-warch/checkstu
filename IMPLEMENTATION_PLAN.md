@@ -73,6 +73,14 @@ were deployed via a built image rather than a commit.
   exists) + `firstOrCreate`. Added: nightly automated local-disk backups (`sqlite:backup`, `VACUUM
   INTO`, keeps last 14) on the scheduler container. Litestream/offsite replication is the
   recommended next step, not yet wired up.
+- **User colors** — `users.color` (nullable hex, new additive migration). Admin picks a color per
+  family member via `ColorPicker` (preset swatches + native `<input type="color">` for anything
+  else) in the member create/edit dialog. Task cards render with that color as the background,
+  computed black/white text via the YIQ contrast formula (`resources/js/lib/color-contrast.ts`) —
+  never a fixed color, always legible against whatever was picked. Uncolored users/unassigned tasks
+  fall back to the plain default card. Family page avatar circles get the same tint as a
+  complementary touch. Priority badges and the complete button are deliberately left unstyled by the
+  assignee color (small, self-contained chips already legible regardless of card background).
 
 ### Next up (in order)
 1. Dependency UX polish (small — core already works, §5).
@@ -82,7 +90,7 @@ were deployed via a built image rather than a commit.
 ### How to run / verify
 - **Dev:** `composer run dev`, then log in as **`dominik` / `password`** (seeded). Demo accounts:
   `dominik`,`sara` (admin) · `leo`,`leni` (member) · `opa` (guest).
-- **Tests** `php artisan test` (88) · **Types** `npx tsc --noEmit` · **Build** `npm run build`.
+- **Tests** `php artisan test` (92) · **Types** `npx tsc --noEmit` · **Build** `npm run build`.
 - **Docker:** `cp .env.docker.example .env` (set APP_KEY/APP_URL) → `docker compose up -d --build`
   → `docker compose exec app php artisan checkstu:create-user`; front with a TLS reverse proxy → `app:8080`.
 - **Browser smoke-testing:** no project run-skill exists yet for checkstu. Playwright works

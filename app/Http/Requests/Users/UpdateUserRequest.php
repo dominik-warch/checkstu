@@ -36,6 +36,7 @@ class UpdateUserRequest extends FormRequest
             'email' => ['nullable', 'email', Rule::unique('users', 'email')->ignore($userId)],
             'password' => ['nullable', 'string', Password::defaults()], // blank = keep current
             'role' => ['required', Rule::enum(Role::class)],
+            'color' => ['nullable', 'regex:/^#[0-9A-Fa-f]{6}$/'],
         ];
     }
 }
