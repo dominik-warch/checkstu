@@ -12,6 +12,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useSwipeToComplete } from '@/hooks/use-swipe-to-complete';
 import { t } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import type { Member, Occurrence } from '@/types/checkstu';
@@ -57,79 +58,105 @@ export default function TaskCard({ occurrence, members, canCompleteOnBehalf }: T
         );
     };
 
+    const swipe = useSwipeToComplete(() => complete(), !occurrence.is_blocked && !processing);
+    const reached = swipe.dx >= 96;
     const overdue = occurrence.status === 'overdue';
 
     return (
-        <div
-            className={cn(
-                'flex items-center gap-3 rounded-xl border p-3',
-                occurrence.is_blocked && 'opacity-60',
-            )}
-        >
-            <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2">
-                    <Link
-                        href={route('tasks.show', occurrence.task_id)}
-                        className="truncate font-medium hover:underline"
-                    >
-                        {occurrence.title}
-                    </Link>
-                    <Badge variant="secondary" className={cn('shrink-0', priorityClass[occurrence.priority])}>
-                        {t(priorityLabel[occurrence.priority])}
-                    </Badge>
-                </div>
-
-                <div className="text-muted-foreground mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
-                    <span className={cn('inline-flex items-center gap-1', overdue && 'text-rose-600 dark:text-rose-400')}>
-                        <Clock className="size-3.5" />
-                        {formatDue(occurrence.due_date)}
-                    </span>
-                    {occurrence.assignee && <span>· {occurrence.assignee.name}</span>}
-                    {occurrence.categories.map((c) => (
-                        <span key={c.id} className="inline-flex items-center gap-1">
-                            <span className="size-2 rounded-full" style={{ background: c.color ?? '#999' }} />
-                            {c.name}
-                        </span>
-                    ))}
-                </div>
-
-                {occurrence.is_blocked && occurrence.blocking_titles.length > 0 && (
-                    <div className="text-muted-foreground mt-1 inline-flex items-center gap-1 text-xs">
-                        <Lock className="size-3" />
-                        {t('task.waitingOn', { task: occurrence.blocking_titles.join(', ') })}
-                    </div>
+        <div className="relative overflow-hidden rounded-xl">
+            {/* Swipe-reveal background */}
+            <div
+                className={cn(
+                    'absolute inset-0 flex items-center gap-2 pl-4 text-white transition-colors',
+                    reached ? 'bg-emerald-600' : 'bg-emerald-500/70',
                 )}
+                aria-hidden
+            >
+                <Check className="size-5" />
+                {reached && <span className="text-sm font-medium">{t('common.done')}</span>}
             </div>
 
-            {!occurrence.is_blocked &&
-                (canCompleteOnBehalf ? (
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button size="icon" variant="outline" disabled={processing} aria-label={t('task.markDone')}>
-                                <Check className="size-4" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>{t('task.whoDidIt')}</DropdownMenuLabel>
-                            <DropdownMenuSeparator />
-                            {members.map((m) => (
-                                <DropdownMenuItem key={m.id} onClick={() => complete(m.id)}>
-                                    {m.name}
-                                </DropdownMenuItem>
-                            ))}
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                ) : (
-                    <Button
-                        size="icon"
-                        variant="outline"
-                        disabled={processing}
-                        onClick={() => complete()}
-                        aria-label={t('task.markDone')}
-                    >
-                        <Check className="size-4" />
-                    </Button>
-                ))}
+            {/* Foreground card (draggable) */}
+            <div
+                className={cn(
+                    'bg-background flex items-center gap-3 border p-3',
+                    occurrence.is_blocked && 'opacity-60',
+                )}
+                style={{
+                    transform: `translateX(${swipe.dx}px)`,
+                    transition: swipe.animating ? 'transform 200ms ease-out' : undefined,
+                    touchAction: 'pan-y',
+                }}
+                {...swipe.handlers}
+            >
+                <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                        <Link
+                            href={route('tasks.show', occurrence.task_id)}
+                            className="truncate font-medium hover:underline"
+                            onClick={(e) => {
+                                if (swipe.swiped.current) e.preventDefault();
+                            }}
+                        >
+                            {occurrence.title}
+                        </Link>
+                        <Badge variant="secondary" className={cn('shrink-0', priorityClass[occurrence.priority])}>
+                            {t(priorityLabel[occurrence.priority])}
+                        </Badge>
+                    </div>
+
+                    <div className="text-muted-foreground mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+                        <span className={cn('inline-flex items-center gap-1', overdue && 'text-rose-600 dark:text-rose-400')}>
+                            <Clock className="size-3.5" />
+                            {formatDue(occurrence.due_date)}
+                        </span>
+                        {occurrence.assignee && <span>· {occurrence.assignee.name}</span>}
+                        {occurrence.categories.map((c) => (
+                            <span key={c.id} className="inline-flex items-center gap-1">
+                                <span className="size-2 rounded-full" style={{ background: c.color ?? '#999' }} />
+                                {c.name}
+                            </span>
+                        ))}
+                    </div>
+
+                    {occurrence.is_blocked && occurrence.blocking_titles.length > 0 && (
+                        <div className="text-muted-foreground mt-1 inline-flex items-center gap-1 text-xs">
+                            <Lock className="size-3" />
+                            {t('task.waitingOn', { task: occurrence.blocking_titles.join(', ') })}
+                        </div>
+                    )}
+                </div>
+
+                {!occurrence.is_blocked &&
+                    (canCompleteOnBehalf ? (
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button size="icon" variant="outline" disabled={processing} aria-label={t('task.markDone')}>
+                                    <Check className="size-4" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuLabel>{t('task.whoDidIt')}</DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                {members.map((m) => (
+                                    <DropdownMenuItem key={m.id} onClick={() => complete(m.id)}>
+                                        {m.name}
+                                    </DropdownMenuItem>
+                                ))}
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    ) : (
+                        <Button
+                            size="icon"
+                            variant="outline"
+                            disabled={processing}
+                            onClick={() => complete()}
+                            aria-label={t('task.markDone')}
+                        >
+                            <Check className="size-4" />
+                        </Button>
+                    ))}
+            </div>
         </div>
     );
 }
