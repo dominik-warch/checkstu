@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Enums\RecurrenceType;
 use App\Models\Task;
 use App\Models\TaskCompletionLog;
 use App\Models\TaskOccurrence;
@@ -148,6 +149,28 @@ class TaskTest extends TestCase
         $task->refresh();
         $this->assertSame('Neu', $task->title);
         $this->assertSame(now()->addWeek()->toDateString(), $task->openOccurrence->due_date->toDateString());
+    }
+
+    public function test_updating_a_task_cannot_change_its_recurrence_pattern(): void
+    {
+        // Editing recurrence after creation is out of scope for v1 (delete + recreate
+        // instead) — the frontend simply hides the picker in edit mode, but the
+        // backend must not be tricked by a raw request smuggling these fields in.
+        $user = User::factory()->create();
+        $task = Task::factory()->rrule('FREQ=WEEKLY;BYDAY=SA')->create(['anchor_date' => '2026-07-04']);
+        TaskOccurrence::factory()->for($task)->create(['due_date' => now()->toDateString()]);
+
+        $this->actingAs($user)
+            ->patch(route('tasks.update', $task), [
+                'title' => $task->title,
+                'recurrence_type' => 'relative',
+                'relative_interval_days' => 5,
+            ])
+            ->assertRedirect(route('tasks.show', $task));
+
+        $task->refresh();
+        $this->assertSame(RecurrenceType::Rrule, $task->recurrence_type);
+        $this->assertSame('FREQ=WEEKLY;BYDAY=SA', $task->rrule);
     }
 
     public function test_member_cannot_delete_a_task(): void

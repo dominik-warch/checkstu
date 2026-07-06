@@ -600,9 +600,13 @@ template pre-fills title, recurrence, category, and priority, so you only set as
 save — this is what makes adding recurring chores fast. "Custom" opens the blank form. The form
 itself: autofocused title (Enter saves); quick chips for Assignee (default: me — assignment is
 always manual), Due (Today/Tomorrow/Pick), Category (default: last used); a "More" expander for
-recurrence mode (One-off / Regular / Irregular / every-N-days) + depends-on multi-select. An
-overflow action **saves the current task as a new template**. Never expose cron syntax. Optimistic
-save, sheet closes, toast confirms.
+recurrence mode (**✅ implemented:** Einmalig / Regelmäßig / Unregelmäßig / Alle-X-Tage, replacing
+raw RRULE with a simple frequency+interval+weekday picker — see `TaskFormDialog` +
+`resources/js/lib/rrule.ts`) + depends-on multi-select. **Recurrence is create-only** — editing an
+existing task's pattern is out of scope for v1 (delete + recreate instead); the picker is hidden in
+edit mode and the backend ignores those fields on update regardless. An overflow action **saves the
+current task as a new template**. Never expose cron syntax. Optimistic save, sheet closes, toast
+confirms.
 
 **E. Upcoming** — **agenda list grouped by day** (Today, Tomorrow, weekday, then dates) — far more
 phone-usable than a month grid; optional week-strip to jump. Irregular tasks appear under their
@@ -884,7 +888,7 @@ parallel. P6/P7 are v2.
 |---|---|---|
 | ✅ **P0 — Bootstrap** | **Done.** Scaffolded via `create-project` (no installer); SQLite WAL/FK/busy_timeout; German locale; demo seeder. Actual stack Laravel 12 / Inertia 2 / PHPUnit (not 13/Pest). | — |
 | ✅ **P1 — Core CRUD + Auth + Users** | **Done.** Username login; roles admin/member/**guest**; admin Users mgmt; policies; **complete-on-behalf**; one-off tasks + create/edit/delete/complete; task list. Extras: private tasks, unassigned "up-for-grabs". | P0 |
-| ◑ **P2 — Recurrence engine** | **Backend done:** `simshaun/recurr` RRULE + explicit-dates materialization (`MaterializeOccurrencesAction`), `tasks:materialize` scheduled command (daily 02:00, rolling 60-day horizon), recurrence config wired into task creation (validated + materializes immediately). *Remaining:* frontend recurrence picker in create/edit form, **template catalogue picker (§4.8)**. | P1 |
+| ◑ **P2 — Recurrence engine** | **Backend + frontend picker done:** `simshaun/recurr` RRULE + explicit-dates materialization (`MaterializeOccurrencesAction`), `tasks:materialize` scheduled command (daily 02:00, rolling 60-day horizon), recurrence config wired into task creation (validated + materializes immediately), and a create-mode recurrence picker (Einmalig/Regelmäßig/Unregelmäßig/Alle-X-Tage) in `TaskFormDialog` — browser-verified end-to-end. Editing recurrence after creation is out of scope for v1 (delete+recreate). *Remaining:* **template catalogue picker (§4.8)**. | P1 |
 | ✅ **P3 — Dependencies** | **Done in P1:** `task_dependencies`, `ResolveDependenciesAction`, actionable-now filtering, blocked UI (greyed + "Wartet auf…"). | P2 |
 | ◑ **P4 — Filters / UX polish** | **Mostly done:** Meine/Alle filter, Upcoming agenda, detail/edit, swipe-to-complete, Family. *Remaining:* richer category/status filter bar. | P2, P3 |
 | ◑ **P5 — PWA** | **Manifest + Apple meta tags done** (fixes standalone break-out on iOS). *Remaining:* `vite-plugin-pwa` service worker, install prompt, offline shell, logout cache-clear. | P1 (best after P4) |
