@@ -1,0 +1,40 @@
+# VCS / tooling
+.git
+.github
+.gitattributes
+.editorconfig
+.prettierignore
+.prettierrc
+eslint.config.js
+
+# Dependencies (rebuilt inside the image)
+node_modules
+vendor
+
+# Build output (regenerated)
+public/build
+public/hot
+
+# Local env & secrets
+.env
+.env.*
+!.env.example
+
+# Dev database (never ship it) + volatile runtime state
+database/*.sqlite
+database/*.sqlite-*
+storage/*.sqlite
+storage/database
+storage/logs/*.log
+storage/framework/cache/data/*
+storage/framework/sessions/*
+storage/framework/views/*.php
+
+# Not needed in the runtime image
+reference
+tests
+phpunit.xml
+*.md
+
+# OS cruft
+.DS_Store

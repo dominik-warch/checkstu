@@ -2,10 +2,66 @@
 
 _An internal household task-management web app for a small group of shared users._
 
-> Status: **planning**. This document is the single source of truth for how checkstu will be
-> built. It consolidates four planning tracks (domain model, backend/infra, frontend/UX/PWA,
-> calendar sync) into one consistent, implementation-ready plan.
-> Verified against tooling available as of **July 2026**.
+> Status: **in progress** — P0 + P1 shipped and tested; **P2 (recurrence engine) is next.**
+> This document is the single source of truth: sections below are the design; the **Build status**
+> section immediately below records what actually exists in the working tree today.
+
+---
+
+## 0. Build status — as of 2026-07-06
+
+**checkstu runs.** P0 (bootstrap) and P1 (core app) are complete, plus several follow-ups and a
+production Docker setup. **53 tests green** (PHPUnit), `tsc` clean, `npm run build` clean.
+⚠️ **No git commits yet** — the working tree *is* the current state (offer stands to baseline it).
+
+### Shipped
+- **P0 — bootstrap.** Scaffolded via `composer create-project laravel/react-starter-kit`. Real
+  pinned stack: **Laravel 12.62, Inertia 2, React 19, Tailwind 4, Vite 6, TypeScript 5.7, PHPUnit
+  11.5 (not Pest), PHP 8.5.7.** SQLite (WAL + FK + busy_timeout). Locale `de`, timezone
+  Europe/Berlin. German `lang/de/*` + frontend i18n (`resources/js/lib/i18n.ts`; German UI / English
+  code).
+- **P1 — core.** Username login (self-registration disabled); domain schema per §4
+  (tasks/occurrences/categories/dependencies/recurrence_dates/templates/completion_logs) — **only
+  one-off tasks wired so far** (recurrence engine = P2, but the schema columns already exist);
+  create/edit/delete; complete + admin **complete-on-behalf** (attribution + `acted_by` log);
+  Today / Tasks (Meine·Alle) / Upcoming / Family screens; admin Users management; mobile bottom-nav
+  shell; **swipe-to-complete**; factories + `DemoSeeder` + `TaskTemplateSeeder`.
+- **Access control — three layered features:**
+  - **Roles** admin (parents) / member (kids) / **guest** — guest sees & completes **only** tasks
+    assigned to them (`TaskOccurrence::scopeVisibleTo`).
+  - **Unassigned = up-for-grabs** — unassigned tasks appear in everyone's "Meine" tab (not guests),
+    labelled "Für alle".
+  - **Private tasks** (`tasks.is_private`) — visible/actionable **only to the creator**, overrides
+    role/guest/up-for-grabs (see §6).
+- **Docker / deploy** (§12.3) — `docker/prod/Dockerfile` + `docker-compose.yml` (app + worker +
+  scheduler on one image, single SQLite volume), **trusted proxies** (`bootstrap/app.php`),
+  `checkstu:create-user`. Built and run-verified (incl. `X-Forwarded-Proto: https` → https redirects).
+
+### Next up (in order)
+1. **P2 — recurrence engine** (the big one): `simshaun/recurr` for RRULE, explicit-date schedules
+   (garbage pickup), `tasks:materialize` scheduled command (rolling 60-day horizon),
+   generate-on-complete for `relative`. Only one-off is wired today — see §4.3–4.4.
+2. **Template-catalogue picker** in the create flow (§4.8) — land it with P2 (needs materialization).
+3. Then: dependency UX polish → **PWA** (§8.8) → **notifications** (§11, v2) → **CalDAV completion
+   sync** (§10, v2).
+
+### How to run / verify
+- **Dev:** `composer run dev`, then log in as **`dominik` / `password`** (seeded). Demo accounts:
+  `dominik`,`sara` (admin) · `leo`,`leni` (member) · `opa` (guest).
+- **Tests** `php artisan test` (53) · **Types** `npx tsc --noEmit` · **Build** `npm run build`.
+- **Docker:** `cp .env.docker.example .env` (set APP_KEY/APP_URL) → `docker compose up -d --build`
+  → `docker compose exec app php artisan checkstu:create-user`; front with a TLS reverse proxy → `app:8080`.
+
+### Gotchas for a returning session
+- Tests are **PHPUnit class-style**, not Pest (`tests/Pest.php` is vestigial, ignore it).
+- Base `app/Http/Controllers/Controller.php` is **bare** — use `Gate::authorize()` in controllers,
+  not `$this->authorize()`.
+- `UserFactory` uses a process-wide **sequence** for username/email (faker `unique()` flaked the suite).
+- Migrations are **edited in place** (greenfield, uncommitted); `php artisan migrate:fresh --seed` is fine.
+- `docker/prod/nginx.conf` must stay minimal (**only** `access_log off;`) — the base image already
+  sets `client_max_body_size`/`gzip`; redeclaring them crashes nginx.
+- Everything is **one shared space** (no multi-tenancy); visibility exceptions are guest scope +
+  private tasks only.
 
 ---
 
@@ -444,6 +500,12 @@ three roles). `TaskPolicy`, `UserPolicy`:
   to the guest. Guests cannot create/edit/delete tasks or reach the Family/admin area (nav hidden +
   route `abort(403)`). It is *not* multi-tenancy — still one shared space; guests are simply a
   filtered view of it.
+- **Private tasks** (`tasks.is_private`) — a task flagged private is visible and actionable
+  **only to its creator** (`created_by`), overriding role, guest scope, and the unassigned
+  "up-for-grabs" rule (an admin cannot see another member's private task). Enforced in the same
+  `scopeVisibleTo` (a `whereHas('task', is_private=false OR created_by=me)` clause) and in
+  `TaskPolicy` (view/update/complete/delete). Creators manage their own private tasks regardless of
+  role (a member may delete their own private task). Toggled via a checkbox in the create/edit form.
 - Roles are a column on `users`; `isAdmin()` / `isGuest()` gate behaviour. Keep it this coarse.
 
 **Complete-as-another-user (admin).** The behaviour you asked for: when a parent checks a task off,
@@ -765,21 +827,30 @@ cd checkstu && npm install && npm run build && php artisan migrate
 Then: enable SQLite WAL + FK + `busy_timeout` (config/`AppServiceProvider`); set
 `APP_TIMEZONE=Europe/Berlin`; keep Pint/ESLint/Prettier in CI (`composer test`, `composer lint`).
 
-### 12.3 Deployment (self-hosted, keep it simple)
-Target **one small VPS or home server, single SQLite file** — no k8s, no managed DB.
-- **Caddy** reverse proxy → automatic HTTPS (Let's Encrypt). For home-only access, put it behind
-  **Tailscale** with tailnet certs (no public exposure).
-- **PHP-FPM 8.5**; **queue worker** `php artisan queue:work` under systemd (`Restart=always`),
-  `database` queue driver (no Redis).
-- **Scheduler** = one cron line: `* * * * * cd /var/www/checkstu && php artisan schedule:run` →
-  drives `tasks:materialize` (daily) + `tasks:remind` (hourly).
-- **Deploy:** `git pull && composer install --no-dev -o && npm ci && npm run build &&
-  php artisan migrate --force && php artisan optimize` (wrap in `deploy.sh`; `artisan down/up`
-  around migrations).
-- **SQLite backup (non-negotiable — single file = SPOF):** **Litestream** continuous replication to
-  S3/B2 (point-in-time restore) + a nightly `.backup` cron copied off-box. WAL + busy_timeout keep
-  web/worker/scheduler from colliding.
-- Set `APP_URL=https://…`, `SESSION_SECURE_COOKIE=true`, trust the proxy.
+### 12.3 Deployment — Docker (implemented)
+**Dockerized** (adapted from a reference Filament/Postgres app → checkstu's SQLite/Inertia stack).
+Target **one small VPS or home server, single SQLite file** — no k8s, no managed DB, no Redis.
+
+- **Image:** `docker/prod/Dockerfile` — 3-stage build on `serversideup/php:8.5-fpm-nginx`
+  (php-build = composer `--no-dev`; assets = Node/Vite client build; runtime = app + built assets,
+  `view:cache`+`route:cache` baked in). `.dockerignore` keeps the context lean.
+- **Stack:** `docker-compose.yml` — three containers off one image via `CONTAINER_ROLE`:
+  **app** (nginx+php-fpm on 8080), **worker** (`queue:work`), **scheduler** (`schedule:work`).
+  Worker/scheduler block on a `storage/.app-ready` flag until the app finishes migrating
+  (`docker/prod/99-entrypoint.sh`). `database` queue/cache/session drivers (shared SQLite).
+- **Persistence:** one named volume `checkstu-data:/var/www/html/storage`; the SQLite DB lives at
+  `storage/database/database.sqlite` (so the volume never hides the `database/migrations` in the image).
+- **HTTPS / internet:** put a TLS-terminating reverse proxy (Caddy / Traefik / Cloudflare Tunnel)
+  in front, forwarding to `app:8080`. **Trusted proxies** configured in `bootstrap/app.php`
+  (`TRUSTED_PROXIES`, default `*`) so `X-Forwarded-Proto: https` yields correct https URLs + secure
+  cookies. Verified: forwarding `X-Forwarded-Proto: https` makes redirects come back `https://…`.
+  Set `APP_URL=https://…`, `SESSION_SECURE_COOKIE=true`; expose the app **only** via the proxy.
+- **First login:** `docker compose exec app php artisan checkstu:create-user` (interactive), or
+  `RUN_SEEDER=true` on first boot for the demo family.
+- **Entrypoint** runs `migrate --force` + `optimize` on the app container each boot.
+- **SQLite backup (single file = SPOF):** **Litestream** streaming the volume's DB to S3/B2, or a
+  nightly `sqlite3 .backup` copied off-box. WAL + busy_timeout (config) keep the three containers
+  from colliding.
 
 ---
 
@@ -790,14 +861,15 @@ parallel. P6/P7 are v2.
 
 | Phase | Deliverable | Depends on |
 |---|---|---|
-| **P0 — Bootstrap** (~0.5d) | `laravel new --react --pest --sqlite`; WAL/FK config; CI (Pint/ESLint/Prettier); deploy skeleton to the box early; demo-seeder stub | — |
-| **P1 — Core CRUD + Auth + Users** | 4 accounts + `role`; admin user-management screen; Policies; **complete-on-behalf (admin)**; task definitions + one-off occurrences; complete-a-task; task list UI. No recurrence yet | P0 |
-| **P2 — Recurrence engine** (core value) | 4-type recurrence model; `recurr` RRULE; explicit dates; `MaterializeOccurrencesAction` + `tasks:materialize`; generate-on-complete for `relative`; **task template catalogue + create-from-template flow (§4.8)**; full generation/idempotency/DST tests | P1 |
-| **P3 — Dependencies** | `task_dependencies`; `ResolveDependenciesAction`; actionable-now filtering; blocked UI state | P2 |
-| **P4 — Filters / UX polish** | Today/Upcoming/overdue/assignee/category filters; agenda view; assignment; Family screen | P2, P3 |
-| **P5 — PWA** | Manifest, service worker, offline shell, installability, mobile hardening, logout cache-clear | P1 (best after P4) |
-| **P6 — Calendar sync (v2)** | One-way CalDAV push incl. **completion sync** (§10); `VTODO` for todo apps / `VEVENT` for calendars; per-user opt-in | P2 |
-| **P7 — Notifications** | 7a database reminders → 7b email → 7c web push | P2; 7c needs P5 |
+| ✅ **P0 — Bootstrap** | **Done.** Scaffolded via `create-project` (no installer); SQLite WAL/FK/busy_timeout; German locale; demo seeder. Actual stack Laravel 12 / Inertia 2 / PHPUnit (not 13/Pest). | — |
+| ✅ **P1 — Core CRUD + Auth + Users** | **Done.** Username login; roles admin/member/**guest**; admin Users mgmt; policies; **complete-on-behalf**; one-off tasks + create/edit/delete/complete; task list. Extras: private tasks, unassigned "up-for-grabs". | P0 |
+| 🔜 **P2 — Recurrence engine** (NEXT) | 4-type recurrence model; `recurr` RRULE; explicit dates; `MaterializeOccurrencesAction` + `tasks:materialize` (rolling horizon); generate-on-complete for `relative`; **template catalogue picker (§4.8)**; generation/idempotency/DST tests. *Schema columns already exist; only one-off wired.* | P1 |
+| ✅ **P3 — Dependencies** | **Done in P1:** `task_dependencies`, `ResolveDependenciesAction`, actionable-now filtering, blocked UI (greyed + "Wartet auf…"). | P2 |
+| ◑ **P4 — Filters / UX polish** | **Mostly done:** Meine/Alle filter, Upcoming agenda, detail/edit, swipe-to-complete, Family. *Remaining:* richer category/status filter bar. | P2, P3 |
+| ⬜ **P5 — PWA** | Manifest, service worker, offline shell, installability, mobile hardening, logout cache-clear | P1 (best after P4) |
+| ⬜ **P6 — Calendar sync (v2)** | One-way CalDAV push incl. **completion sync** (§10); `VTODO` for todo apps / `VEVENT` for calendars; per-user opt-in | P2 |
+| ⬜ **P7 — Notifications** | 7a database reminders → 7b email → 7c web push | P2; 7c needs P5 |
+| ✅ **Docker / deploy** | **Done** (§12.3): `docker/prod/Dockerfile` + `docker-compose.yml` (app+worker+scheduler), trusted proxies, `checkstu:create-user`. Built & run-verified. | P1 |
 
 **v1 scope = P0–P5 (no reminders). v2 = P6 calendar sync (completion push) + all of P7 (notifications).**
 

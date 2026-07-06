@@ -1,0 +1,80 @@
+# Production stack for checkstu (SQLite, no external services).
+#
+# Put the app behind a reverse proxy that terminates TLS (Caddy / Traefik /
+# nginx / Cloudflare Tunnel) and forwards to the `app` service on port 8080.
+# The app trusts X-Forwarded-* headers (TRUSTED_PROXIES, default '*') so it must
+# NOT be exposed to the internet directly — only via the proxy.
+#
+# Copy .env.docker.example -> .env and fill APP_KEY / APP_URL before `up`.
+
+x-app: &app-image
+  image: checkstu:latest
+  restart: unless-stopped
+  volumes:
+    - 'checkstu-data:/var/www/html/storage'
+
+x-env: &app-env
+  APP_NAME: checkstu
+  APP_ENV: production
+  APP_KEY: ${APP_KEY}
+  APP_DEBUG: 'false'
+  APP_URL: ${APP_URL}
+  APP_TIMEZONE: Europe/Berlin
+  APP_LOCALE: de
+  APP_FALLBACK_LOCALE: en
+  DB_CONNECTION: sqlite
+  DB_DATABASE: /var/www/html/storage/database/database.sqlite
+  SESSION_DRIVER: database
+  SESSION_SECURE_COOKIE: ${SESSION_SECURE_COOKIE:-true}
+  CACHE_STORE: database
+  QUEUE_CONNECTION: database
+  TRUSTED_PROXIES: ${TRUSTED_PROXIES:-*}
+  LOG_CHANNEL: stderr
+  LOG_LEVEL: ${LOG_LEVEL:-warning}
+
+services:
+  app:
+    <<: *app-image
+    build:
+      context: .
+      dockerfile: docker/prod/Dockerfile
+      args:
+        APP_VERSION: ${APP_VERSION:-dev}
+    environment:
+      <<: *app-env
+      CONTAINER_ROLE: app
+      RUN_SEEDER: ${RUN_SEEDER:-false}
+    ports:
+      - '${APP_PORT:-8080}:8080'
+    healthcheck:
+      test: ['CMD', 'curl', '-fsS', 'http://localhost:8080/up']
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
+  worker:
+    <<: *app-image
+    command: php artisan queue:work --tries=3 --timeout=90 --sleep=3 --max-time=3600
+    environment:
+      <<: *app-env
+      CONTAINER_ROLE: worker
+    # No web server in this container, so skip the base image's HTTP healthcheck.
+    healthcheck:
+      disable: true
+    depends_on:
+      - app
+
+  scheduler:
+    <<: *app-image
+    command: php artisan schedule:work
+    environment:
+      <<: *app-env
+      CONTAINER_ROLE: scheduler
+    healthcheck:
+      disable: true
+    depends_on:
+      - app
+
+volumes:
+  checkstu-data:
