@@ -34,6 +34,17 @@ class Task extends Model
         'created_by',
     ];
 
+    /**
+     * PHP-side mirror of the migration's column defaults. Without this,
+     * Task::create([...]) that omits `is_active` leaves the in-memory attribute
+     * NULL (Eloquent doesn't refresh from the DB default after insert), which
+     * made `! $task->is_active` in MaterializeOccurrencesAction silently skip a
+     * freshly created recurring task.
+     */
+    protected $attributes = [
+        'is_active' => true,
+    ];
+
     protected function casts(): array
     {
         return [

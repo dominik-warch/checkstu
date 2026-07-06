@@ -63,16 +63,23 @@ class CompleteTaskAction
             return;
         }
 
-        $next = Carbon::parse($occurrence->completed_at)->addDays($interval)->toDateString();
+        $next = Carbon::parse($occurrence->completed_at)->addDays($interval);
 
-        if ($task->recurrence_ends_on !== null && $next > $task->recurrence_ends_on->toDateString()) {
+        if ($task->recurrence_ends_on !== null && $next->gt($task->recurrence_ends_on)) {
             return;
         }
 
-        // Idempotent against the unique (task_id, due_date) index.
-        $task->occurrences()->firstOrCreate(
-            ['due_date' => $next],
-            ['assignee_id' => $task->default_assignee_id],
-        );
+        // NOTE: not firstOrCreate(['due_date' => ...]) — Eloquent's `date` cast
+        // serializes to a full datetime string on write, so a raw where() array
+        // never matches on read-back; whereDate() normalizes both sides. The
+        // unique(task_id, due_date) index remains the idempotency backstop.
+        if ($task->occurrences()->whereDate('due_date', $next)->exists()) {
+            return;
+        }
+
+        $task->occurrences()->create([
+            'due_date' => $next->toDateString(),
+            'assignee_id' => $task->default_assignee_id,
+        ]);
     }
 }

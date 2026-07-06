@@ -6,6 +6,7 @@ namespace Database\Factories;
 
 use App\Enums\Priority;
 use App\Enums\RecurrenceType;
+use App\Models\Task;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -47,5 +48,19 @@ class TaskFactory extends Factory
             'rrule' => $rrule,
             'anchor_date' => now()->toDateString(),
         ]);
+    }
+
+    /**
+     * @param  array<int, string>  $dates  Y-m-d date strings to seed as task_recurrence_dates
+     */
+    public function explicitDates(array $dates = []): static
+    {
+        return $this->state(fn () => [
+            'recurrence_type' => RecurrenceType::ExplicitDates,
+        ])->afterCreating(function (Task $task) use ($dates) {
+            foreach ($dates as $date) {
+                $task->recurrenceDates()->create(['due_on' => $date]);
+            }
+        });
     }
 }

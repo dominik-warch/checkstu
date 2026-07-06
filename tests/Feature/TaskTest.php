@@ -108,6 +108,29 @@ class TaskTest extends TestCase
         $this->assertSame(1, $task->occurrences()->whereNull('completed_at')->count());
     }
 
+    public function test_completing_a_relative_task_does_not_crash_if_the_next_occurrence_already_exists(): void
+    {
+        // Regression: Eloquent's `date` cast serializes to a full datetime string on
+        // write, so a raw firstOrCreate(['due_date' => ...]) never matches an
+        // already-existing row on read-back and throws on the unique index instead
+        // of no-op'ing. Pre-seed the "next" occurrence to reproduce that scenario.
+        $user = User::factory()->create();
+        $task = Task::factory()->relative(3)->create();
+        $occurrence = TaskOccurrence::factory()->for($task)->create([
+            'due_date' => now()->toDateString(),
+            'assignee_id' => $user->id,
+        ]);
+        TaskOccurrence::factory()->for($task)->create([
+            'due_date' => now()->addDays(3)->toDateString(),
+        ]);
+
+        $this->actingAs($user)
+            ->post(route('occurrences.complete', $occurrence))
+            ->assertRedirect();
+
+        $this->assertSame(2, $task->occurrences()->count());
+    }
+
     public function test_a_user_can_update_a_task_and_its_open_occurrence(): void
     {
         $user = User::factory()->create();
