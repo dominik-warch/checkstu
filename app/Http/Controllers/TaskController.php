@@ -79,6 +79,7 @@ class TaskController extends Controller
                 'title' => $task->title,
                 'description' => $task->description,
                 'priority' => $task->priority->value,
+                'is_private' => $task->is_private,
                 'due_date' => $task->openOccurrence?->due_date?->toDateString(),
                 'assignee_id' => $task->default_assignee_id,
                 'assignee' => $task->openOccurrence?->assignee

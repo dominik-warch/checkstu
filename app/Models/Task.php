@@ -23,6 +23,7 @@ class Task extends Model
         'title',
         'description',
         'priority',
+        'is_private',
         'default_assignee_id',
         'recurrence_type',
         'rrule',
@@ -41,6 +42,7 @@ class Task extends Model
             'anchor_date' => 'date',
             'recurrence_ends_on' => 'date',
             'is_active' => 'boolean',
+            'is_private' => 'boolean',
         ];
     }
 

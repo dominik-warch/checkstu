@@ -56,13 +56,19 @@ class TaskOccurrence extends Model
 
     /**
      * Restrict to what a user is allowed to see. Guests only see occurrences
-     * assigned to them; everyone else sees the shared pool.
+     * assigned to them; private tasks are visible only to their creator;
+     * everyone else sees the shared pool.
      */
     public function scopeVisibleTo(Builder $query, User $user): void
     {
         if ($user->isGuest()) {
             $query->where('assignee_id', $user->id);
         }
+
+        // Private tasks are only ever visible to the person who created them.
+        $query->whereHas('task', function (Builder $q) use ($user) {
+            $q->where('is_private', false)->orWhere('created_by', $user->id);
+        });
     }
 
     /**

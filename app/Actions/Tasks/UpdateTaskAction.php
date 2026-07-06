@@ -29,6 +29,7 @@ class UpdateTaskAction
                 'title' => $data['title'],
                 'description' => $data['description'] ?? null,
                 'priority' => $data['priority'] ?? $task->priority->value,
+                'is_private' => $data['is_private'] ?? false,
                 'default_assignee_id' => $data['default_assignee_id'] ?? null,
             ]);
 

@@ -39,6 +39,8 @@ const de = {
         editTask: 'Aufgabe bearbeiten',
         whoDidIt: 'Wer hat es erledigt?',
         unassigned: 'Für alle',
+        private: 'Privat',
+        privateHint: 'Nur für dich sichtbar',
         blockedBy: 'Blockiert durch',
         blocks: 'Blockiert',
         noDescription: 'Keine Beschreibung',

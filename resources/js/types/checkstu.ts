@@ -18,6 +18,7 @@ export interface Occurrence {
     title: string;
     description: string | null;
     priority: number; // 0..3
+    is_private: boolean;
     due_date: string | null;
     status: OccurrenceStatus;
     is_blocked: boolean;

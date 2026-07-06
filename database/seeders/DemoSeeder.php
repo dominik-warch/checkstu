@@ -50,6 +50,19 @@ class DemoSeeder extends Seeder
         // A task assigned to the guest — the only thing Opa will see.
         $this->task('Rasen mähen', Priority::Normal, $dominik, $opa, today: 'today');
 
+        // A private task — only Dominik can see it.
+        $secret = Task::create([
+            'title' => 'Geschenk für Sara besorgen',
+            'priority' => Priority::Normal,
+            'is_private' => true,
+            'default_assignee_id' => $dominik->id,
+            'created_by' => $dominik->id,
+        ]);
+        $secret->occurrences()->create([
+            'due_date' => now()->addDays(5)->toDateString(),
+            'assignee_id' => $dominik->id,
+        ]);
+
         // --- Demonstrate admin completing a kid's task on their behalf ---
         // Sara (parent) marks Leni's overdue task done, attributed to Leni.
         app(CompleteTaskAction::class)->handle(

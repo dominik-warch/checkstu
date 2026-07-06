@@ -27,6 +27,11 @@ class TaskFactory extends Factory
         ];
     }
 
+    public function private(): static
+    {
+        return $this->state(fn () => ['is_private' => true]);
+    }
+
     public function relative(int $days = 3): static
     {
         return $this->state(fn () => [

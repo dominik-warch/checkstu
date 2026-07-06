@@ -24,6 +24,7 @@ class StoreTaskRequest extends FormRequest
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:2000'],
             'priority' => ['nullable', Rule::in([0, 1, 2, 3])],
+            'is_private' => ['boolean'],
             'default_assignee_id' => ['nullable', 'integer', 'exists:users,id'],
             'due_date' => ['nullable', 'date'],
             'category_ids' => ['nullable', 'array'],

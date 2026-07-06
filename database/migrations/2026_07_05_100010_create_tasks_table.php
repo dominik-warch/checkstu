@@ -13,6 +13,7 @@ return new class extends Migration
             $table->string('title');
             $table->text('description')->nullable();
             $table->unsignedTinyInteger('priority')->default(1); // 0=low 1=normal 2=high 3=urgent
+            $table->boolean('is_private')->default(false);       // visible only to created_by
 
             // Default assignee for spawned occurrences (nullable = unassigned pool).
             $table->foreignId('default_assignee_id')->nullable()

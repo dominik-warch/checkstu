@@ -1,5 +1,5 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { ArrowLeft, Check, Circle, Pencil, Trash2 } from 'lucide-react';
+import { ArrowLeft, Check, Circle, Lock, Pencil, Trash2 } from 'lucide-react';
 
 import TaskFormDialog from '@/components/tasks/task-form-dialog';
 import { Badge } from '@/components/ui/badge';
@@ -13,6 +13,7 @@ interface TaskDetail {
     title: string;
     description: string | null;
     priority: number;
+    is_private: boolean;
     due_date: string | null;
     assignee_id: number | null;
     assignee: { id: number; name: string } | null;
@@ -48,7 +49,15 @@ export default function Show({ task, members, can }: ShowProps) {
 
             <div className="mb-4 flex items-start justify-between gap-3">
                 <h1 className="text-2xl font-bold tracking-tight">{task.title}</h1>
-                <Badge variant="secondary">{t(priorityLabel[task.priority])}</Badge>
+                <div className="flex shrink-0 items-center gap-2">
+                    {task.is_private && (
+                        <Badge variant="outline" className="gap-1">
+                            <Lock className="size-3" />
+                            {t('task.private')}
+                        </Badge>
+                    )}
+                    <Badge variant="secondary">{t(priorityLabel[task.priority])}</Badge>
+                </div>
             </div>
 
             <dl className="mb-6 grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
@@ -115,6 +124,7 @@ export default function Show({ task, members, can }: ShowProps) {
                                 title: task.title,
                                 description: task.description,
                                 priority: task.priority,
+                                is_private: task.is_private,
                                 due_date: task.due_date,
                                 assignee_id: task.assignee_id,
                             }}

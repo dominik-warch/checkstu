@@ -4,6 +4,7 @@ import { FormEventHandler, ReactNode, useState } from 'react';
 
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
     Dialog,
     DialogContent,
@@ -26,6 +27,7 @@ export interface EditableTask {
     title: string;
     description: string | null;
     priority: number;
+    is_private: boolean;
     due_date: string | null;
     assignee_id: number | null;
 }
@@ -44,6 +46,7 @@ export default function TaskFormDialog({ members, task, trigger }: TaskFormDialo
         title: task?.title ?? '',
         description: task?.description ?? '',
         priority: task?.priority ?? 1,
+        is_private: task?.is_private ?? false,
         default_assignee_id: task?.assignee_id ?? (null as number | null),
         due_date: task?.due_date ?? '',
     });
@@ -130,25 +133,45 @@ export default function TaskFormDialog({ members, task, trigger }: TaskFormDialo
                         </div>
                     </div>
 
-                    <div className="grid gap-2">
-                        <Label>{t('task.assignee')}</Label>
-                        <Select
-                            value={data.default_assignee_id ? String(data.default_assignee_id) : NONE}
-                            onValueChange={(v) => setData('default_assignee_id', v === NONE ? null : Number(v))}
-                        >
-                            <SelectTrigger>
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value={NONE}>Niemand</SelectItem>
-                                {members.map((m) => (
-                                    <SelectItem key={m.id} value={String(m.id)}>
-                                        {m.name}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
+                    {!data.is_private && (
+                        <div className="grid gap-2">
+                            <Label>{t('task.assignee')}</Label>
+                            <Select
+                                value={data.default_assignee_id ? String(data.default_assignee_id) : NONE}
+                                onValueChange={(v) => setData('default_assignee_id', v === NONE ? null : Number(v))}
+                            >
+                                <SelectTrigger>
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value={NONE}>Niemand</SelectItem>
+                                    {members.map((m) => (
+                                        <SelectItem key={m.id} value={String(m.id)}>
+                                            {m.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    )}
+
+                    <label className="flex items-center gap-3 rounded-lg border p-3">
+                        <Checkbox
+                            checked={data.is_private}
+                            onClick={() => {
+                                const next = !data.is_private;
+                                setData({
+                                    ...data,
+                                    is_private: next,
+                                    default_assignee_id: next ? null : data.default_assignee_id,
+                                });
+                            }}
+                        />
+                        <span className="flex flex-col">
+                            <span className="text-sm font-medium">{t('task.private')}</span>
+                            <span className="text-muted-foreground text-xs">{t('task.privateHint')}</span>
+                        </span>
+                    </label>
 
                     <DialogFooter>
                         <Button type="submit" disabled={processing}>

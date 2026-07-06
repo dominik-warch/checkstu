@@ -20,6 +20,7 @@ class CreateTaskAction
      *     title: string,
      *     description?: string|null,
      *     priority?: int,
+     *     is_private?: bool,
      *     default_assignee_id?: int|null,
      *     due_date?: string|null,
      *     category_ids?: array<int>,
@@ -32,6 +33,7 @@ class CreateTaskAction
                 'title' => $data['title'],
                 'description' => $data['description'] ?? null,
                 'priority' => $data['priority'] ?? 1,
+                'is_private' => $data['is_private'] ?? false,
                 'default_assignee_id' => $data['default_assignee_id'] ?? null,
                 'created_by' => $creator->id,
             ]);

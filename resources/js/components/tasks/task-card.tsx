@@ -103,6 +103,9 @@ export default function TaskCard({ occurrence, members, canCompleteOnBehalf }: T
                         <Badge variant="secondary" className={cn('shrink-0', priorityClass[occurrence.priority])}>
                             {t(priorityLabel[occurrence.priority])}
                         </Badge>
+                        {occurrence.is_private && (
+                            <Lock className="text-muted-foreground size-3.5 shrink-0" aria-label={t('task.private')} />
+                        )}
                     </div>
 
                     <div className="text-muted-foreground mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">

@@ -24,6 +24,7 @@ class OccurrencePresenter
             'title' => $task->title,
             'description' => $task->description,
             'priority' => $task->priority->value,
+            'is_private' => $task->is_private,
             'due_date' => $occurrence->due_date?->toDateString(),
             'status' => $occurrence->status,
             'is_blocked' => in_array($occurrence->task_id, $blockedTaskIds, true),
