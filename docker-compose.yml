@@ -8,7 +8,9 @@
 # Copy .env.docker.example -> .env and fill APP_KEY / APP_URL before `up`.
 
 x-app: &app-image
-  image: checkstu:latest
+  # Local build tags this; on a server set CHECKSTU_IMAGE=ghcr.io/<owner>/checkstu:main
+  # and `docker compose pull && docker compose up -d` to deploy the moving tag.
+  image: ${CHECKSTU_IMAGE:-checkstu:latest}
   restart: unless-stopped
   volumes:
     - 'checkstu-data:/var/www/html/storage'

@@ -848,6 +848,10 @@ Target **one small VPS or home server, single SQLite file** — no k8s, no manag
 - **First login:** `docker compose exec app php artisan checkstu:create-user` (interactive), or
   `RUN_SEEDER=true` on first boot for the demo family.
 - **Entrypoint** runs `migrate --force` + `optimize` on the app container each boot.
+- **CI:** `.github/workflows/docker.yml` builds `docker/prod/Dockerfile` and pushes to
+  **ghcr.io/<owner>/checkstu** on every push to `main` — moving `:main` tag + immutable `:<sha>` +
+  `:X.Y.Z` on version tags (gha layer cache). Deploy: set `CHECKSTU_IMAGE=ghcr.io/<owner>/checkstu:main`
+  in `.env`, then `docker compose pull && docker compose up -d` (no local build).
 - **SQLite backup (single file = SPOF):** **Litestream** streaming the volume's DB to S3/B2, or a
   nightly `sqlite3 .backup` copied off-box. WAL + busy_timeout (config) keep the three containers
   from colliding.
