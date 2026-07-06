@@ -43,9 +43,12 @@ export default function CheckstuLayout({ children }: PropsWithChildren) {
                 </Link>
             </header>
 
-            <main className="flex-1 px-4 pb-24 pt-4">{children}</main>
+            <main className="flex-1 px-4 pb-28 pt-4">{children}</main>
 
-            <nav className="fixed inset-x-0 bottom-0 z-10 mx-auto flex w-full max-w-2xl items-stretch border-t bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur">
+            {/* Extra 0.75rem on top of the safe-area inset: iOS's swipe-up-for-app-switcher
+                gesture zone extends a bit beyond the inset value itself, so the inset alone
+                isn't enough clearance for the nav to stay comfortably tappable. */}
+            <nav className="fixed inset-x-0 bottom-0 z-10 mx-auto flex w-full max-w-2xl items-stretch border-t bg-background/95 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] backdrop-blur">
                 {items.map((item) => {
                     const active = item.href === '/' ? current === '/' : current.startsWith(item.href);
                     const Icon = item.icon;
