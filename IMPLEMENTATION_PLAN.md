@@ -2,19 +2,23 @@
 
 _An internal household task-management web app for a small group of shared users._
 
-> Status: **in progress** — P0 + P1 shipped and tested; **P2 (recurrence engine) is next.**
-> This document is the single source of truth: sections below are the design; the **Build status**
-> section immediately below records what actually exists in the working tree today.
+> Status: **⚠️ LIVE IN PRODUCTION as of 2026-07-06** — a real household is using this deployment
+> with real data. P0, P1, and P2 are shipped. **From here on, schema changes are additive-only
+> new migrations — never edit an already-deployed migration file** (see §12.3). This document is
+> the single source of truth: sections below are the design; the **Build status** section
+> immediately below records what actually exists in the working tree today.
 
 ---
 
 ## 0. Build status — as of 2026-07-06
 
-**checkstu runs, including the full recurrence engine.** P0, P1, and P2 are complete, plus several
-follow-ups and a production Docker setup. **84 tests green** (PHPUnit), `tsc` clean, `npm run build`
-clean, and the create/recurrence flows are **browser-verified end-to-end** (Playwright, not just
-unit tests). ⚠️ **No git commits yet** — the working tree *is* the current state (offer stands to
-baseline it).
+**checkstu runs, including the full recurrence engine, and is live in production.** P0, P1, and P2
+are complete, plus several follow-ups and a production Docker setup with data-safety hardening.
+**88 tests green** (PHPUnit), `tsc` clean, `npm run build` clean, and the create/recurrence flows
+are **browser-verified end-to-end** (Playwright, not just unit tests). ⚠️ **No git commits yet** —
+the working tree *is* the current state (offer stands to baseline it) — **this now matters more**
+since production is live: any local revert/checkout would need care to not lose in-tree fixes that
+were deployed via a built image rather than a commit.
 
 ### Shipped
 - **P0 — bootstrap.** Scaffolded via `composer create-project laravel/react-starter-kit`. Real
@@ -60,6 +64,15 @@ baseline it).
 - **PWA (partial, §8.8)** — `public/manifest.webmanifest` + `apple-mobile-web-app-*` meta tags +
   generated icon set (`public/icons/`), fixing iOS "Add to Home Screen" breaking out of standalone
   mode on navigation. Service worker / offline / install-prompt still open.
+- **Production data-safety hardening (§12.3)** — the two bugs that prompted this: (1) deleting a
+  user crashed with a FK violation if they'd ever created/completed a task (fixed: nullable +
+  `nullOnDelete()` on `tasks.created_by` and `task_completion_logs.user_id`, matching every other
+  user-FK in the schema). (2) `DemoSeeder` used raw non-idempotent `User::create()` with fixed
+  usernames — replaying it (e.g. `RUN_SEEDER` left on) against a real household would have silently
+  injected fake users/tasks with no error. Fixed with a fresh-install guard (refuses if any user
+  exists) + `firstOrCreate`. Added: nightly automated local-disk backups (`sqlite:backup`, `VACUUM
+  INTO`, keeps last 14) on the scheduler container. Litestream/offsite replication is the
+  recommended next step, not yet wired up.
 
 ### Next up (in order)
 1. Dependency UX polish (small — core already works, §5).
@@ -69,7 +82,7 @@ baseline it).
 ### How to run / verify
 - **Dev:** `composer run dev`, then log in as **`dominik` / `password`** (seeded). Demo accounts:
   `dominik`,`sara` (admin) · `leo`,`leni` (member) · `opa` (guest).
-- **Tests** `php artisan test` (84) · **Types** `npx tsc --noEmit` · **Build** `npm run build`.
+- **Tests** `php artisan test` (88) · **Types** `npx tsc --noEmit` · **Build** `npm run build`.
 - **Docker:** `cp .env.docker.example .env` (set APP_KEY/APP_URL) → `docker compose up -d --build`
   → `docker compose exec app php artisan checkstu:create-user`; front with a TLS reverse proxy → `app:8080`.
 - **Browser smoke-testing:** no project run-skill exists yet for checkstu. Playwright works
@@ -86,7 +99,16 @@ baseline it).
   always `whereDate()` (see the P2 bug above). Same applies to any future date-column lookups.
 - `Task::$attributes` mirrors migration defaults (`is_active`) — extend this if a future column
   needs a non-null default and gets set outside a factory.
-- Migrations are **edited in place** (greenfield, uncommitted); `php artisan migrate:fresh --seed` is fine.
+- ⚠️ **Migrations are NO LONGER edited in place — production is live.** Every schema change from
+  now on is a **new** migration file (`php artisan make:migration ...`). `migrate:fresh` must never
+  be run against production (it drops every table). Earlier in this project's history (pre-deploy),
+  migrations *were* edited in place — if you need to check whether the live schema matches the
+  current migration files, dump the live schema (`sqlite3 <db> ".schema <table>"`) rather than
+  trusting `migrate:status` (it only shows which *filenames* ran, not their content at that time).
+- **Deleting a user is safe** — every FK from a task/history record to `users` is nullable +
+  `nullOnDelete()` (fixed 2026-07-06; two were missing this and crashed on delete).
+- **`DemoSeeder` refuses to run if any user exists** — safe to leave `RUN_SEEDER=true` set, but
+  cleaner to flip it to `false` once real accounts exist so it isn't evaluated every restart.
 - `docker/prod/nginx.conf` must stay minimal (**only** `access_log off;`) — the base image already
   sets `client_max_body_size`/`gzip`; redeclaring them crashes nginx.
 - Everything is **one shared space** (no multi-tenancy); visibility exceptions are guest scope +
@@ -902,15 +924,45 @@ Target **one small VPS or home server, single SQLite file** — no k8s, no manag
   cookies. Verified: forwarding `X-Forwarded-Proto: https` makes redirects come back `https://…`.
   Set `APP_URL=https://…`, `SESSION_SECURE_COOKIE=true`; expose the app **only** via the proxy.
 - **First login:** `docker compose exec app php artisan checkstu:create-user` (interactive), or
-  `RUN_SEEDER=true` on first boot for the demo family.
+  `RUN_SEEDER=true` on first boot for the demo family (now **self-guarding**, see below).
 - **Entrypoint** runs `migrate --force` + `optimize` on the app container each boot.
 - **CI:** `.github/workflows/docker.yml` builds `docker/prod/Dockerfile` and pushes to
   **ghcr.io/<owner>/checkstu** on every push to `main` — moving `:main` tag + immutable `:<sha>` +
   `:X.Y.Z` on version tags (gha layer cache). Deploy: set `CHECKSTU_IMAGE=ghcr.io/<owner>/checkstu:main`
   in `.env`, then `docker compose pull && docker compose up -d` (no local build).
-- **SQLite backup (single file = SPOF):** **Litestream** streaming the volume's DB to S3/B2, or a
-  nightly `sqlite3 .backup` copied off-box. WAL + busy_timeout (config) keep the three containers
-  from colliding.
+
+#### Data safety (checkstu is live in production as of 2026-07-06)
+
+> ⚠️ **From this point on, migrations are additive-only — never edit an already-deployed migration
+> file.** Laravel's migration tracker only records that a filename *ran*; it has no idea the file's
+> `up()` content changed afterward. Editing a deployed migration silently desyncs the live schema
+> from the repo. Any further schema change is a **new** migration file.
+
+- **Redeploying the image is inherently safe.** `docker compose pull && docker compose up -d`
+  replaces the container, not the volume — the SQLite file lives in the `checkstu-data` volume,
+  untouched by an image swap. **Never run `docker compose down -v`** (the `-v` deletes volumes) —
+  plain `docker compose down`/`up -d` is fine.
+- **`RUN_SEEDER` can no longer corrupt a live household.** `DemoSeeder` now refuses to run if any
+  user already exists (`User::query()->exists()` guard) — previously it used raw `User::create()`
+  with fixed usernames (`dominik`, `sara`, …) and **no idempotency check at all**: replaying it
+  against a real family whose usernames don't happen to collide would have silently injected 5 fake
+  users and demo tasks alongside real data, with no error. Still recommended: set `RUN_SEEDER=false`
+  in `.env` once your real accounts exist, so it isn't evaluated on every restart.
+- **Nightly automated backups.** `php artisan sqlite:backup` (`app/Console/Commands/
+  BackupSqliteCommand.php`) snapshots the live DB via SQLite's `VACUUM INTO` (safe against a hot
+  WAL-mode database — unlike a raw file copy, it can't capture a half-written page) to
+  `storage/backups/checkstu-<timestamp>.sqlite`, keeping the most recent 14 (`--keep`). Scheduled
+  nightly at 03:30 (`routes/console.php`), runs on the **scheduler** container. This lives in the
+  same `checkstu-data` volume, so it protects against a **bad migration or accidental deletion**,
+  but **not** against losing the volume itself.
+  - **Restore:** stop the app, replace `storage/database/database.sqlite` with a chosen
+    `storage/backups/checkstu-<timestamp>.sqlite`, restart.
+  - **Upgrade path (recommended once you have off-box storage):** replicate continuously with
+    **Litestream** to S3/B2/etc. — protects against volume loss/host failure too, which the local
+    snapshot above does not. Not yet wired up; add when you have a bucket.
+- **Deleting a user never destroys data** (fixed 2026-07-06): every FK from a task/history record to
+  `users` is nullable + `nullOnDelete()` — removing an account just nulls that attribution, the
+  task/history row itself persists (see §6).
 
 ---
 
