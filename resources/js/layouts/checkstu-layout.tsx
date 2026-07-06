@@ -4,6 +4,7 @@ import { PropsWithChildren } from 'react';
 
 import { t } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
+import type { SharedData } from '@/types';
 
 interface NavItem {
     label: string;
@@ -20,8 +21,12 @@ const navItems: NavItem[] = [
 ];
 
 export default function CheckstuLayout({ children }: PropsWithChildren) {
-    const page = usePage();
+    const page = usePage<SharedData>();
     const current = page.url;
+    const isGuest = page.props.auth.user.role === 'guest';
+
+    // Guests only ever deal with their own tasks — no family/admin area.
+    const items = navItems.filter((item) => item.routeName !== 'family' || !isGuest);
 
     return (
         <div className="bg-background text-foreground mx-auto flex min-h-screen w-full max-w-2xl flex-col">
@@ -41,7 +46,7 @@ export default function CheckstuLayout({ children }: PropsWithChildren) {
             <main className="flex-1 px-4 pb-24 pt-4">{children}</main>
 
             <nav className="fixed inset-x-0 bottom-0 z-10 mx-auto flex w-full max-w-2xl items-stretch border-t bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur">
-                {navItems.map((item) => {
+                {items.map((item) => {
                     const active = item.href === '/' ? current === '/' : current.startsWith(item.href);
                     const Icon = item.icon;
                     return (

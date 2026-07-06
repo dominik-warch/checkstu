@@ -61,4 +61,12 @@ class UserFactory extends Factory
             'role' => Role::Admin,
         ]);
     }
+
+    /** A limited guest helper. */
+    public function guest(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => Role::Guest,
+        ]);
+    }
 }

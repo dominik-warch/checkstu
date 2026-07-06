@@ -56,6 +56,7 @@ const de = {
     role: {
         admin: 'Elternteil',
         member: 'Kind',
+        guest: 'Gast',
     },
     family: {
         title: 'Familie',
@@ -69,6 +70,7 @@ const de = {
         passwordKeepHint: 'Leer lassen, um das Passwort nicht zu ändern',
         roleParent: 'Elternteil (Admin)',
         roleChild: 'Kind (Mitglied)',
+        roleGuest: 'Gast (nur eigene Aufgaben)',
         deleteConfirm: 'Dieses Mitglied wirklich löschen?',
     },
 } as const;

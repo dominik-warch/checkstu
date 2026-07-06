@@ -20,6 +20,7 @@ class HomeController extends Controller
         $blocked = $deps->blockedTaskIds()->all();
 
         $occurrences = TaskOccurrence::query()
+            ->visibleTo($request->user())
             ->whereNull('completed_at')
             ->where('is_skipped', false)
             ->with(['task.categories', 'task.dependencies', 'assignee'])

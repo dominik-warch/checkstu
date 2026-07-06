@@ -55,6 +55,12 @@ class User extends Authenticatable
         return $this->role === Role::Admin;
     }
 
+    /** A limited helper who may only see/complete tasks assigned to them. */
+    public function isGuest(): bool
+    {
+        return $this->role === Role::Guest;
+    }
+
     /** Occurrences currently assigned to this user. */
     public function assignedOccurrences(): HasMany
     {

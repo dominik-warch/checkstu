@@ -43,7 +43,7 @@ actionable thing obvious.
   accounts, no invitations or household switcher (§6).
 - No fully offline-first writes (installable + read-resilient only — §9).
 - No two-way calendar sync near-term — even v2 is one-way push only (§10.7).
-- No fine-grained permission system (two roles: admin/member — §6).
+- No fine-grained permission system (three roles: admin/member/guest — §6).
 - No SSR (client-render only, simpler — §9).
 
 ---
@@ -417,8 +417,9 @@ validation error.
 
 ## 6. Auth & users
 
-Four individual accounts in one shared space: **two parents (`admin`) and two kids (`member`)**.
-No multi-tenancy, no invitations, no household switcher.
+Individual accounts in one shared space: **parents (`admin`) and kids (`member`)**, plus optional
+**guest** helpers who only see their own assigned tasks (below). No multi-tenancy, no invitations,
+no household switcher.
 
 **Authentication:** session cookies via the starter kit's login/password-reset pages, but the
 **login identifier is `username`, not email** (point the starter kit's auth at `username`). Inertia
@@ -431,11 +432,19 @@ won't have one) and email verification is disabled. (If you'd rather allow self-
 a one-line route toggle; default is closed for a family install.)
 
 **Authorization = Policies + a `role` check. No `spatie/laravel-permission`** (over-engineering for
-two roles). `TaskPolicy`, `UserPolicy`:
-- **Any signed-in user** can `view` / `create` / `update` / `complete` tasks — it's one shared pool.
+three roles). `TaskPolicy`, `UserPolicy`:
+- **Admin (parent) & member (kid)** share one pool: both may `view` / `create` / `update` /
+  `complete` any task.
 - **Admin only:** `delete` tasks, manage user accounts (create/edit/reset/delete), and **complete a
   task on behalf of another user** (attribute the completion to someone else — below).
-- Roles are a column on `users`; `isAdmin()` gates the admin actions. Keep it this coarse.
+- **Guest (`Role::Guest`)** — a limited helper (e.g. grandparent, babysitter): may **only see and
+  complete tasks assigned to them**, nothing else. This is the *one* row-level visibility exception
+  to "everyone sees everything" — enforced by a `TaskOccurrence::scopeVisibleTo($user)` applied to
+  the Today/Tasks/Upcoming queries, plus `TaskPolicy@view`/`@complete` checking the task is assigned
+  to the guest. Guests cannot create/edit/delete tasks or reach the Family/admin area (nav hidden +
+  route `abort(403)`). It is *not* multi-tenancy — still one shared space; guests are simply a
+  filtered view of it.
+- Roles are a column on `users`; `isAdmin()` / `isGuest()` gate behaviour. Keep it this coarse.
 
 **Complete-as-another-user (admin).** The behaviour you asked for: when a parent checks a task off,
 they can choose **whose completion it counts as** (defaulting to the task's assignee, else

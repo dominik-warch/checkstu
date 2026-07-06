@@ -93,13 +93,14 @@ export default function MemberDialog({ trigger, member }: MemberDialogProps) {
 
                     <div className="grid gap-2">
                         <Label>Rolle</Label>
-                        <Select value={data.role} onValueChange={(v) => setData('role', v as 'admin' | 'member')}>
+                        <Select value={data.role} onValueChange={(v) => setData('role', v as 'admin' | 'member' | 'guest')}>
                             <SelectTrigger>
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="admin">{t('family.roleParent')}</SelectItem>
                                 <SelectItem value="member">{t('family.roleChild')}</SelectItem>
+                                <SelectItem value="guest">{t('family.roleGuest')}</SelectItem>
                             </SelectContent>
                         </Select>
                         <InputError message={errors.role} />

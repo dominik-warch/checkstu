@@ -3,7 +3,7 @@ export type OccurrenceStatus = 'done' | 'skipped' | 'someday' | 'overdue' | 'due
 export interface Member {
     id: number;
     name: string;
-    role: 'admin' | 'member';
+    role: 'admin' | 'member' | 'guest';
 }
 
 export interface CategoryTag {
@@ -38,6 +38,6 @@ export interface FamilyMember {
     name: string;
     username: string;
     email: string | null;
-    role: 'admin' | 'member';
+    role: 'admin' | 'member' | 'guest';
     open_count: number;
 }

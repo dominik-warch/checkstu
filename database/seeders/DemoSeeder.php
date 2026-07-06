@@ -21,6 +21,8 @@ class DemoSeeder extends Seeder
         $sara = User::create(['name' => 'Sara', 'username' => 'sara', 'email' => 'sara@home.local', 'password' => 'password', 'role' => Role::Admin]);
         $leo = User::create(['name' => 'Leo', 'username' => 'leo', 'email' => null, 'password' => 'password', 'role' => Role::Member]);
         $leni = User::create(['name' => 'Leni', 'username' => 'leni', 'email' => null, 'password' => 'password', 'role' => Role::Member]);
+        // A guest helper (e.g. grandparent) — only sees tasks assigned to them.
+        $opa = User::create(['name' => 'Opa', 'username' => 'opa', 'email' => null, 'password' => 'password', 'role' => Role::Guest]);
 
         // --- Categories ---
         foreach (['Küche', 'Bad', 'Wohnzimmer', 'Schlafzimmer', 'Außen'] as $name) {
@@ -44,6 +46,9 @@ class DemoSeeder extends Seeder
         $dishes->categories()->attach($kueche);
 
         $trash = $this->task('Müll rausbringen', Priority::High, $sara, $leni, today: '-1 day'); // overdue
+
+        // A task assigned to the guest — the only thing Opa will see.
+        $this->task('Rasen mähen', Priority::Normal, $dominik, $opa, today: 'today');
 
         // --- Demonstrate admin completing a kid's task on their behalf ---
         // Sara (parent) marks Leni's overdue task done, attributed to Leni.

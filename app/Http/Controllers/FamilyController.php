@@ -13,6 +13,8 @@ class FamilyController extends Controller
 {
     public function index(Request $request): Response
     {
+        abort_if($request->user()->isGuest(), 403);
+
         $members = User::query()
             ->withCount(['assignedOccurrences as open_count' => fn ($q) => $q
                 ->whereNull('completed_at')

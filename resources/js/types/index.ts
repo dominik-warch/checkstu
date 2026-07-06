@@ -28,10 +28,14 @@ export interface SharedData {
     [key: string]: unknown;
 }
 
+export type UserRole = 'admin' | 'member' | 'guest';
+
 export interface User {
     id: number;
     name: string;
-    email: string;
+    username: string;
+    email: string | null;
+    role: UserRole;
     avatar?: string;
     email_verified_at: string | null;
     created_at: string;

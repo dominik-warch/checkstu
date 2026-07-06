@@ -47,9 +47,7 @@ export default function Family({ members, can }: FamilyProps) {
                         <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-2">
                                 <span className="truncate font-medium">{member.name}</span>
-                                <Badge variant="secondary">
-                                    {t(member.role === 'admin' ? 'role.admin' : 'role.member')}
-                                </Badge>
+                                <Badge variant="secondary">{t(`role.${member.role}`)}</Badge>
                             </div>
                             <div className="text-muted-foreground text-sm">
                                 @{member.username} · {member.open_count} {t('family.openTasks')}

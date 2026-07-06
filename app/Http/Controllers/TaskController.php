@@ -28,6 +28,7 @@ class TaskController extends Controller
         $blocked = $deps->blockedTaskIds()->all();
 
         $occurrences = TaskOccurrence::query()
+            ->visibleTo($request->user())
             ->whereNull('completed_at')
             ->where('is_skipped', false)
             ->when($scope === 'mine', fn ($q) => $q->where('assignee_id', $request->user()->id))
@@ -58,6 +59,8 @@ class TaskController extends Controller
 
     public function show(Request $request, Task $task): Response
     {
+        Gate::authorize('view', $task);
+
         $task->load(['categories', 'openOccurrence.assignee', 'dependencies.openOccurrence', 'dependents']);
 
         return Inertia::render('tasks/show', [
