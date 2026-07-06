@@ -17,14 +17,33 @@ class TaskTemplateSeeder extends Seeder
     public function run(): void
     {
         $names = [
-            'Staubsaugen',
-            'Bad putzen',
-            'Küche wischen',
+            'Klavier üben',
+            'Graue Tonne rausstellen',
+            'Blaue Tonne rausstellen',
+            'Gelbe Tonne rausstellen',
+            'Braune Tonne rausstellen',
+            'Hausaufgaben erledigen',
             'Bettwäsche wechseln',
-            'Pflanzen gießen',
-            'Müll rausstellen',
-            'Fenster putzen',
-            'Kühlschrank reinigen',
+            'Mülleimer voll? Rausbringen!',
+            'Wäsche waschen',
+            'Wäsche in den Schrank räumen',
+            'Klamottenstapel aufräumen',
+            'Powerbank aufladen',
+            'Blumen gießen drinnen',
+            'Garten gießen',
+            'Spülmaschine ausräumen',
+            'Kellerbad putzen',
+            'Kühlschrank abtauen',
+            'Gefrierschrank durchgehen und Zeug verbrauchen',
+            'Altglas wegbringen',
+            'Pfand wegbringen',
+            'Schulplaner checken',
+            'Taschengeld auszahlen (PAYDAY!)',
+            'Zimmer aufräumen',
+            'Brillen einsammeln und ins Gestell',
+            'Yukis Kuscheltiere wegräumen',
+            'Geschirr aus dem Zimmer in die Spülmaschine',
+            'Windeln da? Kaufen!'
         ];
 
         foreach ($names as $name) {

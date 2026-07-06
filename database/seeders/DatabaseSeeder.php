@@ -12,7 +12,8 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
-            DemoSeeder::class,        // family, categories, tasks (creates categories first)
+            // DemoSeeder::class,        // family, categories, tasks (creates categories first)
+            ProductionSeeder::class,
             TaskTemplateSeeder::class, // starter catalogue (needs categories)
         ]);
     }
