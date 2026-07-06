@@ -31,7 +31,17 @@ class TaskController extends Controller
             ->visibleTo($request->user())
             ->whereNull('completed_at')
             ->where('is_skipped', false)
-            ->when($scope === 'mine', fn ($q) => $q->where('assignee_id', $request->user()->id))
+            ->when($scope === 'mine', function ($q) use ($request) {
+                $user = $request->user();
+                $q->where(function ($q2) use ($user) {
+                    $q2->where('assignee_id', $user->id);
+                    // Unassigned tasks are "up for grabs" — they count as everyone's,
+                    // except guests (who only ever see their own assigned tasks).
+                    if (! $user->isGuest()) {
+                        $q2->orWhereNull('assignee_id');
+                    }
+                });
+            })
             ->with(['task.categories', 'task.dependencies', 'assignee'])
             ->orderByRaw('due_date IS NULL, due_date asc')
             ->get()

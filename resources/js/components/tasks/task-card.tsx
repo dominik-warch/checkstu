@@ -110,7 +110,7 @@ export default function TaskCard({ occurrence, members, canCompleteOnBehalf }: T
                             <Clock className="size-3.5" />
                             {formatDue(occurrence.due_date)}
                         </span>
-                        {occurrence.assignee && <span>· {occurrence.assignee.name}</span>}
+                        <span>· {occurrence.assignee ? occurrence.assignee.name : t('task.unassigned')}</span>
                         {occurrence.categories.map((c) => (
                             <span key={c.id} className="inline-flex items-center gap-1">
                                 <span className="size-2 rounded-full" style={{ background: c.color ?? '#999' }} />

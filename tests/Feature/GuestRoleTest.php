@@ -87,4 +87,17 @@ class GuestRoleTest extends TestCase
 
         $this->actingAs($guest)->get(route('family'))->assertForbidden();
     }
+
+    public function test_guest_mine_tab_excludes_unassigned_tasks(): void
+    {
+        $guest = User::factory()->guest()->create();
+
+        TaskOccurrence::factory()->for(Task::factory())->create(['assignee_id' => $guest->id]);
+        TaskOccurrence::factory()->for(Task::factory())->create(['assignee_id' => null]); // up for grabs
+
+        // A guest only ever sees their own — never the up-for-grabs pool.
+        $this->actingAs($guest)
+            ->get(route('tasks.index', ['scope' => 'mine']))
+            ->assertInertia(fn (Assert $page) => $page->component('tasks/index')->has('occurrences', 1));
+    }
 }

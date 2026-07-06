@@ -38,6 +38,7 @@ const de = {
         newTask: 'Neue Aufgabe',
         editTask: 'Aufgabe bearbeiten',
         whoDidIt: 'Wer hat es erledigt?',
+        unassigned: 'Für alle',
         blockedBy: 'Blockiert durch',
         blocks: 'Blockiert',
         noDescription: 'Keine Beschreibung',

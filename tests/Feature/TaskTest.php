@@ -7,6 +7,7 @@ use App\Models\TaskCompletionLog;
 use App\Models\TaskOccurrence;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class TaskTest extends TestCase
@@ -158,5 +159,20 @@ class TaskTest extends TestCase
 
         $this->actingAs($user)->get(route('tasks.show', $task))->assertOk();
         $this->actingAs($user)->get(route('upcoming'))->assertOk();
+    }
+
+    public function test_mine_tab_includes_unassigned_tasks(): void
+    {
+        $user = User::factory()->create();
+        $other = User::factory()->create();
+
+        TaskOccurrence::factory()->for(Task::factory())->create(['assignee_id' => $user->id]);
+        TaskOccurrence::factory()->for(Task::factory())->create(['assignee_id' => null]);   // up for grabs
+        TaskOccurrence::factory()->for(Task::factory())->create(['assignee_id' => $other->id]);
+
+        // "Meine" shows mine + unassigned, but not someone else's.
+        $this->actingAs($user)
+            ->get(route('tasks.index', ['scope' => 'mine']))
+            ->assertInertia(fn (Assert $page) => $page->component('tasks/index')->has('occurrences', 2));
     }
 }
