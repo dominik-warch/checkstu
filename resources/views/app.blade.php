@@ -6,6 +6,20 @@
 
         <title inertia>{{ config('app.name', 'Laravel') }}</title>
 
+        {{-- PWA: installable + stays in standalone mode across navigation on iOS/Android. --}}
+        <link rel="manifest" href="/manifest.webmanifest">
+        <meta name="theme-color" content="#4f46e5">
+
+        {{-- iOS ignores the web manifest's display mode for "Add to Home Screen" unless these
+             apple-specific tags are present — without them, every navigation reopens in Safari
+             chrome instead of staying in the installed app. --}}
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="default">
+        <meta name="apple-mobile-web-app-title" content="checkstu">
+        <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+        <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512.png">
+
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
 

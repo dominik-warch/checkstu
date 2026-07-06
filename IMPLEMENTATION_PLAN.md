@@ -36,6 +36,10 @@ production Docker setup. **53 tests green** (PHPUnit), `tsc` clean, `npm run bui
 - **Docker / deploy** (§12.3) — `docker/prod/Dockerfile` + `docker-compose.yml` (app + worker +
   scheduler on one image, single SQLite volume), **trusted proxies** (`bootstrap/app.php`),
   `checkstu:create-user`. Built and run-verified (incl. `X-Forwarded-Proto: https` → https redirects).
+  CI: `.github/workflows/docker.yml` pushes `:main`/`:<sha>` to GHCR on push to `main`.
+- **PWA (partial, §8.8)** — `public/manifest.webmanifest` + `apple-mobile-web-app-*` meta tags +
+  generated icon set (`public/icons/`), fixing iOS "Add to Home Screen" breaking out of standalone
+  mode on navigation. Service worker / offline / install-prompt still open.
 
 ### Next up (in order)
 1. **P2 — recurrence engine** (the big one): `simshaun/recurr` for RRULE, explicit-date schedules
@@ -637,6 +641,19 @@ kit ships Inertia 3, use its first-class optimistic API + `useHttp`; on v2 it's 
 manual but identical UX.
 
 ### 8.8 PWA (`vite-plugin-pwa`)
+
+> **✅ Manifest + Apple meta tags landed early (2026-07-06)**, ahead of the full service-worker
+> work below — a real deploy hit the exact bug this prevents: without `apple-mobile-web-app-capable`
+> + a manifest declaring `scope`/`display: standalone`, iOS's "Add to Home Screen" never enters true
+> standalone mode, so navigating away from the saved page (even via Inertia's client-side `<Link>`)
+> reasserts full Safari chrome. Fixed with a static `public/manifest.webmanifest` (`scope: "/"` is
+> the critical line) + `<link rel="manifest">` and `apple-mobile-web-app-*` meta tags in
+> `resources/views/app.blade.php`, plus a generated icon set (`public/icons/`: 192, 512, 512
+> maskable, apple-touch-icon 180 — solid `#4f46e5` bg, no alpha, checkmark mark). **Still open:**
+> the `vite-plugin-pwa` service worker below (install prompt, offline shell, asset precaching) —
+> today's fix makes the installed icon *behave* like an app; it does not yet make the app
+> installable via a browser prompt or work offline.
+
 ```ts
 VitePWA({
   registerType: 'prompt',
@@ -870,7 +887,7 @@ parallel. P6/P7 are v2.
 | 🔜 **P2 — Recurrence engine** (NEXT) | 4-type recurrence model; `recurr` RRULE; explicit dates; `MaterializeOccurrencesAction` + `tasks:materialize` (rolling horizon); generate-on-complete for `relative`; **template catalogue picker (§4.8)**; generation/idempotency/DST tests. *Schema columns already exist; only one-off wired.* | P1 |
 | ✅ **P3 — Dependencies** | **Done in P1:** `task_dependencies`, `ResolveDependenciesAction`, actionable-now filtering, blocked UI (greyed + "Wartet auf…"). | P2 |
 | ◑ **P4 — Filters / UX polish** | **Mostly done:** Meine/Alle filter, Upcoming agenda, detail/edit, swipe-to-complete, Family. *Remaining:* richer category/status filter bar. | P2, P3 |
-| ⬜ **P5 — PWA** | Manifest, service worker, offline shell, installability, mobile hardening, logout cache-clear | P1 (best after P4) |
+| ◑ **P5 — PWA** | **Manifest + Apple meta tags done** (fixes standalone break-out on iOS). *Remaining:* `vite-plugin-pwa` service worker, install prompt, offline shell, logout cache-clear. | P1 (best after P4) |
 | ⬜ **P6 — Calendar sync (v2)** | One-way CalDAV push incl. **completion sync** (§10); `VTODO` for todo apps / `VEVENT` for calendars; per-user opt-in | P2 |
 | ⬜ **P7 — Notifications** | 7a database reminders → 7b email → 7c web push | P2; 7c needs P5 |
 | ✅ **Docker / deploy** | **Done** (§12.3): `docker/prod/Dockerfile` + `docker-compose.yml` (app+worker+scheduler), trusted proxies, `checkstu:create-user`. Built & run-verified. | P1 |
