@@ -12,6 +12,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { celebrateCompletion } from '@/lib/confetti';
 import { contrastTextColor } from '@/lib/color-contrast';
 import { useSwipeToComplete } from '@/hooks/use-swipe-to-complete';
 import { t } from '@/lib/i18n';
@@ -54,6 +55,7 @@ export default function TaskCard({ occurrence, members, canCompleteOnBehalf }: T
             completedByUserId ? { completed_by_user_id: completedByUserId } : {},
             {
                 preserveScroll: true,
+                onSuccess: () => celebrateCompletion(occurrence.assignee?.color),
                 onFinish: () => setProcessing(false),
             },
         );

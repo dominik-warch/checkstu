@@ -81,6 +81,13 @@ were deployed via a built image rather than a commit.
   fall back to the plain default card. Family page avatar circles get the same tint as a
   complementary touch. Priority badges and the complete button are deliberately left unstyled by the
   assignee color (small, self-contained chips already legible regardless of card background).
+- **Confetti on completion** — `canvas-confetti` (zero-dependency, ~3kb), fired from `TaskCard` on
+  successful completion (via button or swipe), tinted with the assignee's color when set. Skips
+  entirely for `prefers-reduced-motion: reduce` (`resources/js/lib/confetti.ts`) — a delight, not a
+  functional cue, so nothing is lost by turning it off. Manually confirmed working in a real
+  browser (headless Chromium in this sandbox defaults `prefers-reduced-motion` to reduce, so
+  automated screenshot verification correctly shows no canvas — that's the feature working as
+  designed, not a bug).
 
 ### Next up (in order)
 1. Dependency UX polish (small — core already works, §5).
