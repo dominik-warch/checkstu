@@ -1,5 +1,5 @@
 import { Link, router } from '@inertiajs/react';
-import { Check, Clock, Lock, Repeat } from 'lucide-react';
+import { Check, Circle, Clock, Lock, Repeat } from 'lucide-react';
 import { useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
@@ -168,8 +168,15 @@ export default function TaskCard({ occurrence, members, canCompleteOnBehalf }: T
                     (canCompleteOnBehalf ? (
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <Button size="icon" variant="outline" disabled={processing} aria-label={t('task.markDone')}>
-                                    <Check className="size-4" />
+                                <Button
+                                    size="icon"
+                                    variant="outline"
+                                    disabled={processing}
+                                    aria-label={t('task.markDone')}
+                                    className={cn(assigneeColor && 'bg-transparent hover:bg-black/10 dark:hover:bg-white/10')}
+                                    style={assigneeColor ? { borderColor: textColor ?? undefined } : undefined}
+                                >
+                                    <Circle className="size-4" style={textColor ? { color: textColor } : undefined} />
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
@@ -189,8 +196,10 @@ export default function TaskCard({ occurrence, members, canCompleteOnBehalf }: T
                             disabled={processing}
                             onClick={() => complete()}
                             aria-label={t('task.markDone')}
+                            className={cn(assigneeColor && 'bg-transparent hover:bg-black/10 dark:hover:bg-white/10')}
+                            style={assigneeColor ? { borderColor: textColor ?? undefined } : undefined}
                         >
-                            <Check className="size-4" />
+                            <Circle className="size-4" style={textColor ? { color: textColor } : undefined} />
                         </Button>
                     ))}
             </div>
