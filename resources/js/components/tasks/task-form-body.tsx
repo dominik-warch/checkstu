@@ -88,11 +88,11 @@ export default function TaskFormBody({ members, task, templates = [], onSaved }:
                 : {
                       recurrence_type: current.recurrence_type,
                       ...(current.recurrence_type === 'rrule' && {
-                          rrule: buildRrule(current.rrule_freq, current.rrule_interval, current.rrule_byday),
+                          rrule: buildRrule(current.rrule_freq, current.rrule_interval || 1, current.rrule_byday),
                           anchor_date: current.anchor_date,
                       }),
                       ...(current.recurrence_type === 'relative' && {
-                          relative_interval_days: current.relative_interval_days,
+                          relative_interval_days: current.relative_interval_days || 1,
                       }),
                       ...(current.recurrence_type === 'explicit_dates' && {
                           explicit_dates: current.explicit_dates.filter(Boolean),
@@ -255,10 +255,14 @@ export default function TaskFormBody({ members, task, templates = [], onSaved }:
                                         <Input
                                             id="rrule_interval"
                                             type="number"
+                                            inputMode="numeric"
                                             min={1}
                                             max={365}
-                                            value={data.rrule_interval}
-                                            onChange={(e) => setData('rrule_interval', Number(e.target.value) || 1)}
+                                            value={data.rrule_interval || ''}
+                                            onChange={(e) => setData('rrule_interval', e.target.value === '' ? 0 : Number(e.target.value))}
+                                            onBlur={() => {
+                                                if (!data.rrule_interval) setData('rrule_interval', 1);
+                                            }}
                                         />
                                     </div>
                                 </div>
@@ -285,10 +289,14 @@ export default function TaskFormBody({ members, task, templates = [], onSaved }:
                                 <Input
                                     id="relative_interval_days"
                                     type="number"
+                                    inputMode="numeric"
                                     min={1}
                                     max={365}
-                                    value={data.relative_interval_days}
-                                    onChange={(e) => setData('relative_interval_days', Number(e.target.value) || 1)}
+                                    value={data.relative_interval_days || ''}
+                                    onChange={(e) => setData('relative_interval_days', e.target.value === '' ? 0 : Number(e.target.value))}
+                                    onBlur={() => {
+                                        if (!data.relative_interval_days) setData('relative_interval_days', 1);
+                                    }}
                                 />
                                 <InputError message={errors.relative_interval_days} />
                             </div>
