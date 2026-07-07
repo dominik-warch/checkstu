@@ -226,7 +226,7 @@ class TaskTest extends TestCase
     {
         $user = User::factory()->create();
         $assignee = User::factory()->create(['color' => '#ec4899']);
-        TaskOccurrence::factory()->for(Task::factory())->create(['assignee_id' => $assignee->id]);
+        TaskOccurrence::factory()->for(Task::factory())->create(['assignee_id' => $assignee->id, 'due_date' => now()->toDateString()]);
 
         $this->actingAs($user)->get(route('home', ['scope' => 'all']))
             ->assertInertia(fn (Assert $page) => $page->where('occurrences.0.assignee.color', '#ec4899'));
@@ -241,7 +241,7 @@ class TaskTest extends TestCase
         TaskOccurrence::factory()->for($task)->create(['due_date' => now()->addDays(8)]);
         TaskOccurrence::factory()->for($task)->create(['due_date' => now()->addDays(15)]);
 
-        $this->actingAs($user)->get(route('home'))
+        $this->actingAs($user)->get(route('tasks.index'))
             ->assertInertia(fn (Assert $page) => $page
                 ->has('occurrences', 1)
                 ->where('occurrences.0.id', $earliest->id)
@@ -258,7 +258,7 @@ class TaskTest extends TestCase
 
         $this->actingAs($user)->post(route('occurrences.complete', $earliest));
 
-        $this->actingAs($user)->get(route('home'))
+        $this->actingAs($user)->get(route('tasks.index'))
             ->assertInertia(fn (Assert $page) => $page
                 ->has('occurrences', 1)
                 ->where('occurrences.0.id', $next->id));

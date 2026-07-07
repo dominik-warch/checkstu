@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Support\OccurrencePresenter;
 use App\Support\TaskTemplatePresenter;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -24,6 +25,7 @@ class HomeController extends Controller
         $occurrences = TaskOccurrence::query()
             ->visibleTo($request->user())
             ->current()
+            ->whereDate('due_date', '<=', Carbon::today())
             ->when($scope === 'mine', fn ($q) => $q->mine($request->user()))
             ->with(['task.categories', 'task.dependencies', 'assignee'])
             ->orderByRaw('due_date IS NULL, due_date asc')
