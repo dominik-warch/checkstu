@@ -2,6 +2,7 @@ import { Link, usePage } from '@inertiajs/react';
 import { CalendarDays, House, ListChecks, LogOut, Users } from 'lucide-react';
 import { PropsWithChildren } from 'react';
 
+import PullToRefresh from '@/components/pull-to-refresh';
 import { t } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import type { SharedData } from '@/types';
@@ -43,7 +44,9 @@ export default function CheckstuLayout({ children }: PropsWithChildren) {
                 </Link>
             </header>
 
-            <main className="flex-1 px-4 pb-28 pt-4">{children}</main>
+            <main className="flex-1 px-4 pb-28 pt-4">
+                <PullToRefresh>{children}</PullToRefresh>
+            </main>
 
             {/* Extra 0.75rem on top of the safe-area inset: iOS's swipe-up-for-app-switcher
                 gesture zone extends a bit beyond the inset value itself, so the inset alone
