@@ -18,12 +18,14 @@ class UpcomingController extends Controller
 {
     public function index(Request $request, ResolveDependenciesAction $deps): Response
     {
+        $scope = $request->string('scope', 'mine')->toString(); // 'all' | 'mine'
         $blocked = $deps->blockedTaskIds()->all();
 
         $occurrences = TaskOccurrence::query()
             ->visibleTo($request->user())
             ->current()
             ->whereNotNull('due_date')
+            ->when($scope === 'mine', fn ($q) => $q->mine($request->user()))
             ->with(['task.categories', 'task.dependencies', 'assignee'])
             ->orderBy('due_date')
             ->get()
@@ -32,6 +34,7 @@ class UpcomingController extends Controller
 
         return Inertia::render('upcoming/index', [
             'occurrences' => $occurrences,
+            'filters' => ['scope' => $scope],
             'members' => User::orderBy('name')->get()
                 ->map(fn (User $u) => ['id' => $u->id, 'name' => $u->name, 'role' => $u->role->value, 'color' => $u->color]),
             'templates' => TaskTemplatePresenter::forPicker(),

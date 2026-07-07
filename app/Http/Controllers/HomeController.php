@@ -18,11 +18,13 @@ class HomeController extends Controller
 {
     public function index(Request $request, ResolveDependenciesAction $deps): Response
     {
+        $scope = $request->string('scope', 'mine')->toString(); // 'all' | 'mine'
         $blocked = $deps->blockedTaskIds()->all();
 
         $occurrences = TaskOccurrence::query()
             ->visibleTo($request->user())
             ->current()
+            ->when($scope === 'mine', fn ($q) => $q->mine($request->user()))
             ->with(['task.categories', 'task.dependencies', 'assignee'])
             ->orderByRaw('due_date IS NULL, due_date asc')
             ->get()
@@ -31,6 +33,7 @@ class HomeController extends Controller
 
         return Inertia::render('home/today', [
             'occurrences' => $occurrences,
+            'filters' => ['scope' => $scope],
             'members' => $this->members(),
             'templates' => TaskTemplatePresenter::forPicker(),
             'can' => [

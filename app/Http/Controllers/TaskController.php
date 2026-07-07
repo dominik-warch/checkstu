@@ -26,23 +26,13 @@ class TaskController extends Controller
 {
     public function index(Request $request, ResolveDependenciesAction $deps): Response
     {
-        $scope = $request->string('scope', 'all')->toString(); // 'all' | 'mine'
+        $scope = $request->string('scope', 'mine')->toString(); // 'all' | 'mine'
         $blocked = $deps->blockedTaskIds()->all();
 
         $occurrences = TaskOccurrence::query()
             ->visibleTo($request->user())
             ->current()
-            ->when($scope === 'mine', function ($q) use ($request) {
-                $user = $request->user();
-                $q->where(function ($q2) use ($user) {
-                    $q2->where('assignee_id', $user->id);
-                    // Unassigned tasks are "up for grabs" — they count as everyone's,
-                    // except guests (who only ever see their own assigned tasks).
-                    if (! $user->isGuest()) {
-                        $q2->orWhereNull('assignee_id');
-                    }
-                });
-            })
+            ->when($scope === 'mine', fn ($q) => $q->mine($request->user()))
             ->with(['task.categories', 'task.dependencies', 'assignee'])
             ->orderByRaw('due_date IS NULL, due_date asc')
             ->get()

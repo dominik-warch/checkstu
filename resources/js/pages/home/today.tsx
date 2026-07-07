@@ -1,6 +1,7 @@
 import { Head } from '@inertiajs/react';
 import { ReactNode } from 'react';
 
+import ScopeFilter from '@/components/tasks/scope-filter';
 import TaskCard from '@/components/tasks/task-card';
 import TaskFormDialog from '@/components/tasks/task-form-dialog';
 import CheckstuLayout from '@/layouts/checkstu-layout';
@@ -9,6 +10,7 @@ import type { Member, Occurrence, TaskAbilities, TaskTemplateSummary } from '@/t
 
 interface TodayProps {
     occurrences: Occurrence[];
+    filters: { scope: 'all' | 'mine' };
     members: Member[];
     templates: TaskTemplateSummary[];
     can: TaskAbilities;
@@ -23,7 +25,7 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
     );
 }
 
-export default function Today({ occurrences, members, templates, can }: TodayProps) {
+export default function Today({ occurrences, filters, members, templates, can }: TodayProps) {
     const blocked = occurrences.filter((o) => o.is_blocked);
     const actionable = occurrences.filter((o) => !o.is_blocked);
     const overdue = actionable.filter((o) => o.status === 'overdue');
@@ -38,6 +40,8 @@ export default function Today({ occurrences, members, templates, can }: TodayPro
             <Head title={t('nav.today')} />
 
             <h1 className="mb-4 text-2xl font-bold tracking-tight">{t('nav.today')}</h1>
+
+            <ScopeFilter routeName="home" scope={filters.scope} />
 
             {occurrences.length === 0 && (
                 <div className="text-muted-foreground rounded-xl border border-dashed p-8 text-center">

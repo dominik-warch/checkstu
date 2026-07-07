@@ -97,6 +97,21 @@ class TaskOccurrence extends Model
     }
 
     /**
+     * Restrict to occurrences assigned to the user, plus (for non-guests)
+     * unassigned occurrences — those are "up for grabs" and count as
+     * everyone's, except guests who only ever see their own assignments.
+     */
+    public function scopeMine(Builder $query, User $user): void
+    {
+        $query->where(function (Builder $q) use ($user) {
+            $q->where('assignee_id', $user->id);
+            if (! $user->isGuest()) {
+                $q->orWhereNull('assignee_id');
+            }
+        });
+    }
+
+    /**
      * Derived, clock-dependent state. Never stored.
      * done | skipped | someday | overdue | due_soon | open
      */

@@ -228,7 +228,7 @@ class TaskTest extends TestCase
         $assignee = User::factory()->create(['color' => '#ec4899']);
         TaskOccurrence::factory()->for(Task::factory())->create(['assignee_id' => $assignee->id]);
 
-        $this->actingAs($user)->get(route('home'))
+        $this->actingAs($user)->get(route('home', ['scope' => 'all']))
             ->assertInertia(fn (Assert $page) => $page->where('occurrences.0.assignee.color', '#ec4899'));
     }
 

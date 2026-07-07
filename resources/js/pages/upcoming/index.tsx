@@ -1,5 +1,6 @@
 import { Head } from '@inertiajs/react';
 
+import ScopeFilter from '@/components/tasks/scope-filter';
 import TaskCard from '@/components/tasks/task-card';
 import TaskFormDialog from '@/components/tasks/task-form-dialog';
 import CheckstuLayout from '@/layouts/checkstu-layout';
@@ -8,6 +9,7 @@ import type { Member, Occurrence, TaskAbilities, TaskTemplateSummary } from '@/t
 
 interface UpcomingProps {
     occurrences: Occurrence[];
+    filters: { scope: 'all' | 'mine' };
     members: Member[];
     templates: TaskTemplateSummary[];
     can: TaskAbilities;
@@ -24,7 +26,7 @@ function dayLabel(due: string): string {
     return new Intl.DateTimeFormat('de-DE', { weekday: 'long', day: '2-digit', month: 'long' }).format(date);
 }
 
-export default function Upcoming({ occurrences, members, templates, can }: UpcomingProps) {
+export default function Upcoming({ occurrences, filters, members, templates, can }: UpcomingProps) {
     // Group by due date (already sorted ascending server-side); overdue collapses under one label.
     const groups = new Map<string, Occurrence[]>();
     for (const o of occurrences) {
@@ -40,6 +42,8 @@ export default function Upcoming({ occurrences, members, templates, can }: Upcom
             <Head title={t('upcoming.title')} />
 
             <h1 className="mb-4 text-2xl font-bold tracking-tight">{t('upcoming.title')}</h1>
+
+            <ScopeFilter routeName="upcoming" scope={filters.scope} />
 
             {occurrences.length === 0 && (
                 <div className="text-muted-foreground rounded-xl border border-dashed p-8 text-center">
