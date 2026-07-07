@@ -22,8 +22,7 @@ class UpcomingController extends Controller
 
         $occurrences = TaskOccurrence::query()
             ->visibleTo($request->user())
-            ->whereNull('completed_at')
-            ->where('is_skipped', false)
+            ->current()
             ->whereNotNull('due_date')
             ->with(['task.categories', 'task.dependencies', 'assignee'])
             ->orderBy('due_date')

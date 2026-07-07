@@ -72,6 +72,31 @@ class TaskOccurrence extends Model
     }
 
     /**
+     * Restrict to the single next actionable occurrence per task: open (not
+     * completed, not skipped) and, for tasks materialized ahead of a rolling
+     * horizon (rrule, explicit_dates), only the earliest-due one. Later
+     * occurrences of the same task stay hidden until that one is completed —
+     * without this, a weekly rrule task would show its whole 60-day schedule
+     * at once instead of one card at a time, like `relative` tasks already do.
+     */
+    public function scopeCurrent(Builder $query): void
+    {
+        $query->whereNull('completed_at')
+            ->where('is_skipped', false)
+            ->whereIn('id', function ($sub) {
+                $sub->select('ranked.id')
+                    ->fromSub(function ($inner) {
+                        $inner->select('id')
+                            ->selectRaw('row_number() over (partition by task_id order by due_date is null, due_date, id) as rn')
+                            ->from('task_occurrences')
+                            ->whereNull('completed_at')
+                            ->where('is_skipped', false);
+                    }, 'ranked')
+                    ->where('ranked.rn', 1);
+            });
+    }
+
+    /**
      * Derived, clock-dependent state. Never stored.
      * done | skipped | someday | overdue | due_soon | open
      */

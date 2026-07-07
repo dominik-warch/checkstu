@@ -1,5 +1,5 @@
 import { Link, router } from '@inertiajs/react';
-import { Check, Clock, Lock } from 'lucide-react';
+import { Check, Clock, Lock, Repeat } from 'lucide-react';
 import { useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
@@ -120,6 +120,13 @@ export default function TaskCard({ occurrence, members, canCompleteOnBehalf }: T
                                 className={cn('size-3.5 shrink-0', !assigneeColor && 'text-muted-foreground')}
                                 style={mutedStyle}
                                 aria-label={t('task.private')}
+                            />
+                        )}
+                        {occurrence.is_recurring && (
+                            <Repeat
+                                className={cn('size-3.5 shrink-0', !assigneeColor && 'text-muted-foreground')}
+                                style={mutedStyle}
+                                aria-label={t('task.recurring')}
                             />
                         )}
                     </div>

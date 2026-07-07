@@ -42,6 +42,7 @@ const de = {
         unassigned: 'Für alle',
         private: 'Privat',
         privateHint: 'Nur für dich sichtbar',
+        recurring: 'Wiederkehrende Aufgabe',
         blockedBy: 'Blockiert durch',
         blocks: 'Blockiert',
         noDescription: 'Keine Beschreibung',

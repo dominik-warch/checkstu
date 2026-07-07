@@ -20,6 +20,7 @@ export interface Occurrence {
     description: string | null;
     priority: number; // 0..3
     is_private: boolean;
+    is_recurring: boolean;
     due_date: string | null;
     status: OccurrenceStatus;
     is_blocked: boolean;

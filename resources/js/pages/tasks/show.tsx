@@ -1,5 +1,5 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { ArrowLeft, Check, Circle, Lock, Pencil, Trash2 } from 'lucide-react';
+import { ArrowLeft, Check, Circle, Lock, Pencil, Repeat, Trash2 } from 'lucide-react';
 
 import TaskFormDialog from '@/components/tasks/task-form-dialog';
 import { Badge } from '@/components/ui/badge';
@@ -14,6 +14,7 @@ interface TaskDetail {
     description: string | null;
     priority: number;
     is_private: boolean;
+    is_recurring: boolean;
     due_date: string | null;
     assignee_id: number | null;
     assignee: { id: number; name: string } | null;
@@ -54,6 +55,12 @@ export default function Show({ task, members, can }: ShowProps) {
                         <Badge variant="outline" className="gap-1">
                             <Lock className="size-3" />
                             {t('task.private')}
+                        </Badge>
+                    )}
+                    {task.is_recurring && (
+                        <Badge variant="outline" className="gap-1">
+                            <Repeat className="size-3" />
+                            {t('task.recurring')}
                         </Badge>
                     )}
                     <Badge variant="secondary">{t(priorityLabel[task.priority])}</Badge>

@@ -231,4 +231,46 @@ class TaskTest extends TestCase
         $this->actingAs($user)->get(route('home'))
             ->assertInertia(fn (Assert $page) => $page->where('occurrences.0.assignee.color', '#ec4899'));
     }
+
+    public function test_only_the_earliest_open_occurrence_of_a_recurring_task_is_listed(): void
+    {
+        $user = User::factory()->create();
+        $task = Task::factory()->create(['recurrence_type' => RecurrenceType::Rrule]);
+
+        $earliest = TaskOccurrence::factory()->for($task)->create(['due_date' => now()->addDay()]);
+        TaskOccurrence::factory()->for($task)->create(['due_date' => now()->addDays(8)]);
+        TaskOccurrence::factory()->for($task)->create(['due_date' => now()->addDays(15)]);
+
+        $this->actingAs($user)->get(route('home'))
+            ->assertInertia(fn (Assert $page) => $page
+                ->has('occurrences', 1)
+                ->where('occurrences.0.id', $earliest->id)
+                ->where('occurrences.0.is_recurring', true));
+    }
+
+    public function test_completing_the_current_occurrence_reveals_the_next_one(): void
+    {
+        $user = User::factory()->create();
+        $task = Task::factory()->create(['recurrence_type' => RecurrenceType::Rrule]);
+
+        $earliest = TaskOccurrence::factory()->for($task)->create(['due_date' => now()->addDay()]);
+        $next = TaskOccurrence::factory()->for($task)->create(['due_date' => now()->addDays(8)]);
+
+        $this->actingAs($user)->post(route('occurrences.complete', $earliest));
+
+        $this->actingAs($user)->get(route('home'))
+            ->assertInertia(fn (Assert $page) => $page
+                ->has('occurrences', 1)
+                ->where('occurrences.0.id', $next->id));
+    }
+
+    public function test_one_off_and_relative_tasks_expose_is_recurring_false(): void
+    {
+        $user = User::factory()->create();
+        $oneOff = Task::factory()->create(['recurrence_type' => RecurrenceType::OneOff]);
+        TaskOccurrence::factory()->for($oneOff)->create(['due_date' => now()]);
+
+        $this->actingAs($user)->get(route('home'))
+            ->assertInertia(fn (Assert $page) => $page->where('occurrences.0.is_recurring', false));
+    }
 }

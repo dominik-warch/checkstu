@@ -22,8 +22,7 @@ class HomeController extends Controller
 
         $occurrences = TaskOccurrence::query()
             ->visibleTo($request->user())
-            ->whereNull('completed_at')
-            ->where('is_skipped', false)
+            ->current()
             ->with(['task.categories', 'task.dependencies', 'assignee'])
             ->orderByRaw('due_date IS NULL, due_date asc')
             ->get()

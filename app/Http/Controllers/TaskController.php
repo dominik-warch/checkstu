@@ -7,6 +7,7 @@ namespace App\Http\Controllers;
 use App\Actions\Tasks\CreateTaskAction;
 use App\Actions\Tasks\ResolveDependenciesAction;
 use App\Actions\Tasks\UpdateTaskAction;
+use App\Enums\RecurrenceType;
 use App\Http\Requests\Tasks\StoreTaskRequest;
 use App\Http\Requests\Tasks\UpdateTaskRequest;
 use App\Models\Category;
@@ -30,8 +31,7 @@ class TaskController extends Controller
 
         $occurrences = TaskOccurrence::query()
             ->visibleTo($request->user())
-            ->whereNull('completed_at')
-            ->where('is_skipped', false)
+            ->current()
             ->when($scope === 'mine', function ($q) use ($request) {
                 $user = $request->user();
                 $q->where(function ($q2) use ($user) {
@@ -82,6 +82,7 @@ class TaskController extends Controller
                 'description' => $task->description,
                 'priority' => $task->priority->value,
                 'is_private' => $task->is_private,
+                'is_recurring' => $task->recurrence_type !== RecurrenceType::OneOff,
                 'due_date' => $task->openOccurrence?->due_date?->toDateString(),
                 'assignee_id' => $task->default_assignee_id,
                 'assignee' => $task->openOccurrence?->assignee

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Support;
 
+use App\Enums\RecurrenceType;
 use App\Models\TaskOccurrence;
 
 class OccurrencePresenter
@@ -25,6 +26,7 @@ class OccurrencePresenter
             'description' => $task->description,
             'priority' => $task->priority->value,
             'is_private' => $task->is_private,
+            'is_recurring' => $task->recurrence_type !== RecurrenceType::OneOff,
             'due_date' => $occurrence->due_date?->toDateString(),
             'status' => $occurrence->status,
             'is_blocked' => in_array($occurrence->task_id, $blockedTaskIds, true),
