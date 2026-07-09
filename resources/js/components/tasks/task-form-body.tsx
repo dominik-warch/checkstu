@@ -1,4 +1,4 @@
-import { useForm } from '@inertiajs/react';
+import { useForm, usePage } from '@inertiajs/react';
 import { ChevronDown, Plus, X } from 'lucide-react';
 import { FormEventHandler, useState } from 'react';
 
@@ -14,6 +14,7 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import TitleAutocomplete from '@/components/tasks/title-autocomplete';
 import { t } from '@/lib/i18n';
 import { buildRrule, RruleFreq, WEEKDAYS } from '@/lib/rrule';
+import type { SharedData } from '@/types';
 import type { Member, TaskTemplateSummary } from '@/types/checkstu';
 
 const NONE = 'none';
@@ -50,6 +51,7 @@ interface TaskFormBodyProps {
 export default function TaskFormBody({ members, task, templates = [], onSaved }: TaskFormBodyProps) {
     const isEdit = Boolean(task);
     const [showMore, setShowMore] = useState(false);
+    const { auth } = usePage<SharedData>().props;
 
     const form = useForm({
         title: task?.title ?? '',
@@ -180,7 +182,7 @@ export default function TaskFormBody({ members, task, templates = [], onSaved }:
                             <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value={NONE}>Niemand</SelectItem>
+                            <SelectItem value={NONE}>{t('task.unassigned')}</SelectItem>
                             {members.map((m) => (
                                 <SelectItem key={m.id} value={String(m.id)}>
                                     {m.name}
@@ -199,7 +201,7 @@ export default function TaskFormBody({ members, task, templates = [], onSaved }:
                         setData({
                             ...data,
                             is_private: next,
-                            default_assignee_id: next ? null : data.default_assignee_id,
+                            default_assignee_id: next ? auth.user.id : null,
                         });
                     }}
                 />
