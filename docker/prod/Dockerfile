@@ -54,6 +54,7 @@ RUN install-php-extensions intl pdo_sqlite
 
 # nginx tweaks
 COPY docker/prod/nginx.conf /etc/nginx/conf.d/custom.conf
+COPY docker/prod/server-opts-sw.conf /etc/nginx/server-opts.d/sw.conf
 
 # App (incl. vendor) from php-build
 COPY --from=php-build --chown=www-data:www-data /var/www/html .
