@@ -55,6 +55,23 @@
                 opacity: 0.75;
                 line-height: 1.5;
             }
+
+            button {
+                margin-top: 1.5rem;
+                padding: 0.625rem 1.5rem;
+                border: none;
+                border-radius: 9999px;
+                background: #4f46e5;
+                color: #ffffff;
+                font: inherit;
+                font-weight: 500;
+                cursor: pointer;
+            }
+
+            button:disabled {
+                opacity: 0.6;
+                cursor: default;
+            }
         </style>
     </head>
     <body>
@@ -62,6 +79,25 @@
             <div class="dot"></div>
             <h1>Keine Verbindung</h1>
             <p>checkstu kann gerade nicht geladen werden. Bitte prüfe deine Internetverbindung und versuche es erneut.</p>
+            <button id="retry" type="button">Erneut versuchen</button>
         </div>
+        <script>
+            // Retry just re-navigates to the app; if still offline, the service
+            // worker's navigate fallback re-serves this same page (see sw.js).
+            var goHome = function () {
+                window.location.href = '/';
+            };
+
+            document.getElementById('retry').addEventListener('click', function () {
+                this.disabled = true;
+                this.textContent = 'Wird geprüft …';
+                goHome();
+            });
+
+            // No-tap recovery: the moment the browser regains connectivity,
+            // head straight back to the app instead of waiting to be killed
+            // and relaunched from the app drawer.
+            window.addEventListener('online', goHome);
+        </script>
     </body>
 </html>

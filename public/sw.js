@@ -2,7 +2,7 @@
 // Deliberately never caches navigations, Inertia data requests, or any API
 // call: task state is shared/live household data and must never be served stale.
 
-const CACHE_VERSION = 'v1';
+const CACHE_VERSION = 'v2';
 const STATIC_CACHE = `checkstu-static-${CACHE_VERSION}`;
 
 const PRECACHE_URLS = [
