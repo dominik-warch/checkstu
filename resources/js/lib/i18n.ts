@@ -26,6 +26,7 @@ const de = {
         tasks: 'Aufgaben',
         upcoming: 'Demnächst',
         family: 'Familie',
+        archive: 'Archiv',
     },
     task: {
         title: 'Titel',
@@ -52,6 +53,12 @@ const de = {
     upcoming: {
         title: 'Demnächst',
         empty: 'Nichts geplant.',
+    },
+    archive: {
+        title: 'Archiv',
+        empty: 'Noch nichts erledigt.',
+        restore: 'Wiederherstellen',
+        completedBy: 'Erledigt von :name',
     },
     recurrence: {
         title: 'Wiederholung',

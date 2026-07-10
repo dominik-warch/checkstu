@@ -27,6 +27,7 @@ export interface Occurrence {
     blocking_titles: string[];
     assignee: { id: number; name: string; color: string | null } | null;
     completed_by: { id: number; name: string } | null;
+    completed_at: string | null;
     categories: CategoryTag[];
 }
 

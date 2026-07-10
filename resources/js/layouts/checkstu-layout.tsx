@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { CalendarDays, House, ListChecks, LogOut, Users } from 'lucide-react';
+import { Archive, CalendarDays, House, ListChecks, LogOut, Users } from 'lucide-react';
 import { PropsWithChildren } from 'react';
 
 import PullToRefresh from '@/components/pull-to-refresh';
@@ -33,15 +33,27 @@ export default function CheckstuLayout({ children }: PropsWithChildren) {
         <div className="bg-background text-foreground mx-auto flex min-h-screen w-full max-w-2xl flex-col">
             <header className="sticky top-0 z-10 flex items-center justify-between border-b bg-background/80 px-4 py-3 backdrop-blur">
                 <span className="text-lg font-semibold tracking-tight">{t('common.appName')}</span>
-                <Link
-                    href={route('logout')}
-                    method="post"
-                    as="button"
-                    className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-sm"
-                >
-                    <LogOut className="size-4" />
-                    Abmelden
-                </Link>
+                <div className="flex items-center gap-3">
+                    <Link
+                        href="/archive"
+                        className={cn(
+                            'inline-flex items-center gap-1 text-sm',
+                            current.startsWith('/archive') ? 'text-primary font-medium' : 'text-muted-foreground hover:text-foreground',
+                        )}
+                        aria-label={t('nav.archive')}
+                    >
+                        <Archive className="size-4" />
+                    </Link>
+                    <Link
+                        href={route('logout')}
+                        method="post"
+                        as="button"
+                        className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-sm"
+                    >
+                        <LogOut className="size-4" />
+                        Abmelden
+                    </Link>
+                </div>
             </header>
 
             <main className="flex-1 px-4 pb-28 pt-4">

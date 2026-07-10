@@ -28,6 +28,7 @@ class OccurrencePresenter
             'is_private' => $task->is_private,
             'is_recurring' => $task->recurrence_type !== RecurrenceType::OneOff,
             'due_date' => $occurrence->due_date?->toDateString(),
+            'completed_at' => $occurrence->completed_at?->toIso8601String(),
             'status' => $occurrence->status,
             'is_blocked' => in_array($occurrence->task_id, $blockedTaskIds, true),
             'blocking_titles' => $occurrence->task->relationLoaded('dependencies')

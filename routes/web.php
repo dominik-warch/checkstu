@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ArchiveController;
 use App\Http\Controllers\FamilyController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\TaskCompletionController;
@@ -24,6 +25,10 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('occurrences/{occurrence}/complete', [TaskCompletionController::class, 'store'])
         ->name('occurrences.complete');
+    Route::delete('occurrences/{occurrence}/complete', [TaskCompletionController::class, 'destroy'])
+        ->name('occurrences.restore');
+
+    Route::get('archive', [ArchiveController::class, 'index'])->name('archive');
 
     Route::get('family', [FamilyController::class, 'index'])->name('family');
     Route::post('users', [UserController::class, 'store'])->name('users.store');
