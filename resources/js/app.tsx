@@ -1,6 +1,6 @@
 import '../css/app.css';
 
-import { createInertiaApp } from '@inertiajs/react';
+import { createInertiaApp, router } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
 import { route as routeFn } from 'ziggy-js';
@@ -12,6 +12,21 @@ declare global {
 }
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+
+// Inertia's client-side navigation (every <Link>/router.visit — i.e. almost
+// all in-app navigation) goes through fetch(), which the service worker
+// deliberately never intercepts (task data must stay live). So a failed
+// visit while offline never hits the SW's /offline.html fallback — that
+// fallback only fires for full browser navigations (typing a URL, reloading,
+// opening the installed PWA fresh). Without this, a dropped connection while
+// using the app just silently swallows the click. Force the same offline
+// page for both paths.
+router.on('exception', (event) => {
+    if (!navigator.onLine) {
+        event.preventDefault();
+        window.location.href = '/offline.html';
+    }
+});
 
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,
