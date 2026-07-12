@@ -92,11 +92,7 @@ export default function Show({ task, members, can }: ShowProps) {
                     <ul className="flex flex-col gap-1">
                         {task.blocked_by.map((b) => (
                             <li key={b.id} className="flex items-center gap-2 text-sm">
-                                {b.done ? (
-                                    <Check className="size-4 text-emerald-600" />
-                                ) : (
-                                    <Circle className="text-muted-foreground size-4" />
-                                )}
+                                {b.done ? <Check className="size-4 text-emerald-600" /> : <Circle className="text-muted-foreground size-4" />}
                                 <Link href={route('tasks.show', b.id)} className="hover:underline">
                                     {b.title}
                                 </Link>

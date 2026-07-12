@@ -44,10 +44,7 @@ export default function Family({ members, can }: FamilyProps) {
                 {members.map((member) => (
                     <div key={member.id} className="flex items-center gap-3 rounded-xl border p-3">
                         <div
-                            className={cn(
-                                'flex size-10 shrink-0 items-center justify-center rounded-full font-medium',
-                                !member.color && 'bg-muted',
-                            )}
+                            className={cn('flex size-10 shrink-0 items-center justify-center rounded-full font-medium', !member.color && 'bg-muted')}
                             style={member.color ? { backgroundColor: member.color, color: contrastTextColor(member.color) } : undefined}
                         >
                             {member.name.charAt(0).toUpperCase()}
@@ -72,12 +69,7 @@ export default function Family({ members, can }: FamilyProps) {
                                         </Button>
                                     }
                                 />
-                                <Button
-                                    size="icon"
-                                    variant="ghost"
-                                    aria-label={t('common.delete')}
-                                    onClick={() => remove(member)}
-                                >
+                                <Button size="icon" variant="ghost" aria-label={t('common.delete')} onClick={() => remove(member)}>
                                     <Trash2 className="size-4" />
                                 </Button>
                             </div>

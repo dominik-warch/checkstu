@@ -26,9 +26,7 @@ export default function TasksIndex({ occurrences, filters, members, templates, c
 
             <div className="flex flex-col gap-2">
                 {occurrences.length === 0 && (
-                    <div className="text-muted-foreground rounded-xl border border-dashed p-8 text-center">
-                        Keine offenen Aufgaben.
-                    </div>
+                    <div className="text-muted-foreground rounded-xl border border-dashed p-8 text-center">Keine offenen Aufgaben.</div>
                 )}
                 {occurrences.map((o) => (
                     <TaskCard key={o.id} occurrence={o} members={members} canCompleteOnBehalf={can.completeOnBehalf} />

@@ -3,8 +3,8 @@ import { Lock, Repeat, RotateCcw } from 'lucide-react';
 import { useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
-import { contrastTextColor } from '@/lib/color-contrast';
 import { useSwipeToComplete } from '@/hooks/use-swipe-to-complete';
+import { contrastTextColor } from '@/lib/color-contrast';
 import { t } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import type { Occurrence } from '@/types/checkstu';
@@ -49,9 +49,7 @@ export default function ArchiveCard({ occurrence }: ArchiveCardProps) {
     const swipe = useSwipeToComplete(restore, !processing);
     const reached = swipe.dx >= 96;
 
-    const color = occurrence.completed_by
-        ? (occurrence.assignee?.color ?? null)
-        : null;
+    const color = occurrence.completed_by ? (occurrence.assignee?.color ?? null) : null;
     const textColor = color ? contrastTextColor(color) : null;
     const mutedStyle = textColor ? { color: textColor, opacity: 0.75 } : undefined;
 
@@ -85,17 +83,23 @@ export default function ArchiveCard({ occurrence }: ArchiveCardProps) {
                             {t(priorityLabel[occurrence.priority])}
                         </Badge>
                         {occurrence.is_private && (
-                            <Lock className={cn('size-3.5 shrink-0', !color && 'text-muted-foreground')} style={mutedStyle} aria-label={t('task.private')} />
+                            <Lock
+                                className={cn('size-3.5 shrink-0', !color && 'text-muted-foreground')}
+                                style={mutedStyle}
+                                aria-label={t('task.private')}
+                            />
                         )}
                         {occurrence.is_recurring && (
-                            <Repeat className={cn('size-3.5 shrink-0', !color && 'text-muted-foreground')} style={mutedStyle} aria-label={t('task.recurring')} />
+                            <Repeat
+                                className={cn('size-3.5 shrink-0', !color && 'text-muted-foreground')}
+                                style={mutedStyle}
+                                aria-label={t('task.recurring')}
+                            />
                         )}
                     </div>
 
                     <div className={cn('mt-1 text-sm', !color && 'text-muted-foreground')} style={mutedStyle}>
-                        {occurrence.completed_by
-                            ? t('archive.completedBy', { name: occurrence.completed_by.name })
-                            : null}
+                        {occurrence.completed_by ? t('archive.completedBy', { name: occurrence.completed_by.name }) : null}
                         {' · '}
                         {formatCompletedAt(occurrence.completed_at)}
                     </div>

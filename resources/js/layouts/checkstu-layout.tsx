@@ -1,8 +1,9 @@
 import { Link, usePage } from '@inertiajs/react';
-import { Archive, CalendarDays, House, ListChecks, LogOut, Settings, Users } from 'lucide-react';
+import { Archive, CalendarDays, House, ListChecks, LogOut, Menu, Settings, Users } from 'lucide-react';
 import { PropsWithChildren } from 'react';
 
 import PullToRefresh from '@/components/pull-to-refresh';
+import { Sheet, SheetClose, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { t } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import type { SharedData } from '@/types';
@@ -18,7 +19,6 @@ const navItems: NavItem[] = [
     { label: t('nav.today'), icon: House, routeName: 'home', href: '/' },
     { label: t('nav.tasks'), icon: ListChecks, routeName: 'tasks.index', href: '/tasks' },
     { label: t('nav.upcoming'), icon: CalendarDays, routeName: 'upcoming', href: '/upcoming' },
-    { label: t('nav.family'), icon: Users, routeName: 'family', href: '/family' },
 ];
 
 export default function CheckstuLayout({ children }: PropsWithChildren) {
@@ -26,12 +26,9 @@ export default function CheckstuLayout({ children }: PropsWithChildren) {
     const current = page.url;
     const isGuest = page.props.auth.user.role === 'guest';
 
-    // Guests only ever deal with their own tasks — no family/admin area.
-    const items = navItems.filter((item) => item.routeName !== 'family' || !isGuest);
-
     return (
         <div className="bg-background text-foreground mx-auto flex min-h-screen w-full max-w-2xl flex-col">
-            <header className="sticky top-0 z-10 flex items-center justify-between border-b bg-background/80 px-4 py-3 backdrop-blur">
+            <header className="bg-background/80 sticky top-0 z-10 flex items-center justify-between border-b px-4 py-3 backdrop-blur">
                 <span className="text-lg font-semibold tracking-tight">{t('common.appName')}</span>
                 <div className="flex items-center gap-3">
                     <Link
@@ -44,37 +41,60 @@ export default function CheckstuLayout({ children }: PropsWithChildren) {
                     >
                         <Archive className="size-4" />
                     </Link>
-                    <Link
-                        href="/settings/notifications"
-                        className={cn(
-                            'inline-flex items-center gap-1 text-sm',
-                            current.startsWith('/settings') ? 'text-primary font-medium' : 'text-muted-foreground hover:text-foreground',
-                        )}
-                        aria-label={t('nav.settings')}
-                    >
-                        <Settings className="size-4" />
-                    </Link>
-                    <Link
-                        href={route('logout')}
-                        method="post"
-                        as="button"
-                        className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-sm"
-                    >
-                        <LogOut className="size-4" />
-                        Abmelden
-                    </Link>
+                    <Sheet>
+                        <SheetTrigger asChild>
+                            <button
+                                type="button"
+                                className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-sm"
+                                aria-label={t('nav.menu')}
+                            >
+                                <Menu className="size-4" />
+                            </button>
+                        </SheetTrigger>
+                        <SheetContent side="right" className="flex w-64 flex-col gap-1 p-4">
+                            <SheetTitle className="sr-only">{t('nav.menu')}</SheetTitle>
+
+                            {!isGuest && (
+                                <SheetClose asChild>
+                                    <Link href="/family" className="hover:bg-accent flex items-center gap-2 rounded-md px-2 py-2 text-sm">
+                                        <Users className="size-4" />
+                                        {t('nav.family')}
+                                    </Link>
+                                </SheetClose>
+                            )}
+
+                            <SheetClose asChild>
+                                <Link href="/settings/notifications" className="hover:bg-accent flex items-center gap-2 rounded-md px-2 py-2 text-sm">
+                                    <Settings className="size-4" />
+                                    {t('nav.settings')}
+                                </Link>
+                            </SheetClose>
+
+                            <SheetClose asChild>
+                                <Link
+                                    href={route('logout')}
+                                    method="post"
+                                    as="button"
+                                    className="hover:bg-accent flex items-center gap-2 rounded-md px-2 py-2 text-left text-sm"
+                                >
+                                    <LogOut className="size-4" />
+                                    {t('settings.logOut')}
+                                </Link>
+                            </SheetClose>
+                        </SheetContent>
+                    </Sheet>
                 </div>
             </header>
 
-            <main className="flex-1 px-4 pb-28 pt-4">
+            <main className="flex-1 px-4 pt-4 pb-28">
                 <PullToRefresh>{children}</PullToRefresh>
             </main>
 
             {/* Extra 0.75rem on top of the safe-area inset: iOS's swipe-up-for-app-switcher
                 gesture zone extends a bit beyond the inset value itself, so the inset alone
                 isn't enough clearance for the nav to stay comfortably tappable. */}
-            <nav className="fixed inset-x-0 bottom-0 z-10 mx-auto flex w-full max-w-2xl items-stretch border-t bg-background/95 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] backdrop-blur">
-                {items.map((item) => {
+            <nav className="bg-background/95 fixed inset-x-0 bottom-0 z-10 mx-auto flex w-full max-w-2xl items-stretch border-t pb-[calc(env(safe-area-inset-bottom)+0.75rem)] backdrop-blur">
+                {navItems.map((item) => {
                     const active = item.href === '/' ? current === '/' : current.startsWith(item.href);
                     const Icon = item.icon;
                     return (

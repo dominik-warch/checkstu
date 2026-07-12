@@ -11,13 +11,7 @@ export default function ScopeFilter({ routeName, scope }: { routeName: string; s
     };
 
     const ScopeButton = ({ value, label }: { value: Scope; label: string }) => (
-        <Button
-            type="button"
-            variant={scope === value ? 'default' : 'outline'}
-            size="sm"
-            className={cn('flex-1')}
-            onClick={() => setScope(value)}
-        >
+        <Button type="button" variant={scope === value ? 'default' : 'outline'} size="sm" className={cn('flex-1')} onClick={() => setScope(value)}>
             {label}
         </Button>
     );

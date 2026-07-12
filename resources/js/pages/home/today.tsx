@@ -19,7 +19,7 @@ interface TodayProps {
 function Section({ title, children }: { title: string; children: ReactNode }) {
     return (
         <section className="mb-6">
-            <h2 className="text-muted-foreground mb-2 text-sm font-semibold uppercase tracking-wide">{title}</h2>
+            <h2 className="text-muted-foreground mb-2 text-sm font-semibold tracking-wide uppercase">{title}</h2>
             <div className="flex flex-col gap-2">{children}</div>
         </section>
     );
@@ -31,9 +31,7 @@ export default function Today({ occurrences, filters, members, templates, can }:
     const overdue = actionable.filter((o) => o.status === 'overdue');
     const rest = actionable.filter((o) => o.status !== 'overdue');
 
-    const card = (o: Occurrence) => (
-        <TaskCard key={o.id} occurrence={o} members={members} canCompleteOnBehalf={can.completeOnBehalf} />
-    );
+    const card = (o: Occurrence) => <TaskCard key={o.id} occurrence={o} members={members} canCompleteOnBehalf={can.completeOnBehalf} />;
 
     return (
         <CheckstuLayout>
@@ -44,9 +42,7 @@ export default function Today({ occurrences, filters, members, templates, can }:
             <ScopeFilter routeName="home" scope={filters.scope} />
 
             {occurrences.length === 0 && (
-                <div className="text-muted-foreground rounded-xl border border-dashed p-8 text-center">
-                    Alles erledigt 🎉
-                </div>
+                <div className="text-muted-foreground rounded-xl border border-dashed p-8 text-center">Alles erledigt 🎉</div>
             )}
 
             {overdue.length > 0 && <Section title="Überfällig">{overdue.map(card)}</Section>}

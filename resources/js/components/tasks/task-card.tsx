@@ -12,9 +12,9 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { celebrateCompletion } from '@/lib/confetti';
-import { contrastTextColor } from '@/lib/color-contrast';
 import { useSwipeToComplete } from '@/hooks/use-swipe-to-complete';
+import { contrastTextColor } from '@/lib/color-contrast';
+import { celebrateCompletion } from '@/lib/confetti';
 import { t } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import type { Member, Occurrence } from '@/types/checkstu';
@@ -50,15 +50,11 @@ export default function TaskCard({ occurrence, members, canCompleteOnBehalf }: T
 
     const complete = (completedByUserId?: number) => {
         setProcessing(true);
-        router.post(
-            route('occurrences.complete', occurrence.id),
-            completedByUserId ? { completed_by_user_id: completedByUserId } : {},
-            {
-                preserveScroll: true,
-                onSuccess: () => celebrateCompletion(occurrence.assignee?.color),
-                onFinish: () => setProcessing(false),
-            },
-        );
+        router.post(route('occurrences.complete', occurrence.id), completedByUserId ? { completed_by_user_id: completedByUserId } : {}, {
+            preserveScroll: true,
+            onSuccess: () => celebrateCompletion(occurrence.assignee?.color),
+            onFinish: () => setProcessing(false),
+        });
     };
 
     const swipe = useSwipeToComplete(() => complete(), !occurrence.is_blocked && !processing);
@@ -88,11 +84,7 @@ export default function TaskCard({ occurrence, members, canCompleteOnBehalf }: T
 
             {/* Foreground card (draggable) */}
             <div
-                className={cn(
-                    'flex items-center gap-3 border p-3',
-                    !assigneeColor && 'bg-background',
-                    occurrence.is_blocked && 'opacity-60',
-                )}
+                className={cn('flex items-center gap-3 border p-3', !assigneeColor && 'bg-background', occurrence.is_blocked && 'opacity-60')}
                 style={{
                     transform: `translateX(${swipe.dx}px)`,
                     transition: swipe.animating ? 'transform 200ms ease-out' : undefined,
@@ -135,12 +127,7 @@ export default function TaskCard({ occurrence, members, canCompleteOnBehalf }: T
                         className={cn('mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm', !assigneeColor && 'text-muted-foreground')}
                         style={mutedStyle}
                     >
-                        <span
-                            className={cn(
-                                'inline-flex items-center gap-1',
-                                overdue && !assigneeColor && 'text-rose-600 dark:text-rose-400',
-                            )}
-                        >
+                        <span className={cn('inline-flex items-center gap-1', overdue && !assigneeColor && 'text-rose-600 dark:text-rose-400')}>
                             <Clock className="size-3.5" />
                             {formatDue(occurrence.due_date)}
                         </span>

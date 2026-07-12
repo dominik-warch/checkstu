@@ -26,7 +26,7 @@ export default function TaskFormDialog({ members, task, templates, trigger }: Ta
                 {trigger ?? (
                     <Button
                         size="icon"
-                        className="fixed bottom-[calc(env(safe-area-inset-bottom)+5rem)] right-4 z-20 size-14 rounded-full shadow-lg"
+                        className="fixed right-4 bottom-[calc(env(safe-area-inset-bottom)+5rem)] z-20 size-14 rounded-full shadow-lg"
                         aria-label={t('task.newTask')}
                     >
                         <Plus className="size-6" />

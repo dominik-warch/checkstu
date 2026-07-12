@@ -4,13 +4,7 @@ import { FormEventHandler, ReactNode, useState } from 'react';
 import ColorPicker from '@/components/family/color-picker';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -65,12 +59,7 @@ export default function MemberDialog({ trigger, member }: MemberDialogProps) {
 
                     <div className="grid gap-2">
                         <Label htmlFor="m-username">{t('family.username')}</Label>
-                        <Input
-                            id="m-username"
-                            value={data.username}
-                            onChange={(e) => setData('username', e.target.value)}
-                            autoComplete="off"
-                        />
+                        <Input id="m-username" value={data.username} onChange={(e) => setData('username', e.target.value)} autoComplete="off" />
                         <InputError message={errors.username} />
                     </div>
 

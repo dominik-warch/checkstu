@@ -26,9 +26,7 @@ export default function TitleAutocomplete({ value, onChange, templates, error }:
 
     const query = value.trim().toLowerCase();
     const suggestions =
-        query.length > 0
-            ? templates.filter((tpl) => tpl.name.toLowerCase().includes(query) && tpl.name.toLowerCase() !== query).slice(0, 6)
-            : [];
+        query.length > 0 ? templates.filter((tpl) => tpl.name.toLowerCase().includes(query) && tpl.name.toLowerCase() !== query).slice(0, 6) : [];
 
     return (
         <div className="grid gap-2">

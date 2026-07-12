@@ -28,6 +28,7 @@ const de = {
         family: 'Familie',
         archive: 'Archiv',
         settings: 'Einstellungen',
+        menu: 'Menü',
     },
     task: {
         title: 'Titel',
@@ -118,26 +119,55 @@ const de = {
         unsupported: 'Push-Benachrichtigungen werden auf diesem Gerät/Browser nicht unterstützt.',
         permissionDenied: 'Benachrichtigungen wurden blockiert. Bitte in den Browser-Einstellungen erlauben.',
     },
+    settings: {
+        backToApp: 'Zurück zur App',
+        menuTitle: 'Einstellungen',
+        menuSettings: 'Einstellungen',
+        logOut: 'Abmelden',
+        profileTitle: 'Profil',
+        profileHeading: 'Profilangaben',
+        profileDescription: 'Name und E-Mail-Adresse aktualisieren',
+        name: 'Name',
+        email: 'E-Mail-Adresse',
+        emailUnverified: 'Deine E-Mail-Adresse ist nicht bestätigt.',
+        resendVerification: 'Bestätigungslink erneut senden.',
+        verificationSent: 'Ein neuer Bestätigungslink wurde an deine E-Mail-Adresse gesendet.',
+        save: 'Speichern',
+        saved: 'Gespeichert',
+        passwordTitle: 'Passwort',
+        passwordHeading: 'Passwort ändern',
+        passwordDescription: 'Verwende ein langes, zufälliges Passwort, um dein Konto abzusichern',
+        currentPassword: 'Aktuelles Passwort',
+        newPassword: 'Neues Passwort',
+        confirmPassword: 'Passwort bestätigen',
+        savePassword: 'Passwort speichern',
+        appearanceTitle: 'Darstellung',
+        appearanceHeading: 'Darstellung',
+        appearanceDescription: 'Erscheinungsbild der App anpassen',
+        appearanceLight: 'Hell',
+        appearanceDark: 'Dunkel',
+        appearanceSystem: 'System',
+    },
 } as const;
 
 type Dict = typeof de;
 
 // Dotted key paths into the dictionary, e.g. 'nav.today'.
 type Leaves<T, P extends string = ''> = {
-    [K in keyof T & string]: T[K] extends object
-        ? Leaves<T[K], `${P}${K}.`>
-        : `${P}${K}`;
+    [K in keyof T & string]: T[K] extends object ? Leaves<T[K], `${P}${K}.`> : `${P}${K}`;
 }[keyof T & string];
 
 export type TranslationKey = Leaves<Dict>;
 
 function lookup(key: string): string {
-    return key.split('.').reduce<unknown>((acc, part) => {
-        if (acc && typeof acc === 'object' && part in acc) {
-            return (acc as Record<string, unknown>)[part];
-        }
-        return undefined;
-    }, de) as string ?? key;
+    return (
+        (key.split('.').reduce<unknown>((acc, part) => {
+            if (acc && typeof acc === 'object' && part in acc) {
+                return (acc as Record<string, unknown>)[part];
+            }
+            return undefined;
+        }, de) as string) ?? key
+    );
 }
 
 /**

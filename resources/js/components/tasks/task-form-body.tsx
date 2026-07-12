@@ -3,6 +3,7 @@ import { ChevronDown, Plus, X } from 'lucide-react';
 import { FormEventHandler, useState } from 'react';
 
 import InputError from '@/components/input-error';
+import TitleAutocomplete from '@/components/tasks/title-autocomplete';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -11,7 +12,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
-import TitleAutocomplete from '@/components/tasks/title-autocomplete';
 import { t } from '@/lib/i18n';
 import { buildRrule, RruleFreq, WEEKDAYS } from '@/lib/rrule';
 import type { SharedData } from '@/types';
@@ -122,12 +122,7 @@ export default function TaskFormBody({ members, task, templates = [], onSaved }:
 
     return (
         <form onSubmit={submit} className="grid gap-4">
-            <TitleAutocomplete
-                value={data.title}
-                onChange={(v) => setData('title', v)}
-                templates={isEdit ? [] : templates}
-                error={errors.title}
-            />
+            <TitleAutocomplete value={data.title} onChange={(v) => setData('title', v)} templates={isEdit ? [] : templates} error={errors.title} />
 
             <div className="grid gap-2">
                 <Label htmlFor="description">{t('task.description')}</Label>
@@ -153,17 +148,13 @@ export default function TaskFormBody({ members, task, templates = [], onSaved }:
 
                 {data.recurrence_type !== 'explicit_dates' && (
                     <div className="grid gap-2">
-                        <Label htmlFor="due_date">
-                            {data.recurrence_type === 'rrule' ? t('recurrence.startsOn') : t('task.dueDate')}
-                        </Label>
+                        <Label htmlFor="due_date">{data.recurrence_type === 'rrule' ? t('recurrence.startsOn') : t('task.dueDate')}</Label>
                         <Input
                             id="due_date"
                             type="date"
                             value={data.recurrence_type === 'rrule' ? data.anchor_date : data.due_date}
                             onChange={(e) =>
-                                data.recurrence_type === 'rrule'
-                                    ? setData('anchor_date', e.target.value)
-                                    : setData('due_date', e.target.value)
+                                data.recurrence_type === 'rrule' ? setData('anchor_date', e.target.value) : setData('due_date', e.target.value)
                             }
                         />
                         <InputError message={errors.due_date ?? errors.anchor_date} />
