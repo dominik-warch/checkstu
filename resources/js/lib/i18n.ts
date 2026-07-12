@@ -27,6 +27,7 @@ const de = {
         upcoming: 'Demnächst',
         family: 'Familie',
         archive: 'Archiv',
+        settings: 'Einstellungen',
     },
     task: {
         title: 'Titel',

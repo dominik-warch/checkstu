@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { Archive, CalendarDays, House, ListChecks, LogOut, Users } from 'lucide-react';
+import { Archive, CalendarDays, House, ListChecks, LogOut, Settings, Users } from 'lucide-react';
 import { PropsWithChildren } from 'react';
 
 import PullToRefresh from '@/components/pull-to-refresh';
@@ -43,6 +43,16 @@ export default function CheckstuLayout({ children }: PropsWithChildren) {
                         aria-label={t('nav.archive')}
                     >
                         <Archive className="size-4" />
+                    </Link>
+                    <Link
+                        href="/settings/notifications"
+                        className={cn(
+                            'inline-flex items-center gap-1 text-sm',
+                            current.startsWith('/settings') ? 'text-primary font-medium' : 'text-muted-foreground hover:text-foreground',
+                        )}
+                        aria-label={t('nav.settings')}
+                    >
+                        <Settings className="size-4" />
                     </Link>
                     <Link
                         href={route('logout')}
