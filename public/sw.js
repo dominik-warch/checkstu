@@ -70,3 +70,40 @@ self.addEventListener('message', (event) => {
         self.skipWaiting();
     }
 });
+
+self.addEventListener('push', (event) => {
+    if (!event.data) {
+        return;
+    }
+
+    const payload = event.data.json();
+    const data = payload.data || {};
+
+    event.waitUntil(
+        self.registration.showNotification(payload.title, {
+            body: payload.body,
+            icon: payload.icon || '/icons/icon-192.png',
+            badge: '/icons/icon-192.png',
+            data,
+        }),
+    );
+});
+
+self.addEventListener('notificationclick', (event) => {
+    event.notification.close();
+
+    const url = event.notification.data?.url || '/';
+
+    event.waitUntil(
+        clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+            for (const client of clientList) {
+                if (new URL(client.url).origin === self.location.origin && 'focus' in client) {
+                    client.navigate(url);
+                    return client.focus();
+                }
+            }
+
+            return clients.openWindow(url);
+        }),
+    );
+});

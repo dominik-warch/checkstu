@@ -14,6 +14,7 @@ class CreateTaskAction
     public function __construct(
         private readonly MaterializeOccurrencesAction $materialize,
         private readonly RecordTaskTitleUsageAction $recordTitleUsage,
+        private readonly NotifyTaskAssignmentAction $notifyAssignment,
     ) {}
 
     /**
@@ -77,6 +78,8 @@ class CreateTaskAction
             }
 
             $this->recordTitleUsage->handle($data['title'], $creator);
+
+            $this->notifyAssignment->handle($task, $data['default_assignee_id'] ?? null);
 
             return $task;
         });

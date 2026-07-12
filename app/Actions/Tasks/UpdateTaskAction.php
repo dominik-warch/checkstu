@@ -9,6 +9,10 @@ use Illuminate\Support\Facades\DB;
 
 class UpdateTaskAction
 {
+    public function __construct(
+        private readonly NotifyTaskAssignmentAction $notifyAssignment,
+    ) {}
+
     /**
      * Update a task's definition fields, its categories, and — for a one-off /
      * currently-open occurrence — the due date and assignee shown to users.
@@ -25,6 +29,8 @@ class UpdateTaskAction
     public function handle(Task $task, array $data): Task
     {
         return DB::transaction(function () use ($task, $data): Task {
+            $previousAssigneeId = $task->default_assignee_id;
+
             $task->update([
                 'title' => $data['title'],
                 'description' => $data['description'] ?? null,
@@ -42,6 +48,11 @@ class UpdateTaskAction
                     'due_date' => $data['due_date'] ?? null,
                     'assignee_id' => $data['default_assignee_id'] ?? null,
                 ]);
+            }
+
+            $newAssigneeId = $data['default_assignee_id'] ?? null;
+            if ($newAssigneeId !== null && $newAssigneeId !== $previousAssigneeId) {
+                $this->notifyAssignment->handle($task, $newAssigneeId);
             }
 
             return $task;

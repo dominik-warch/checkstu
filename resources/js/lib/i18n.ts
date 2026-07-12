@@ -108,6 +108,15 @@ const de = {
         color: 'Farbe',
         deleteConfirm: 'Dieses Mitglied wirklich löschen?',
     },
+    notifications: {
+        title: 'Benachrichtigungen',
+        description: 'Erhalte eine Push-Benachrichtigung bei neuen oder überfälligen Aufgaben.',
+        enable: 'Push-Benachrichtigungen aktivieren',
+        disable: 'Push-Benachrichtigungen deaktivieren',
+        enabled: 'Aktiviert auf diesem Gerät',
+        unsupported: 'Push-Benachrichtigungen werden auf diesem Gerät/Browser nicht unterstützt.',
+        permissionDenied: 'Benachrichtigungen wurden blockiert. Bitte in den Browser-Einstellungen erlauben.',
+    },
 } as const;
 
 type Dict = typeof de;

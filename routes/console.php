@@ -16,3 +16,8 @@ Schedule::command('tasks:materialize')->dailyAt('02:00')->withoutOverlapping();
 // bad migration/accidental deletion, NOT volume loss; see the plan for the
 // offsite-replication upgrade path (Litestream) once you have a bucket.
 Schedule::command('sqlite:backup')->dailyAt('03:30')->withoutOverlapping();
+
+// Daily overdue-task push reminder (plan §11). Runs after the 02:00 materialize
+// pass, timed for the morning rather than a 2am buzz. Intentionally re-notifies
+// each day a task stays overdue.
+Schedule::command('tasks:notify-overdue')->dailyAt('08:00')->withoutOverlapping();

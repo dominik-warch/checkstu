@@ -3,6 +3,7 @@
 use App\Http\Controllers\ArchiveController;
 use App\Http\Controllers\FamilyController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\PushSubscriptionController;
 use App\Http\Controllers\TaskCompletionController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\UpcomingController;
@@ -34,6 +35,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('users', [UserController::class, 'store'])->name('users.store');
     Route::patch('users/{user}', [UserController::class, 'update'])->name('users.update');
     Route::delete('users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+
+    Route::post('push-subscriptions', [PushSubscriptionController::class, 'store'])->name('push-subscriptions.store');
+    Route::delete('push-subscriptions', [PushSubscriptionController::class, 'destroy'])->name('push-subscriptions.destroy');
 });
 
 require __DIR__.'/settings.php';
