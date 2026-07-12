@@ -24,7 +24,8 @@ class UpdateTaskRequest extends FormRequest
             'description' => ['nullable', 'string', 'max:2000'],
             'priority' => ['nullable', Rule::in([0, 1, 2, 3])],
             'is_private' => ['boolean'],
-            'default_assignee_id' => ['nullable', 'integer', 'exists:users,id'],
+            // A private task must have an assignee — otherwise nobody could ever see it.
+            'default_assignee_id' => [Rule::requiredIf($this->boolean('is_private')), 'nullable', 'integer', 'exists:users,id'],
             'due_date' => ['nullable', 'date'],
             'category_ids' => ['nullable', 'array'],
             'category_ids.*' => ['integer', 'exists:categories,id'],

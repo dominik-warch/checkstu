@@ -14,11 +14,14 @@ use Illuminate\Support\Facades\Notification;
 class NotifyOverdueOccurrencesAction
 {
     /**
-     * Push-notify about every currently-overdue, non-private occurrence: the
-     * assignee gets a batched push listing their own overdue tasks; occurrences
+     * Push-notify about every currently-overdue occurrence: the assignee gets
+     * a batched push listing their own overdue tasks (this safely includes
+     * private ones handed to them — it only ever goes to that one person, and
+     * the notification body never reveals a private task's title); occurrences
      * left unassigned push every non-guest member (same "up for grabs" rule as
-     * task-assignment pushes). Runs daily and intentionally re-notifies for as
-     * long as a task stays overdue.
+     * task-assignment pushes) — but a private task can never be unassigned AND
+     * broadcast, so that bucket excludes private tasks entirely. Runs daily and
+     * intentionally re-notifies for as long as a task stays overdue.
      */
     public function handle(): void
     {
@@ -26,7 +29,6 @@ class NotifyOverdueOccurrencesAction
             ->whereNull('completed_at')
             ->where('is_skipped', false)
             ->whereDate('due_date', '<', Carbon::today())
-            ->whereHas('task', fn ($q) => $q->where('is_private', false))
             ->with('task')
             ->get();
 
@@ -42,7 +44,7 @@ class NotifyOverdueOccurrencesAction
             }
         }
 
-        $unassigned = $overdue->whereNull('assignee_id');
+        $unassigned = $overdue->whereNull('assignee_id')->reject(fn (TaskOccurrence $o) => $o->task->is_private);
         if ($unassigned->isNotEmpty()) {
             $recipients = User::query()->where('role', '!=', Role::Guest)->get();
             Notification::send($recipients, new TaskOverdueNotification($unassigned));

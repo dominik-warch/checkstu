@@ -19,9 +19,11 @@ class CompleteTaskRequest extends FormRequest
 
         $completedById = $this->input('completed_by_user_id');
 
-        // Attributing the completion to someone else is admin-only.
+        // Attributing the completion to someone else is admin-only, and must
+        // still pass the normal `complete` check — an admin can't use "behalf"
+        // attribution as a backdoor into a private task they can't otherwise see.
         if ($completedById !== null && (int) $completedById !== $user->id) {
-            return $user->can('completeOnBehalf', Task::class);
+            return $user->can('completeOnBehalf', Task::class) && $user->can('complete', $occurrence->task);
         }
 
         return $user->can('complete', $occurrence->task);

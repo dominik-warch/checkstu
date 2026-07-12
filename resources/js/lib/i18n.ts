@@ -44,7 +44,7 @@ const de = {
         whoDidIt: 'Wer hat es erledigt?',
         unassigned: 'Für alle',
         private: 'Privat',
-        privateHint: 'Nur für dich sichtbar',
+        privateHint: 'Nur die zugewiesene Person sieht diese Aufgabe – sonst niemand',
         recurring: 'Wiederkehrende Aufgabe',
         blockedBy: 'Blockiert durch',
         blocks: 'Blockiert',

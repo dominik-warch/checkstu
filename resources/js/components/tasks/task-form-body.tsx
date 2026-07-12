@@ -162,27 +162,27 @@ export default function TaskFormBody({ members, task, templates = [], onSaved }:
                 )}
             </div>
 
-            {!data.is_private && (
-                <div className="grid gap-2">
-                    <Label>{t('task.assignee')}</Label>
-                    <Select
-                        value={data.default_assignee_id ? String(data.default_assignee_id) : NONE}
-                        onValueChange={(v) => setData('default_assignee_id', v === NONE ? null : Number(v))}
-                    >
-                        <SelectTrigger>
-                            <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value={NONE}>{t('task.unassigned')}</SelectItem>
-                            {members.map((m) => (
-                                <SelectItem key={m.id} value={String(m.id)}>
-                                    {m.name}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                </div>
-            )}
+            <div className="grid gap-2">
+                <Label>{t('task.assignee')}</Label>
+                <Select
+                    value={data.default_assignee_id ? String(data.default_assignee_id) : NONE}
+                    onValueChange={(v) => setData('default_assignee_id', v === NONE ? null : Number(v))}
+                >
+                    <SelectTrigger>
+                        <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {/* A private task must always have an assignee — otherwise nobody could see it. */}
+                        {!data.is_private && <SelectItem value={NONE}>{t('task.unassigned')}</SelectItem>}
+                        {members.map((m) => (
+                            <SelectItem key={m.id} value={String(m.id)}>
+                                {m.name}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+                <InputError message={errors.default_assignee_id} />
+            </div>
 
             <label className="flex items-center gap-3 rounded-lg border p-3">
                 <Checkbox
@@ -192,7 +192,9 @@ export default function TaskFormBody({ members, task, templates = [], onSaved }:
                         setData({
                             ...data,
                             is_private: next,
-                            default_assignee_id: next ? auth.user.id : null,
+                            // Ensure an assignee is set the moment privacy is turned on; leave it
+                            // untouched otherwise (turning privacy back off shouldn't unassign it).
+                            default_assignee_id: next && !data.default_assignee_id ? auth.user.id : data.default_assignee_id,
                         });
                     }}
                 />

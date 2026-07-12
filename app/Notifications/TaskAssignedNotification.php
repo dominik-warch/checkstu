@@ -31,9 +31,14 @@ class TaskAssignedNotification extends Notification implements ShouldQueue
 
     public function toWebPush(mixed $notifiable, mixed $notification): WebPushMessage
     {
+        // A private task's title never appears in the OS notification banner —
+        // anyone glancing at the recipient's lock screen could read it, which
+        // would defeat the whole point (e.g. "buy a present for mom").
+        $body = $this->task->is_private ? 'Dir wurde eine private Aufgabe zugewiesen.' : $this->task->title;
+
         return (new WebPushMessage)
             ->title('Neue Aufgabe')
-            ->body($this->task->title)
+            ->body($body)
             ->icon('/icons/icon-192.png')
             ->data(['url' => route('tasks.show', $this->task)]);
     }

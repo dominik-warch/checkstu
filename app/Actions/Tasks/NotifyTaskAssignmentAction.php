@@ -13,14 +13,17 @@ use Illuminate\Support\Facades\Notification;
 class NotifyTaskAssignmentAction
 {
     /**
-     * Push-notify whoever should hear about a new/reassigned task. Private
-     * tasks never notify — only the creator can ever see them. An explicit
-     * assignee gets a direct push; an unassigned task pushes every non-guest
-     * member (mirrors the "unassigned = up for grabs" convention).
+     * Push-notify whoever should hear about a new/reassigned task. An
+     * unassigned private task never notifies anyone — it's a plain
+     * self-reminder the creator already knows about. Otherwise an explicit
+     * assignee gets a direct push (this also covers a private task handed to
+     * someone else — only they hear about it, never a broadcast); an
+     * unassigned non-private task pushes every non-guest member (mirrors the
+     * "unassigned = up for grabs" convention).
      */
     public function handle(Task $task, ?int $assigneeId): void
     {
-        if ($task->is_private) {
+        if ($task->is_private && $assigneeId === null) {
             return;
         }
 

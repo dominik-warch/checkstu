@@ -31,17 +31,28 @@ class TaskOverdueNotification extends Notification implements ShouldQueue
 
     public function toWebPush(mixed $notifiable, mixed $notification): WebPushMessage
     {
-        $first = $this->occurrences->first();
+        // Never print a private task's title in the OS notification banner —
+        // same reasoning as TaskAssignedNotification.
         $count = $this->occurrences->count();
 
-        $body = $count === 1
-            ? $first->task->title
-            : $count.' Aufgaben, u.a. '.$first->task->title;
+        if ($count === 1) {
+            $only = $this->occurrences->first();
+            $body = $only->task->is_private ? 'Eine private Aufgabe ist überfällig.' : $only->task->title;
+
+            return (new WebPushMessage)
+                ->title('Überfällige Aufgabe')
+                ->body($body)
+                ->icon('/icons/icon-192.png')
+                ->data(['url' => route('tasks.show', $only->task)]);
+        }
+
+        $featured = $this->occurrences->first(fn (TaskOccurrence $o) => ! $o->task->is_private);
+        $body = $featured !== null ? $count.' Aufgaben, u.a. '.$featured->task->title : $count.' Aufgaben';
 
         return (new WebPushMessage)
             ->title('Überfällige Aufgabe')
             ->body($body)
             ->icon('/icons/icon-192.png')
-            ->data(['url' => $count === 1 ? route('tasks.show', $first->task) : route('tasks.index')]);
+            ->data(['url' => route('tasks.index')]);
     }
 }

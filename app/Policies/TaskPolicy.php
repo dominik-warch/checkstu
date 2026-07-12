@@ -9,8 +9,11 @@ use App\Models\User;
 
 /**
  * Admins/members share one pool; guests are limited to tasks assigned to them.
- * Private tasks are only ever visible/actionable to the person who created them
- * (this takes precedence over role — not even an admin sees another's private task).
+ * A private task always has an assignee (enforced at validation) and is
+ * visible/actionable ONLY to that assignee — not even its own creator, and not
+ * even an admin. Assigning it to yourself is how you make a plain
+ * self-reminder; assigning it to someone else hands it off completely
+ * ("give someone a private task, everyone else including you is blind to it").
  * Admin-only: delete shared tasks, and complete on behalf of another user.
  */
 class TaskPolicy
@@ -44,9 +47,8 @@ class TaskPolicy
             return false;
         }
 
-        // A private task is edited only by its creator.
         if ($task->is_private) {
-            return $task->created_by === $user->id;
+            return $this->ownsPrivateTask($user, $task);
         }
 
         return true;
@@ -73,18 +75,23 @@ class TaskPolicy
 
     public function delete(User $user, Task $task): bool
     {
-        // Creators manage their own private tasks regardless of role.
         if ($task->is_private) {
-            return $task->created_by === $user->id;
+            return $this->ownsPrivateTask($user, $task);
         }
 
         return $user->isAdmin();
     }
 
-    /** True when the task is private and belongs to someone else. */
+    /** True when the task is private and the user is not its current owner. */
     private function isOthersPrivate(User $user, Task $task): bool
     {
-        return $task->is_private && $task->created_by !== $user->id;
+        return $task->is_private && ! $this->ownsPrivateTask($user, $task);
+    }
+
+    /** Only a private task's assignee may see/act on it — full stop. */
+    private function ownsPrivateTask(User $user, Task $task): bool
+    {
+        return $task->default_assignee_id === $user->id;
     }
 
     /** A guest may touch a task only if it is (or was) assigned to them. */
