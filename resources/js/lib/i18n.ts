@@ -51,6 +51,7 @@ const de = {
         noDescription: 'Keine Beschreibung',
         deleteConfirm: 'Diese Aufgabe wirklich löschen?',
         moreOptions: 'Mehr Optionen',
+        alreadyDone: 'Diese Aufgabe ist bereits erledigt.',
     },
     upcoming: {
         title: 'Demnächst',

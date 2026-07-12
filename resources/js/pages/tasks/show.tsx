@@ -4,9 +4,18 @@ import { ArrowLeft, Check, Circle, Lock, Pencil, Repeat, Trash2 } from 'lucide-r
 import TaskFormDialog from '@/components/tasks/task-form-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { useCompleteOccurrence } from '@/hooks/use-complete-occurrence';
 import CheckstuLayout from '@/layouts/checkstu-layout';
 import { t } from '@/lib/i18n';
-import type { CategoryTag, Member } from '@/types/checkstu';
+import type { CategoryTag, Member, Occurrence } from '@/types/checkstu';
 
 interface TaskDetail {
     id: number;
@@ -26,13 +35,16 @@ interface TaskDetail {
 
 interface ShowProps {
     task: TaskDetail;
+    occurrence: Occurrence | null;
     members: Member[];
-    can: { update: boolean; delete: boolean };
+    can: { update: boolean; delete: boolean; complete: boolean; completeOnBehalf: boolean };
 }
 
 const priorityLabel = ['priority.low', 'priority.normal', 'priority.high', 'priority.urgent'] as const;
 
-export default function Show({ task, members, can }: ShowProps) {
+export default function Show({ task, occurrence, members, can }: ShowProps) {
+    const { processing, complete } = useCompleteOccurrence(occurrence?.id ?? 0, occurrence?.assignee?.color);
+
     const remove = () => {
         if (confirm(t('task.deleteConfirm'))) {
             router.delete(route('tasks.destroy', task.id));
@@ -66,6 +78,48 @@ export default function Show({ task, members, can }: ShowProps) {
                     <Badge variant="secondary">{t(priorityLabel[task.priority])}</Badge>
                 </div>
             </div>
+
+            {occurrence && can.complete && (
+                <div className="mb-6">
+                    {can.completeOnBehalf ? (
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button className="w-full" disabled={processing || occurrence.is_blocked}>
+                                    <Check className="size-4" />
+                                    {t('task.markDone')}
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="start" className="w-(--radix-dropdown-menu-trigger-width)">
+                                <DropdownMenuLabel>{t('task.whoDidIt')}</DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                {members.map((m) => (
+                                    <DropdownMenuItem key={m.id} onClick={() => complete(m.id)}>
+                                        {m.name}
+                                    </DropdownMenuItem>
+                                ))}
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    ) : (
+                        <Button className="w-full" disabled={processing || occurrence.is_blocked} onClick={() => complete()}>
+                            <Check className="size-4" />
+                            {t('task.markDone')}
+                        </Button>
+                    )}
+                    {occurrence.is_blocked && occurrence.blocking_titles.length > 0 && (
+                        <p className="text-muted-foreground mt-2 flex items-center gap-1 text-xs">
+                            <Lock className="size-3" />
+                            {t('task.waitingOn', { task: occurrence.blocking_titles.join(', ') })}
+                        </p>
+                    )}
+                </div>
+            )}
+
+            {!occurrence && (
+                <div className="mb-6 flex items-center gap-2 text-sm text-emerald-600 dark:text-emerald-400">
+                    <Check className="size-4" />
+                    {t('task.alreadyDone')}
+                </div>
+            )}
 
             <dl className="mb-6 grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
                 <dt className="text-muted-foreground">{t('task.dueDate')}</dt>

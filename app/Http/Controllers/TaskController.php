@@ -59,13 +59,16 @@ class TaskController extends Controller
         return back();
     }
 
-    public function show(Request $request, Task $task): Response
+    public function show(Request $request, Task $task, ResolveDependenciesAction $deps): Response
     {
         Gate::authorize('view', $task);
 
-        $task->load(['categories', 'openOccurrence.assignee', 'dependencies.openOccurrence', 'dependents']);
+        $task->load(['categories', 'openOccurrence.assignee', 'openOccurrence.task.categories', 'dependencies.openOccurrence', 'dependents']);
 
         return Inertia::render('tasks/show', [
+            'occurrence' => $task->openOccurrence
+                ? OccurrencePresenter::toArray($task->openOccurrence, $deps->blockedTaskIds()->all())
+                : null,
             'task' => [
                 'id' => $task->id,
                 'title' => $task->title,
@@ -93,6 +96,8 @@ class TaskController extends Controller
             'can' => [
                 'update' => $request->user()->can('update', $task),
                 'delete' => $request->user()->can('delete', $task),
+                'complete' => $request->user()->can('complete', $task),
+                'completeOnBehalf' => $request->user()->can('completeOnBehalf', Task::class),
             ],
         ]);
     }

@@ -207,6 +207,55 @@ class TaskTest extends TestCase
         $this->actingAs($user)->get(route('upcoming'))->assertOk();
     }
 
+    public function test_task_detail_exposes_the_open_occurrence_for_completion(): void
+    {
+        $user = User::factory()->create();
+        $task = Task::factory()->create();
+        $occurrence = TaskOccurrence::factory()->for($task)->create([
+            'assignee_id' => $user->id,
+            'due_date' => now()->toDateString(),
+        ]);
+
+        $this->actingAs($user)->get(route('tasks.show', $task))
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('occurrence.id', $occurrence->id)
+                ->where('occurrence.completed_at', null)
+                ->where('can.complete', true)
+            );
+    }
+
+    public function test_task_detail_shows_no_occurrence_once_completed(): void
+    {
+        $user = User::factory()->create();
+        $task = Task::factory()->create();
+        $occurrence = TaskOccurrence::factory()->for($task)->create([
+            'assignee_id' => $user->id,
+            'due_date' => now()->toDateString(),
+        ]);
+
+        $this->actingAs($user)->post(route('occurrences.complete', $occurrence))->assertRedirect();
+
+        $this->actingAs($user)->get(route('tasks.show', $task))
+            ->assertInertia(fn (Assert $page) => $page->where('occurrence', null));
+    }
+
+    public function test_completing_a_task_from_the_detail_page(): void
+    {
+        $user = User::factory()->create();
+        $task = Task::factory()->create();
+        $occurrence = TaskOccurrence::factory()->for($task)->create([
+            'assignee_id' => $user->id,
+            'due_date' => now()->toDateString(),
+        ]);
+
+        $this->actingAs($user)
+            ->post(route('occurrences.complete', $occurrence))
+            ->assertRedirect();
+
+        $this->assertNotNull($occurrence->refresh()->completed_at);
+        $this->assertSame($user->id, $occurrence->completed_by);
+    }
+
     public function test_mine_tab_includes_unassigned_tasks(): void
     {
         $user = User::factory()->create();

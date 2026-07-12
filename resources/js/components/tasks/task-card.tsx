@@ -1,6 +1,5 @@
-import { Link, router } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 import { Check, Circle, Clock, Lock, Repeat } from 'lucide-react';
-import { useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -12,9 +11,9 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useCompleteOccurrence } from '@/hooks/use-complete-occurrence';
 import { useSwipeToComplete } from '@/hooks/use-swipe-to-complete';
 import { contrastTextColor } from '@/lib/color-contrast';
-import { celebrateCompletion } from '@/lib/confetti';
 import { t } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import type { Member, Occurrence } from '@/types/checkstu';
@@ -46,16 +45,7 @@ interface TaskCardProps {
 }
 
 export default function TaskCard({ occurrence, members, canCompleteOnBehalf }: TaskCardProps) {
-    const [processing, setProcessing] = useState(false);
-
-    const complete = (completedByUserId?: number) => {
-        setProcessing(true);
-        router.post(route('occurrences.complete', occurrence.id), completedByUserId ? { completed_by_user_id: completedByUserId } : {}, {
-            preserveScroll: true,
-            onSuccess: () => celebrateCompletion(occurrence.assignee?.color),
-            onFinish: () => setProcessing(false),
-        });
-    };
+    const { processing, complete } = useCompleteOccurrence(occurrence.id, occurrence.assignee?.color);
 
     const swipe = useSwipeToComplete(() => complete(), !occurrence.is_blocked && !processing);
     const reached = swipe.dx >= 96;
