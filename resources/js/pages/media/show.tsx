@@ -1,9 +1,11 @@
-import { Head, Link } from '@inertiajs/react';
-import { ArrowLeft } from 'lucide-react';
+import { Head, Link, router } from '@inertiajs/react';
+import { ArrowLeft, CheckCheck } from 'lucide-react';
+import { useState } from 'react';
 
 import MediaPoster from '@/components/media/media-poster';
 import SeasonAccordion from '@/components/media/season-accordion';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import CheckstuLayout, { mediaNavItems } from '@/layouts/checkstu-layout';
 import { t } from '@/lib/i18n';
 import type { MediaItemDetail, WatchStatus } from '@/types/media';
@@ -19,6 +21,25 @@ const statusLabel: Record<WatchStatus, string> = {
 };
 
 export default function Show({ item }: ShowProps) {
+    const [processing, setProcessing] = useState(false);
+    // Bumped after "mark all watched" succeeds, forcing every SeasonAccordion to remount —
+    // any that were already expanded had their own stale locally-fetched episode list, which
+    // a plain Inertia prop refresh (item.seasons[].watched_count) doesn't reach into.
+    const [refreshKey, setRefreshKey] = useState(0);
+
+    function markAllWatched() {
+        setProcessing(true);
+        router.post(
+            route('media.items.watchAll', item.id),
+            {},
+            {
+                preserveScroll: true,
+                onSuccess: () => setRefreshKey((k) => k + 1),
+                onFinish: () => setProcessing(false),
+            },
+        );
+    }
+
     return (
         <CheckstuLayout navItems={mediaNavItems} context="media">
             <Head title={item.title_de} />
@@ -44,10 +65,17 @@ export default function Show({ item }: ShowProps) {
 
             {item.overview && <p className="mt-4 text-sm">{item.overview}</p>}
 
+            {item.entry && (
+                <Button type="button" variant="outline" size="sm" className="mt-4" disabled={processing} onClick={markAllWatched}>
+                    <CheckCheck className="size-4" />
+                    {t('media.markAllWatched')}
+                </Button>
+            )}
+
             <h2 className="mt-6 mb-2 font-semibold">{t('media.seasons')}</h2>
             <div className="flex flex-col gap-2">
                 {item.seasons.map((season) => (
-                    <SeasonAccordion key={season.id} season={season} />
+                    <SeasonAccordion key={`${season.id}-${refreshKey}`} season={season} />
                 ))}
             </div>
         </CheckstuLayout>

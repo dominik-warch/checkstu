@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Actions\Media\FetchSeasonEpisodesAction;
+use App\Actions\Media\MarkSeasonWatchedAction;
+use App\Http\Requests\Media\MarkSeasonWatchedRequest;
 use App\Models\MediaEpisode;
 use App\Models\MediaEpisodeWatch;
 use App\Models\MediaSeason;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class MediaSeasonController extends Controller
@@ -32,5 +35,12 @@ class MediaSeasonController extends Controller
                 'watched' => in_array($episode->id, $watchedIds, true),
             ])->values(),
         ]);
+    }
+
+    public function markWatched(MarkSeasonWatchedRequest $request, MediaSeason $season, MarkSeasonWatchedAction $action): RedirectResponse
+    {
+        $action->handle($request->user(), $season);
+
+        return back();
     }
 }

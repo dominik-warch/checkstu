@@ -97,10 +97,10 @@ export default function MediaSearch({ onAdded }: MediaSearchProps) {
                         <div key={key} className="flex items-center gap-3 rounded-lg border p-2">
                             <MediaPoster path={result.poster_path} alt={result.title} className="h-16 w-11" />
                             <div className="min-w-0 flex-1">
-                                <p className="truncate font-medium">{result.title}</p>
+                                <p className="line-clamp-2 font-medium break-words">{result.title}</p>
                                 {result.release_date && <p className="text-muted-foreground text-xs">{result.release_date.slice(0, 4)}</p>}
                             </div>
-                            <div className="flex shrink-0 gap-1">
+                            <div className="flex shrink-0 flex-col gap-1">
                                 <Button size="sm" variant="outline" disabled={busy} onClick={() => add(result, 'watchlist')}>
                                     {t('media.addToWatchlist')}
                                 </Button>

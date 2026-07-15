@@ -20,6 +20,7 @@ const de = {
         search: 'Suchen',
         loading: 'Wird geladen …',
         back: 'Zurück',
+        all: 'Alle',
     },
     nav: {
         today: 'Heute',
@@ -139,6 +140,8 @@ const de = {
         nothingInProgress: 'Du schaust gerade nichts.',
         markEpisodeWatched: 'Als gesehen markieren',
         unmarkEpisodeWatched: 'Als ungesehen markieren',
+        markSeasonWatched: 'Staffel als gesehen markieren',
+        markAllWatched: 'Alle als gesehen markieren',
         overview: 'Beschreibung',
         releaseDate: 'Veröffentlicht am',
         seasons: 'Staffeln',

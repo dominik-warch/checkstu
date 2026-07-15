@@ -28,6 +28,11 @@ export interface MediaEntrySummary {
     media_item: MediaItemSummary;
 }
 
+export interface LibraryFilters {
+    status: WatchStatus | 'all';
+    type: MediaType | 'all';
+}
+
 export interface MediaSeasonSummary {
     id: number;
     season_number: number;
@@ -47,7 +52,7 @@ export interface MediaEpisodeDetail {
 
 export interface MediaNextEpisodeEntry {
     media_item: MediaItemSummary;
-    next_episode: { season_number: number; episode_number: number; name: string } | null;
+    next_episode: { id: number; season_number: number; episode_number: number; name: string } | null;
 }
 
 export interface MediaItemDetail {

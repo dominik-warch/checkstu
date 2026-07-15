@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Actions\Media\MarkAllEpisodesWatchedAction;
 use App\Actions\Media\RefreshShowSeasonsAction;
 use App\Enums\MediaType;
+use App\Http\Requests\Media\MarkShowWatchedRequest;
 use App\Models\MediaEntry;
 use App\Models\MediaItem;
 use App\Support\MediaItemPresenter;
@@ -34,5 +36,13 @@ class MediaItemController extends Controller
         return Inertia::render('media/show', [
             'item' => MediaItemPresenter::detail($mediaItem, $entry, $request->user()),
         ]);
+    }
+
+    public function markAllWatched(MarkShowWatchedRequest $request, MediaItem $mediaItem, MarkAllEpisodesWatchedAction $action): RedirectResponse
+    {
+        $mediaItem->load('seasons');
+        $action->handle($request->user(), $mediaItem);
+
+        return back();
     }
 }
