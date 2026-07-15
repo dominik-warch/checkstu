@@ -26,6 +26,7 @@ export interface SharedData {
     quote: { message: string; author: string };
     auth: Auth;
     vapidPublicKey: string | null;
+    tmdbImageBaseUrl: string;
     [key: string]: unknown;
 }
 

@@ -3,6 +3,13 @@
 use App\Http\Controllers\ArchiveController;
 use App\Http\Controllers\FamilyController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\MediaEntryController;
+use App\Http\Controllers\MediaEpisodeWatchController;
+use App\Http\Controllers\MediaHomeController;
+use App\Http\Controllers\MediaItemController;
+use App\Http\Controllers\MediaLibraryController;
+use App\Http\Controllers\MediaSearchController;
+use App\Http\Controllers\MediaSeasonController;
 use App\Http\Controllers\PushSubscriptionController;
 use App\Http\Controllers\TaskCompletionController;
 use App\Http\Controllers\TaskController;
@@ -38,6 +45,20 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('push-subscriptions', [PushSubscriptionController::class, 'store'])->name('push-subscriptions.store');
     Route::delete('push-subscriptions', [PushSubscriptionController::class, 'destroy'])->name('push-subscriptions.destroy');
+
+    // Media tracking — a separate, personal-per-user app context (see IMPLEMENTATION_PLAN.md §Media).
+    Route::prefix('media')->name('media.')->group(function () {
+        Route::get('/', [MediaHomeController::class, 'index'])->name('home');
+        Route::get('library', [MediaLibraryController::class, 'index'])->name('library');
+        Route::get('search', [MediaSearchController::class, 'index'])->name('search');
+        Route::post('entries', [MediaEntryController::class, 'store'])->name('entries.store');
+        Route::patch('entries/{entry}', [MediaEntryController::class, 'update'])->name('entries.update');
+        Route::delete('entries/{entry}', [MediaEntryController::class, 'destroy'])->name('entries.destroy');
+        Route::get('items/{mediaItem}', [MediaItemController::class, 'show'])->name('items.show');
+        Route::get('seasons/{season}/episodes', [MediaSeasonController::class, 'episodes'])->name('seasons.episodes');
+        Route::post('episodes/{episode}/watch', [MediaEpisodeWatchController::class, 'store'])->name('episodes.watch.store');
+        Route::delete('episodes/{episode}/watch', [MediaEpisodeWatchController::class, 'destroy'])->name('episodes.watch.destroy');
+    });
 });
 
 require __DIR__.'/settings.php';

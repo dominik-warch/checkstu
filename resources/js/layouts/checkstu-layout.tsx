@@ -1,27 +1,38 @@
 import { Link, usePage } from '@inertiajs/react';
-import { Archive, CalendarDays, House, ListChecks, LogOut, Menu, Settings, Users } from 'lucide-react';
+import { Archive, CalendarDays, Film, House, Library, ListChecks, LogOut, Menu, Settings, Users } from 'lucide-react';
 import { PropsWithChildren } from 'react';
 
+import ContextSwitcher from '@/components/context-switcher';
 import PullToRefresh from '@/components/pull-to-refresh';
 import { Sheet, SheetClose, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { t } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import type { SharedData } from '@/types';
 
-interface NavItem {
+export interface NavItem {
     label: string;
     icon: typeof House;
     routeName: string;
     href: string;
 }
 
-const navItems: NavItem[] = [
+export const tasksNavItems: NavItem[] = [
     { label: t('nav.today'), icon: House, routeName: 'home', href: '/' },
     { label: t('nav.tasks'), icon: ListChecks, routeName: 'tasks.index', href: '/tasks' },
     { label: t('nav.upcoming'), icon: CalendarDays, routeName: 'upcoming', href: '/upcoming' },
 ];
 
-export default function CheckstuLayout({ children }: PropsWithChildren) {
+export const mediaNavItems: NavItem[] = [
+    { label: t('media.home'), icon: Film, routeName: 'media.home', href: '/media' },
+    { label: t('media.library'), icon: Library, routeName: 'media.library', href: '/media/library' },
+];
+
+interface CheckstuLayoutProps {
+    navItems?: NavItem[];
+    context?: 'tasks' | 'media';
+}
+
+export default function CheckstuLayout({ children, navItems = tasksNavItems, context = 'tasks' }: PropsWithChildren<CheckstuLayoutProps>) {
     const page = usePage<SharedData>();
     const current = page.url;
     const isGuest = page.props.auth.user.role === 'guest';
@@ -29,18 +40,20 @@ export default function CheckstuLayout({ children }: PropsWithChildren) {
     return (
         <div className="bg-background text-foreground mx-auto flex min-h-screen w-full max-w-2xl flex-col">
             <header className="bg-background/80 sticky top-0 z-10 flex items-center justify-between border-b px-4 py-3 backdrop-blur">
-                <span className="text-lg font-semibold tracking-tight">{t('common.appName')}</span>
+                <ContextSwitcher context={context} />
                 <div className="flex items-center gap-3">
-                    <Link
-                        href="/archive"
-                        className={cn(
-                            'inline-flex items-center gap-1 text-sm',
-                            current.startsWith('/archive') ? 'text-primary font-medium' : 'text-muted-foreground hover:text-foreground',
-                        )}
-                        aria-label={t('nav.archive')}
-                    >
-                        <Archive className="size-4" />
-                    </Link>
+                    {context === 'tasks' && (
+                        <Link
+                            href="/archive"
+                            className={cn(
+                                'inline-flex items-center gap-1 text-sm',
+                                current.startsWith('/archive') ? 'text-primary font-medium' : 'text-muted-foreground hover:text-foreground',
+                            )}
+                            aria-label={t('nav.archive')}
+                        >
+                            <Archive className="size-4" />
+                        </Link>
+                    )}
                     <Sheet>
                         <SheetTrigger asChild>
                             <button
@@ -54,7 +67,7 @@ export default function CheckstuLayout({ children }: PropsWithChildren) {
                         <SheetContent side="right" className="flex w-64 flex-col gap-1 p-4">
                             <SheetTitle className="sr-only">{t('nav.menu')}</SheetTitle>
 
-                            {!isGuest && (
+                            {!isGuest && context === 'tasks' && (
                                 <SheetClose asChild>
                                     <Link href="/family" className="hover:bg-accent flex items-center gap-2 rounded-md px-2 py-2 text-sm">
                                         <Users className="size-4" />

@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 
+import { xsrfHeader } from '@/lib/xsrf';
+
 function urlBase64ToUint8Array(base64: string): Uint8Array {
     const padding = '='.repeat((4 - (base64.length % 4)) % 4);
     const base64Safe = (base64 + padding).replace(/-/g, '+').replace(/_/g, '/');
@@ -15,13 +17,6 @@ function subscriptionToPayload(subscription: PushSubscription) {
         endpoint: json.endpoint,
         keys: { p256dh: json.keys?.p256dh, auth: json.keys?.auth },
     };
-}
-
-/** Laravel's XSRF-TOKEN cookie is readable JS-side by design — axios/Inertia send it back as X-XSRF-TOKEN. */
-function xsrfHeader(): Record<string, string> {
-    const match = document.cookie.match(/(?:^|; )XSRF-TOKEN=([^;]*)/);
-
-    return match ? { 'X-XSRF-TOKEN': decodeURIComponent(match[1]) } : {};
 }
 
 /**

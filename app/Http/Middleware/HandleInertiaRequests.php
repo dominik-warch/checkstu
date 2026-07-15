@@ -46,6 +46,7 @@ class HandleInertiaRequests extends Middleware
                 'user' => $request->user(),
             ],
             'vapidPublicKey' => config('webpush.vapid.public_key'),
+            'tmdbImageBaseUrl' => config('services.tmdb.image_base_url'),
         ]);
     }
 }
