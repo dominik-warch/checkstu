@@ -24,6 +24,7 @@ export const tasksNavItems: NavItem[] = [
 
 export const mediaNavItems: NavItem[] = [
     { label: t('media.home'), icon: Film, routeName: 'media.home', href: '/media' },
+    { label: t('media.comingUp'), icon: CalendarDays, routeName: 'media.comingUp', href: '/media/coming-up' },
     { label: t('media.library'), icon: Library, routeName: 'media.library', href: '/media/library' },
 ];
 
@@ -108,7 +109,10 @@ export default function CheckstuLayout({ children, navItems = tasksNavItems, con
                 isn't enough clearance for the nav to stay comfortably tappable. */}
             <nav className="bg-background/95 fixed inset-x-0 bottom-0 z-10 mx-auto flex w-full max-w-2xl items-stretch border-t pb-[calc(env(safe-area-inset-bottom)+0.75rem)] backdrop-blur">
                 {navItems.map((item) => {
-                    const active = item.href === '/' ? current === '/' : current.startsWith(item.href);
+                    // Section-root hrefs ('/', '/media') are exact-match only — otherwise they'd
+                    // also light up as "active" on every sub-page whose href they're a prefix of.
+                    const isSectionRoot = item.href === '/' || item.href === '/media';
+                    const active = isSectionRoot ? current === item.href : current.startsWith(item.href);
                     const Icon = item.icon;
                     return (
                         <Link

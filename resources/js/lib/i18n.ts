@@ -147,6 +147,8 @@ const de = {
         seasons: 'Staffeln',
         allCaughtUp: 'Alle verfügbaren Folgen gesehen.',
         addNew: 'Hinzufügen',
+        comingUp: 'Demnächst',
+        comingUpEmpty: 'Nichts Neues in Sicht.',
     },
     notifications: {
         title: 'Benachrichtigungen',

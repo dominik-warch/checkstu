@@ -55,6 +55,12 @@ export interface MediaNextEpisodeEntry {
     next_episode: { id: number; season_number: number; episode_number: number; name: string } | null;
 }
 
+export interface MediaComingUpItem {
+    date: string;
+    media_item: MediaItemSummary;
+    episode: { season_number: number; episode_number: number; name: string } | null;
+}
+
 export interface MediaItemDetail {
     id: number;
     tmdb_id: number;

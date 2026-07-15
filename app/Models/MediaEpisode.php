@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Database\Factories\MediaEpisodeFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -12,7 +13,7 @@ use Illuminate\Support\Carbon;
 
 class MediaEpisode extends Model
 {
-    /** @use HasFactory<\Database\Factories\MediaEpisodeFactory> */
+    /** @use HasFactory<MediaEpisodeFactory> */
     use HasFactory;
 
     protected $fillable = [
@@ -43,5 +44,11 @@ class MediaEpisode extends Model
     public function hasAired(): bool
     {
         return $this->air_date !== null && $this->air_date->lte(Carbon::today());
+    }
+
+    /** A null air_date means "not yet scheduled", not "upcoming" — it has no date to sort by. */
+    public function isUpcoming(): bool
+    {
+        return $this->air_date !== null && $this->air_date->gt(Carbon::today());
     }
 }

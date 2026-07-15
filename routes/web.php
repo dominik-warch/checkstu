@@ -3,6 +3,7 @@
 use App\Http\Controllers\ArchiveController;
 use App\Http\Controllers\FamilyController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\MediaComingUpController;
 use App\Http\Controllers\MediaEntryController;
 use App\Http\Controllers\MediaEpisodeWatchController;
 use App\Http\Controllers\MediaHomeController;
@@ -49,6 +50,7 @@ Route::middleware(['auth'])->group(function () {
     // Media tracking — a separate, personal-per-user app context (see IMPLEMENTATION_PLAN.md §Media).
     Route::prefix('media')->name('media.')->group(function () {
         Route::get('/', [MediaHomeController::class, 'index'])->name('home');
+        Route::get('coming-up', [MediaComingUpController::class, 'index'])->name('comingUp');
         Route::get('library', [MediaLibraryController::class, 'index'])->name('library');
         Route::get('search', [MediaSearchController::class, 'index'])->name('search');
         Route::post('entries', [MediaEntryController::class, 'store'])->name('entries.store');

@@ -12,6 +12,7 @@ use App\Models\MediaItem;
 use App\Models\MediaSeason;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
@@ -157,6 +158,37 @@ class MediaHomeTest extends TestCase
 
         $this->actingAs($user)->get(route('media.home'))->assertInertia(
             fn (Assert $page) => $page->has('nextEpisodes', 1)->where('nextEpisodes.0.next_episode', null),
+        );
+    }
+
+    public function test_shows_are_sorted_by_most_recently_watched_episode(): void
+    {
+        $user = User::factory()->create();
+
+        $itemA = MediaItem::factory()->tv()->create(['title_de' => 'Serie A']);
+        $seasonA = MediaSeason::factory()->for($itemA, 'mediaItem')->create(['episode_count' => 2, 'episodes_fetched_at' => now()]);
+        $epA1 = MediaEpisode::factory()->for($seasonA, 'season')->create(['episode_number' => 1, 'air_date' => now()->subMonth()]);
+        MediaEpisode::factory()->for($seasonA, 'season')->create(['episode_number' => 2, 'air_date' => now()->subDay()]);
+        MediaEntry::factory()->for($user)->for($itemA, 'mediaItem')->create(['status' => WatchStatus::Watching]);
+
+        $itemB = MediaItem::factory()->tv()->create(['title_de' => 'Serie B']);
+        $seasonB = MediaSeason::factory()->for($itemB, 'mediaItem')->create(['episode_count' => 2, 'episodes_fetched_at' => now()]);
+        $epB1 = MediaEpisode::factory()->for($seasonB, 'season')->create(['episode_number' => 1, 'air_date' => now()->subMonth()]);
+        MediaEpisode::factory()->for($seasonB, 'season')->create(['episode_number' => 2, 'air_date' => now()->subDay()]);
+        MediaEntry::factory()->for($user)->for($itemB, 'mediaItem')->create(['status' => WatchStatus::Watching]);
+
+        // Watch A's episode an hour "ago", then B's just now — B checked more recently should sort first.
+        Carbon::setTestNow(now()->subHour());
+        MediaEpisodeWatch::factory()->for($user)->for($epA1, 'episode')->create();
+
+        Carbon::setTestNow();
+        MediaEpisodeWatch::factory()->for($user)->for($epB1, 'episode')->create();
+
+        $this->actingAs($user)->get(route('media.home'))->assertInertia(
+            fn (Assert $page) => $page
+                ->has('nextEpisodes', 2)
+                ->where('nextEpisodes.0.media_item.title_de', 'Serie B')
+                ->where('nextEpisodes.1.media_item.title_de', 'Serie A'),
         );
     }
 
