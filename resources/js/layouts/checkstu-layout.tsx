@@ -2,7 +2,6 @@ import { Link, usePage } from '@inertiajs/react';
 import { Archive, CalendarDays, Film, House, Library, ListChecks, LogOut, Menu, Settings, Users } from 'lucide-react';
 import { PropsWithChildren } from 'react';
 
-import ContextSwitcher from '@/components/context-switcher';
 import PullToRefresh from '@/components/pull-to-refresh';
 import { Sheet, SheetClose, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { t } from '@/lib/i18n';
@@ -41,7 +40,7 @@ export default function CheckstuLayout({ children, navItems = tasksNavItems, con
     return (
         <div className="bg-background text-foreground mx-auto flex min-h-screen w-full max-w-2xl flex-col">
             <header className="bg-background/80 sticky top-0 z-10 flex items-center justify-between border-b px-4 py-3 backdrop-blur">
-                <ContextSwitcher context={context} />
+                <span className="text-lg font-semibold tracking-tight">{t('common.appName')}</span>
                 <div className="flex items-center gap-3">
                     {context === 'tasks' && (
                         <Link
@@ -67,6 +66,34 @@ export default function CheckstuLayout({ children, navItems = tasksNavItems, con
                         </SheetTrigger>
                         <SheetContent side="right" className="flex w-64 flex-col gap-1 p-4">
                             <SheetTitle className="sr-only">{t('nav.menu')}</SheetTitle>
+
+                            <SheetClose asChild>
+                                <Link
+                                    href="/"
+                                    className={cn(
+                                        'flex items-center gap-2 rounded-md px-2 py-2 text-sm',
+                                        context === 'tasks' ? 'text-primary font-medium' : 'hover:bg-accent',
+                                    )}
+                                >
+                                    <House className="size-4" />
+                                    {t('nav.switchToTasks')}
+                                </Link>
+                            </SheetClose>
+
+                            <SheetClose asChild>
+                                <Link
+                                    href="/media"
+                                    className={cn(
+                                        'flex items-center gap-2 rounded-md px-2 py-2 text-sm',
+                                        context === 'media' ? 'text-primary font-medium' : 'hover:bg-accent',
+                                    )}
+                                >
+                                    <Film className="size-4" />
+                                    {t('nav.switchToMedia')}
+                                </Link>
+                            </SheetClose>
+
+                            <div className="my-1 border-t" />
 
                             {!isGuest && context === 'tasks' && (
                                 <SheetClose asChild>
