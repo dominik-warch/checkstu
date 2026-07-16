@@ -30,10 +30,18 @@ class MediaHomeController extends Controller
 
         $entries = $this->sortByLastWatched($entries, $user);
 
-        $nextEpisodes = $entries->map(fn (MediaEntry $entry) => [
-            'media_item' => MediaHomePresenter::mediaItemSummary($entry->mediaItem),
-            'next_episode' => $resolveNextEpisode->handle($user, $entry->mediaItem),
-        ])->values()->all();
+        // A show with nothing aired-and-unwatched right now (caught up, next
+        // episode not out yet) has no place on a "next episode" list — it
+        // would only ever show a "continue watching" placeholder with nothing
+        // to actually watch.
+        $nextEpisodes = $entries
+            ->map(fn (MediaEntry $entry) => [
+                'media_item' => MediaHomePresenter::mediaItemSummary($entry->mediaItem),
+                'next_episode' => $resolveNextEpisode->handle($user, $entry->mediaItem),
+            ])
+            ->filter(fn (array $row) => $row['next_episode'] !== null)
+            ->values()
+            ->all();
 
         return Inertia::render('media/home', [
             'nextEpisodes' => $nextEpisodes,

@@ -81,7 +81,7 @@ export interface MediaEpisodeDetail {
 
 export interface MediaNextEpisodeEntry {
     media_item: MediaItemSummary;
-    next_episode: { id: number; season_number: number; episode_number: number; name: string } | null;
+    next_episode: { id: number; season_number: number; episode_number: number; name: string };
 }
 
 export interface MediaComingUpItem {

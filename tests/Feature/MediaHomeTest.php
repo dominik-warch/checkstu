@@ -130,7 +130,7 @@ class MediaHomeTest extends TestCase
         $this->assertDatabaseHas('media_seasons', ['media_item_id' => $item->id, 'season_number' => 2]);
     }
 
-    public function test_next_episode_stays_null_when_genuinely_nothing_new_is_available(): void
+    public function test_a_show_with_nothing_new_available_is_excluded(): void
     {
         $user = User::factory()->create();
         $item = MediaItem::factory()->tv()->create(['tv_status' => 'Returning Series']);
@@ -156,9 +156,7 @@ class MediaHomeTest extends TestCase
             ]),
         ]);
 
-        $this->actingAs($user)->get(route('media.home'))->assertInertia(
-            fn (Assert $page) => $page->has('nextEpisodes', 1)->where('nextEpisodes.0.next_episode', null),
-        );
+        $this->actingAs($user)->get(route('media.home'))->assertInertia(fn (Assert $page) => $page->has('nextEpisodes', 0));
     }
 
     public function test_shows_are_sorted_by_most_recently_watched_episode(): void

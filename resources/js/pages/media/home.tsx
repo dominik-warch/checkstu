@@ -45,24 +45,21 @@ export default function Home({ nextEpisodes }: HomeProps) {
                             <div className="min-w-0 flex-1">
                                 <p className="truncate font-medium">{entry.media_item.title_de}</p>
                                 <p className="text-muted-foreground text-sm">
-                                    {entry.next_episode
-                                        ? `${t('media.season', { number: entry.next_episode.season_number })} · ${t('media.episode', { number: entry.next_episode.episode_number })} · ${entry.next_episode.name}`
-                                        : t('media.continueWatching')}
+                                    {t('media.season', { number: entry.next_episode.season_number })} ·{' '}
+                                    {t('media.episode', { number: entry.next_episode.episode_number })} · {entry.next_episode.name}
                                 </p>
                             </div>
                         </Link>
 
-                        {entry.next_episode && (
-                            <Button
-                                size="icon"
-                                variant="outline"
-                                disabled={markingId === entry.next_episode.id}
-                                onClick={() => markWatched(entry.next_episode!.id)}
-                                aria-label={t('media.markEpisodeWatched')}
-                            >
-                                <Check className="size-4" />
-                            </Button>
-                        )}
+                        <Button
+                            size="icon"
+                            variant="outline"
+                            disabled={markingId === entry.next_episode.id}
+                            onClick={() => markWatched(entry.next_episode.id)}
+                            aria-label={t('media.markEpisodeWatched')}
+                        >
+                            <Check className="size-4" />
+                        </Button>
                     </div>
                 ))}
             </div>
