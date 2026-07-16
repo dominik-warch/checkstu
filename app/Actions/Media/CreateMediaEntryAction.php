@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Actions\Media;
 
 use App\Enums\MediaType;
+use App\Enums\WatchStatus;
 use App\Models\MediaEntry;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -13,6 +14,7 @@ class CreateMediaEntryAction
 {
     public function __construct(
         private readonly AddMediaItemAction $addItem,
+        private readonly RefreshUpcomingCacheAction $refreshUpcoming,
     ) {}
 
     /**
@@ -20,7 +22,7 @@ class CreateMediaEntryAction
      */
     public function handle(array $data, User $user): MediaEntry
     {
-        return DB::transaction(function () use ($data, $user): MediaEntry {
+        $entry = DB::transaction(function () use ($data, $user): MediaEntry {
             $item = $this->addItem->handle($data['tmdb_id'], MediaType::from($data['type']));
 
             // updateOrCreate so re-adding a previously-removed item (or
@@ -30,5 +32,12 @@ class CreateMediaEntryAction
                 ['status' => $data['status'], 'watched_at' => $data['watched_at'] ?? null],
             );
         });
+
+        $status = WatchStatus::from($data['status']);
+        if (in_array($status, [WatchStatus::Watchlist, WatchStatus::Watching], true)) {
+            $this->refreshUpcoming->handle($entry->mediaItem);
+        }
+
+        return $entry;
     }
 }

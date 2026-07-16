@@ -79,8 +79,12 @@ class MediaComingUpTest extends TestCase
         $this->actingAs($user)->get(route('media.comingUp'))->assertInertia(fn (Assert $page) => $page->has('items', 0));
     }
 
-    public function test_a_newly_announced_season_not_yet_discovered_is_found_via_refresh(): void
+    public function test_a_newly_announced_season_not_yet_discovered_does_not_appear_without_a_refresh(): void
     {
+        // The page resolves purely from cache — discovering a season that only
+        // exists on TMDb so far is RefreshUpcomingCacheAction's job (nightly, or
+        // on add), not something a page load triggers. See
+        // RefreshUpcomingEpisodesCommandTest for the discovery behavior itself.
         $user = User::factory()->create();
         $item = MediaItem::factory()->tv()->create(['tv_status' => 'Returning Series']);
         $season1 = MediaSeason::factory()->for($item, 'mediaItem')->create(['season_number' => 1, 'episode_count' => 1, 'episodes_fetched_at' => now()]);
@@ -88,33 +92,10 @@ class MediaComingUpTest extends TestCase
         MediaEntry::factory()->for($user)->for($item, 'mediaItem')->create(['status' => WatchStatus::Watching]);
         // No season 2 row at all yet — it only exists on TMDb so far.
 
-        Http::fake([
-            '*/tv/*/season/2*' => Http::response([
-                'episodes' => [
-                    ['id' => 20, 'episode_number' => 1, 'name' => 'Staffel 2 kommt', 'air_date' => now()->addDays(10)->toDateString()],
-                ],
-            ]),
-            '*/tv/*' => Http::response([
-                'id' => $item->tmdb_id,
-                'name' => $item->title_de,
-                'overview' => $item->overview,
-                'poster_path' => $item->poster_path,
-                'first_air_date' => $item->release_date?->toDateString(),
-                'status' => 'Returning Series',
-                'seasons' => [
-                    ['id' => 100, 'season_number' => 1, 'name' => 'Staffel 1', 'episode_count' => 1, 'air_date' => null],
-                    ['id' => 101, 'season_number' => 2, 'name' => 'Staffel 2', 'episode_count' => 1, 'air_date' => null],
-                ],
-                'translations' => ['translations' => []],
-            ]),
-        ]);
+        Http::fake();
 
-        $this->actingAs($user)->get(route('media.comingUp'))->assertInertia(
-            fn (Assert $page) => $page
-                ->has('items', 1)
-                ->where('items.0.episode.season_number', 2)
-                ->where('items.0.episode.name', 'Staffel 2 kommt'),
-        );
+        $this->actingAs($user)->get(route('media.comingUp'))->assertInertia(fn (Assert $page) => $page->has('items', 0));
+        Http::assertNothingSent();
     }
 
     public function test_completed_entries_are_excluded(): void

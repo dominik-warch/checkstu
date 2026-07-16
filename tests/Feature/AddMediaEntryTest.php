@@ -36,6 +36,7 @@ class AddMediaEntryTest extends TestCase
     private function fakeTvDetails(): void
     {
         Http::fake([
+            '*/tv/1399/season/1*' => Http::response(['episodes' => []]),
             '*/tv/1399*' => Http::response([
                 'id' => 1399,
                 'name' => 'Game of Thrones',
@@ -95,8 +96,12 @@ class AddMediaEntryTest extends TestCase
             ->assertSessionHasErrors('status');
     }
 
-    public function test_adding_a_show_creates_item_with_season_summaries_but_no_episodes_yet(): void
+    public function test_adding_a_show_creates_item_with_season_summaries_and_warms_the_last_seasons_episode_cache(): void
     {
+        // Watchlisting/watching a show warms its "coming up" cache right away
+        // (RefreshUpcomingCacheAction) rather than waiting for the nightly
+        // media:refresh-upcoming run — unlike other seasons, which stay lazy
+        // until expanded in the library UI.
         $this->fakeTvDetails();
         $user = User::factory()->create();
 
@@ -106,7 +111,7 @@ class AddMediaEntryTest extends TestCase
 
         $item = MediaItem::firstWhere('tmdb_id', 1399);
         $this->assertCount(1, $item->seasons);
-        $this->assertSame(0, $item->seasons->first()->episodes()->count());
+        $this->assertTrue($item->seasons->first()->isEpisodesCached());
     }
 
     public function test_adding_the_same_item_twice_does_not_call_tmdb_again(): void
