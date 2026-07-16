@@ -14,7 +14,7 @@ class RefreshUpcomingEpisodesCommand extends Command
 {
     protected $signature = 'media:refresh-upcoming';
 
-    protected $description = 'Refresh TMDb season/episode data for every TV show on a watchlist, so the "coming up" page can resolve from cache alone';
+    protected $description = 'Refresh TMDb season/episode data for every TV show on a watchlist, so "coming up" and mark-watched actions can resolve from cache alone';
 
     public function handle(RefreshUpcomingCacheAction $action): int
     {

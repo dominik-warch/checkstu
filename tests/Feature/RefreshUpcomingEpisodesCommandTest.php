@@ -59,6 +59,33 @@ class RefreshUpcomingEpisodesCommandTest extends TestCase
         );
     }
 
+    public function test_it_warms_episode_caches_for_every_season_not_just_the_last(): void
+    {
+        // Mark-watched actions (a season, or a whole show) can touch any season,
+        // not only the most recent one — so the nightly warm has to cover all of
+        // them, not just the last (which is all "coming up" itself needs).
+        $user = User::factory()->create();
+        $item = MediaItem::factory()->tv()->create(['tv_status' => 'Ended']);
+        $season1 = MediaSeason::factory()->for($item, 'mediaItem')->create(['season_number' => 1, 'episode_count' => 1, 'episodes_fetched_at' => null]);
+        $season2 = MediaSeason::factory()->for($item, 'mediaItem')->create(['season_number' => 2, 'episode_count' => 1, 'episodes_fetched_at' => null]);
+        MediaEntry::factory()->for($user)->for($item, 'mediaItem')->create(['status' => WatchStatus::Watching]);
+
+        Http::fake([
+            '*/tv/*/season/1*' => Http::response(['episodes' => [
+                ['id' => 1, 'episode_number' => 1, 'name' => 'S1E1', 'air_date' => now()->subYear()->toDateString()],
+            ]]),
+            '*/tv/*/season/2*' => Http::response(['episodes' => [
+                ['id' => 2, 'episode_number' => 1, 'name' => 'S2E1', 'air_date' => now()->subMonth()->toDateString()],
+            ]]),
+        ]);
+
+        $this->artisan('media:refresh-upcoming')->assertSuccessful();
+
+        $this->assertNotNull($season1->fresh()->episodes_fetched_at);
+        $this->assertNotNull($season2->fresh()->episodes_fetched_at);
+        Http::assertSentCount(2);
+    }
+
     public function test_it_skips_shows_nobody_has_on_a_watchlist(): void
     {
         MediaItem::factory()->tv()->create(['tv_status' => 'Returning Series']);

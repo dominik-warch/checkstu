@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Actions\Media\MarkAllEpisodesWatchedAction;
-use App\Actions\Media\RefreshShowSeasonsAction;
 use App\Enums\MediaType;
 use App\Http\Requests\Media\MarkShowWatchedRequest;
 use App\Models\MediaEntry;
@@ -18,7 +17,7 @@ use Inertia\Response;
 
 class MediaItemController extends Controller
 {
-    public function show(Request $request, MediaItem $mediaItem, RefreshShowSeasonsAction $refresh): Response|RedirectResponse
+    public function show(Request $request, MediaItem $mediaItem): Response|RedirectResponse
     {
         // Movies have no detail page in v1 — everything happens inline from
         // search results and the library list.
@@ -26,7 +25,8 @@ class MediaItemController extends Controller
             return redirect()->route('media.library');
         }
 
-        $refresh->handle($mediaItem);
+        // Season list/episode freshness is media:refresh-upcoming's job (nightly,
+        // and on add) — this page reads from cache alone, same as "coming up".
         $mediaItem->load('seasons.episodes');
 
         $entry = MediaEntry::where('user_id', $request->user()->id)

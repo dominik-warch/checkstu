@@ -22,6 +22,7 @@ Schedule::command('sqlite:backup')->dailyAt('03:30')->withoutOverlapping();
 // each day a task stays overdue.
 Schedule::command('tasks:notify-overdue')->dailyAt('08:00')->withoutOverlapping();
 
-// Keeps season/episode data fresh for every watchlisted/watching TV show, so the
-// "coming up" page never calls TMDb itself and stays fast regardless of list size.
+// Keeps season/episode data fresh for every watchlisted/watching TV show, so
+// "coming up" and mark-watched (a season, or a whole show) never call TMDb
+// themselves and stay fast regardless of list/season count.
 Schedule::command('media:refresh-upcoming')->dailyAt('04:00')->withoutOverlapping();

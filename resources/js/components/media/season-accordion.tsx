@@ -1,3 +1,4 @@
+import { router } from '@inertiajs/react';
 import { CheckCheck } from 'lucide-react';
 import { MouseEvent, useEffect, useState } from 'react';
 
@@ -14,11 +15,13 @@ interface SeasonAccordionProps {
 
 /**
  * Lazy fetch-on-expand: episodes only load when a season is opened, same
- * raw-fetch + X-XSRF-TOKEN pattern as use-push-subscription.ts. Toggling an
- * episode (or marking the whole season) updates local state optimistically
- * rather than reloading the whole Inertia page — the header's overall watch
- * status only catches up on the next full page load, which is an acceptable
- * v1 tradeoff for snappy taps.
+ * raw-fetch + X-XSRF-TOKEN pattern as use-push-subscription.ts. Toggling a
+ * single episode updates local state optimistically rather than reloading the
+ * whole Inertia page — an acceptable tradeoff for snappy taps, since a single
+ * episode rarely flips the header's overall watch status. Marking the whole
+ * season, by contrast, goes through Inertia (router.post) like the show-level
+ * "mark all watched" already does, so the header status and other seasons'
+ * counts refresh immediately instead of needing a manual reload.
  */
 export default function SeasonAccordion({ season }: SeasonAccordionProps) {
     const [open, setOpen] = useState(false);
@@ -54,11 +57,11 @@ export default function SeasonAccordion({ season }: SeasonAccordionProps) {
         setMarkingAll(true);
         setEpisodes((prev) => prev?.map((ep) => (ep.watched ? ep : { ...ep, watched: true })) ?? prev);
 
-        fetch(route('media.seasons.watchAll', season.id), {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', ...xsrfHeader() },
-            credentials: 'same-origin',
-        }).finally(() => setMarkingAll(false));
+        router.post(
+            route('media.seasons.watchAll', season.id),
+            {},
+            { preserveScroll: true, preserveState: true, onFinish: () => setMarkingAll(false) },
+        );
     }
 
     const watchedCount = episodes ? episodes.filter((ep) => ep.watched).length : season.watched_count;
