@@ -33,7 +33,7 @@ export default function TaskFormDialog({ members, task, templates, trigger }: Ta
                     </Button>
                 )}
             </DialogTrigger>
-            <DialogContent className="max-h-[90vh] overflow-y-auto">
+            <DialogContent>
                 <DialogHeader>
                     <DialogTitle>{isEdit ? t('task.editTask') : t('task.newTask')}</DialogTitle>
                     <DialogDescription>Erstelle oder bearbeite eine Aufgabe für den Haushalt.</DialogDescription>

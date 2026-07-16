@@ -26,7 +26,7 @@ export default function MediaSearchDialog() {
                     <Plus className="size-6" />
                 </Button>
             </DialogTrigger>
-            <DialogContent className="max-h-[90vh] overflow-y-auto">
+            <DialogContent>
                 <DialogHeader>
                     <DialogTitle>{t('media.addNew')}</DialogTitle>
                 </DialogHeader>
