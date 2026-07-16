@@ -41,4 +41,11 @@ return [
         'image_base_url' => env('TMDB_IMAGE_BASE_URL', 'https://image.tmdb.org/t/p'),
     ],
 
+    'google_books' => [
+        // Documented as optional by Google, but several networks get 0 free
+        // quota unauthenticated (HTTP 429) — set this if book search fails.
+        'key' => env('GOOGLE_BOOKS_API_KEY'),
+        'base_url' => env('GOOGLE_BOOKS_BASE_URL', 'https://www.googleapis.com/books/v1'),
+    ],
+
 ];

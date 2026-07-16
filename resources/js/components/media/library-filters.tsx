@@ -25,6 +25,7 @@ export default function LibraryFilters({ filters }: LibraryFiltersProps) {
         { value: 'all', label: t('common.all') },
         { value: 'movie', label: t('media.typeMovie') },
         { value: 'tv', label: t('media.typeTv') },
+        { value: 'book', label: t('media.typeBook') },
     ];
 
     return (

@@ -11,6 +11,15 @@ export interface MediaSearchResult {
     release_date: string | null;
 }
 
+export interface BookSearchResult {
+    google_books_id: string;
+    title: string;
+    authors: string;
+    overview: string;
+    thumbnail_url: string | null;
+    published_date: string | null;
+}
+
 export interface MediaItemSummary {
     id: number;
     tmdb_id: number;
@@ -21,16 +30,36 @@ export interface MediaItemSummary {
     release_date: string | null;
 }
 
+export interface BookItemSummary {
+    id: number;
+    google_books_id: string;
+    title: string;
+    authors: string | null;
+    thumbnail_url: string | null;
+    published_date: string | null;
+}
+
 export interface MediaEntrySummary {
+    kind: 'media';
     id: number;
     status: WatchStatus;
     watched_at: string | null;
     media_item: MediaItemSummary;
 }
 
+export interface BookEntrySummary {
+    kind: 'book';
+    id: number;
+    status: WatchStatus;
+    read_at: string | null;
+    book_item: BookItemSummary;
+}
+
+export type LibraryEntry = MediaEntrySummary | BookEntrySummary;
+
 export interface LibraryFilters {
     status: WatchStatus | 'all';
-    type: MediaType | 'all';
+    type: MediaType | 'book' | 'all';
 }
 
 export interface MediaSeasonSummary {
@@ -56,10 +85,19 @@ export interface MediaNextEpisodeEntry {
 }
 
 export interface MediaComingUpItem {
+    kind: 'media';
     date: string;
     media_item: MediaItemSummary;
     episode: { season_number: number; episode_number: number; name: string } | null;
 }
+
+export interface BookComingUpItem {
+    kind: 'book';
+    date: string;
+    book_item: BookItemSummary;
+}
+
+export type ComingUpItem = MediaComingUpItem | BookComingUpItem;
 
 export interface MediaItemDetail {
     id: number;

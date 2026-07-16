@@ -16,6 +16,7 @@ class MediaEntryPresenter
         $item = $entry->mediaItem;
 
         return [
+            'kind' => 'media',
             'id' => $entry->id,
             'status' => $entry->status->value,
             'watched_at' => $entry->watched_at?->toDateString(),

@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\ArchiveController;
+use App\Http\Controllers\BookEntryController;
+use App\Http\Controllers\BookSearchController;
 use App\Http\Controllers\FamilyController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MediaComingUpController;
@@ -62,6 +64,15 @@ Route::middleware(['auth'])->group(function () {
         Route::post('seasons/{season}/watch-all', [MediaSeasonController::class, 'markWatched'])->name('seasons.watchAll');
         Route::post('episodes/{episode}/watch', [MediaEpisodeWatchController::class, 'store'])->name('episodes.watch.store');
         Route::delete('episodes/{episode}/watch', [MediaEpisodeWatchController::class, 'destroy'])->name('episodes.watch.destroy');
+    });
+
+    // Book tracking — folded into the same Media library/coming-up pages as movies/TV,
+    // just backed by Google Books instead of TMDb (see IMPLEMENTATION_PLAN.md §Media).
+    Route::prefix('books')->name('books.')->group(function () {
+        Route::get('search', [BookSearchController::class, 'index'])->name('search');
+        Route::post('entries', [BookEntryController::class, 'store'])->name('entries.store');
+        Route::patch('entries/{entry}', [BookEntryController::class, 'update'])->name('entries.update');
+        Route::delete('entries/{entry}', [BookEntryController::class, 'destroy'])->name('entries.destroy');
     });
 });
 

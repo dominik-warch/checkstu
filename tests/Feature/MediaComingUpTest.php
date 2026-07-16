@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Enums\WatchStatus;
+use App\Models\BookEntry;
+use App\Models\BookItem;
 use App\Models\MediaEntry;
 use App\Models\MediaEpisode;
 use App\Models\MediaItem;
@@ -145,5 +147,47 @@ class MediaComingUpTest extends TestCase
         MediaEntry::factory()->for($other, 'user')->for($item, 'mediaItem')->create(['status' => WatchStatus::Watchlist]);
 
         $this->actingAs($user)->get(route('media.comingUp'))->assertInertia(fn (Assert $page) => $page->has('items', 0));
+    }
+
+    public function test_a_watchlist_book_with_a_future_published_date_appears(): void
+    {
+        $user = User::factory()->create();
+        $item = BookItem::factory()->create(['title' => 'Kommendes Buch', 'published_date' => now()->addWeek()->toDateString()]);
+        BookEntry::factory()->for($user)->for($item, 'bookItem')->create(['status' => WatchStatus::Watchlist]);
+
+        $this->actingAs($user)->get(route('media.comingUp'))->assertInertia(
+            fn (Assert $page) => $page->has('items', 1)->where('items.0.kind', 'book')->where('items.0.book_item.title', 'Kommendes Buch'),
+        );
+    }
+
+    public function test_an_already_published_book_does_not_appear(): void
+    {
+        $user = User::factory()->create();
+        $item = BookItem::factory()->create(['published_date' => now()->subWeek()->toDateString()]);
+        BookEntry::factory()->for($user)->for($item, 'bookItem')->create(['status' => WatchStatus::Watchlist]);
+
+        $this->actingAs($user)->get(route('media.comingUp'))->assertInertia(fn (Assert $page) => $page->has('items', 0));
+    }
+
+    public function test_a_completed_book_never_appears_even_with_a_future_published_date(): void
+    {
+        $user = User::factory()->create();
+        $item = BookItem::factory()->create(['published_date' => now()->addWeek()->toDateString()]);
+        BookEntry::factory()->for($user)->for($item, 'bookItem')->create(['status' => WatchStatus::Completed]);
+
+        $this->actingAs($user)->get(route('media.comingUp'))->assertInertia(fn (Assert $page) => $page->has('items', 0));
+    }
+
+    public function test_books_and_media_are_sorted_together_chronologically(): void
+    {
+        $user = User::factory()->create();
+        $movie = MediaItem::factory()->create(['title_de' => 'Später dran', 'release_date' => now()->addMonth()->toDateString()]);
+        $book = BookItem::factory()->create(['title' => 'Bald dran', 'published_date' => now()->addDay()->toDateString()]);
+        MediaEntry::factory()->for($user)->for($movie, 'mediaItem')->create(['status' => WatchStatus::Watchlist]);
+        BookEntry::factory()->for($user)->for($book, 'bookItem')->create(['status' => WatchStatus::Watchlist]);
+
+        $this->actingAs($user)->get(route('media.comingUp'))->assertInertia(
+            fn (Assert $page) => $page->has('items', 2)->where('items.0.book_item.title', 'Bald dran')->where('items.1.media_item.title_de', 'Später dran'),
+        );
     }
 }
