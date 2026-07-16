@@ -40,6 +40,21 @@ export default function Show({ item }: ShowProps) {
         );
     }
 
+    function toggleWatched() {
+        if (!item.entry) return;
+        setProcessing(true);
+        router.patch(
+            route('media.entries.update', item.entry.id),
+            { status: item.entry.status === 'completed' ? 'watchlist' : 'completed', watched_at: null },
+            { preserveScroll: true, onFinish: () => setProcessing(false) },
+        );
+    }
+
+    function changeDate(date: string) {
+        if (!item.entry) return;
+        router.patch(route('media.entries.update', item.entry.id), { status: 'completed', watched_at: date || null }, { preserveScroll: true });
+    }
+
     return (
         <CheckstuLayout navItems={mediaNavItems} context="media">
             <Head title={item.title_de} />
@@ -65,19 +80,40 @@ export default function Show({ item }: ShowProps) {
 
             {item.overview && <p className="mt-4 text-sm">{item.overview}</p>}
 
-            {item.entry && (
+            {item.type === 'tv' && item.entry && (
                 <Button type="button" variant="outline" size="sm" className="mt-4" disabled={processing} onClick={markAllWatched}>
                     <CheckCheck className="size-4" />
                     {t('media.markAllWatched')}
                 </Button>
             )}
 
-            <h2 className="mt-6 mb-2 font-semibold">{t('media.seasons')}</h2>
-            <div className="flex flex-col gap-2">
-                {item.seasons.map((season) => (
-                    <SeasonAccordion key={`${season.id}-${refreshKey}`} season={season} />
-                ))}
-            </div>
+            {item.type === 'movie' && item.entry && (
+                <div className="mt-4 flex items-center gap-2">
+                    <Button type="button" variant="outline" size="sm" disabled={processing} onClick={toggleWatched}>
+                        {item.entry.status === 'completed' ? t('media.addToWatchlist') : t('media.markWatched')}
+                    </Button>
+                    {item.entry.status === 'completed' && (
+                        <input
+                            type="date"
+                            value={item.entry.watched_at ?? ''}
+                            onChange={(e) => changeDate(e.target.value)}
+                            aria-label={t('media.watchedAt')}
+                            className="border-input bg-background rounded-md border px-2 py-1 text-sm"
+                        />
+                    )}
+                </div>
+            )}
+
+            {item.type === 'tv' && (
+                <>
+                    <h2 className="mt-6 mb-2 font-semibold">{t('media.seasons')}</h2>
+                    <div className="flex flex-col gap-2">
+                        {item.seasons.map((season) => (
+                            <SeasonAccordion key={`${season.id}-${refreshKey}`} season={season} />
+                        ))}
+                    </div>
+                </>
+            )}
         </CheckstuLayout>
     );
 }

@@ -31,11 +31,14 @@ class MediaItemShowTest extends TestCase
         Http::assertNothingSent();
     }
 
-    public function test_a_movies_detail_page_redirects_to_the_library(): void
+    public function test_a_movies_detail_page_renders(): void
     {
         $user = User::factory()->create();
         $item = MediaItem::factory()->create();
+        MediaEntry::factory()->for($user)->for($item, 'mediaItem')->create(['status' => WatchStatus::Watchlist]);
 
-        $this->actingAs($user)->get(route('media.items.show', $item))->assertRedirect(route('media.library'));
+        $this->actingAs($user)->get(route('media.items.show', $item))->assertInertia(
+            fn (Assert $page) => $page->component('media/show')->where('item.tmdb_id', $item->tmdb_id)->where('item.entry.status', 'watchlist'),
+        );
     }
 }

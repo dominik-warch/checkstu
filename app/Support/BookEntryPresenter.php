@@ -37,4 +37,22 @@ class BookEntryPresenter
             'published_date' => $item->published_date?->toDateString(),
         ];
     }
+
+    /**
+     * Shape a book item + the current user's entry for the detail page.
+     *
+     * @return array<string, mixed>
+     */
+    public static function detail(BookItem $item, ?BookEntry $entry): array
+    {
+        return [
+            ...self::bookItemSummary($item),
+            'overview' => $item->overview,
+            'entry' => $entry ? [
+                'id' => $entry->id,
+                'status' => $entry->status->value,
+                'read_at' => $entry->read_at?->toDateString(),
+            ] : null,
+        ];
+    }
 }

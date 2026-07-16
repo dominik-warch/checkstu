@@ -99,6 +99,17 @@ export interface BookComingUpItem {
 
 export type ComingUpItem = MediaComingUpItem | BookComingUpItem;
 
+export interface BookItemDetail {
+    id: number;
+    google_books_id: string;
+    title: string;
+    authors: string | null;
+    overview: string | null;
+    thumbnail_url: string | null;
+    published_date: string | null;
+    entry: { id: number; status: WatchStatus; read_at: string | null } | null;
+}
+
 export interface MediaItemDetail {
     id: number;
     tmdb_id: number;

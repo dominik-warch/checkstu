@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ArchiveController;
 use App\Http\Controllers\BookEntryController;
+use App\Http\Controllers\BookItemController;
 use App\Http\Controllers\BookSearchController;
 use App\Http\Controllers\FamilyController;
 use App\Http\Controllers\HomeController;
@@ -73,6 +74,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('entries', [BookEntryController::class, 'store'])->name('entries.store');
         Route::patch('entries/{entry}', [BookEntryController::class, 'update'])->name('entries.update');
         Route::delete('entries/{entry}', [BookEntryController::class, 'destroy'])->name('entries.destroy');
+        Route::get('items/{bookItem}', [BookItemController::class, 'show'])->name('items.show');
     });
 });
 
