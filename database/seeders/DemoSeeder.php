@@ -142,7 +142,7 @@ class DemoSeeder extends Seeder
         ]);
 
         $kleinerPrinz = BookItem::create([
-            'google_books_id' => 'demo-kleiner-prinz',
+            'open_library_id' => '/works/demo-kleiner-prinz',
             'title' => 'Der kleine Prinz',
             'authors' => 'Antoine de Saint-Exupéry',
             'overview' => 'Ein Pilot begegnet in der Wüste einem kleinen Prinzen von einem fernen Planeten.',
@@ -150,7 +150,7 @@ class DemoSeeder extends Seeder
         ]);
 
         $sapiens = BookItem::create([
-            'google_books_id' => 'demo-sapiens',
+            'open_library_id' => '/works/demo-sapiens',
             'title' => 'Sapiens: Eine kurze Geschichte der Menschheit',
             'authors' => 'Yuval Noah Harari',
             'overview' => 'Eine Reise durch die Geschichte der Menschheit, von der Steinzeit bis heute.',

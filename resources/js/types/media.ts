@@ -12,7 +12,7 @@ export interface MediaSearchResult {
 }
 
 export interface BookSearchResult {
-    google_books_id: string;
+    open_library_id: string;
     title: string;
     authors: string;
     overview: string;
@@ -48,7 +48,7 @@ export interface MediaItemSummary {
 
 export interface BookItemSummary {
     id: number;
-    google_books_id: string;
+    open_library_id: string;
     title: string;
     authors: string | null;
     thumbnail_url: string | null;
@@ -119,7 +119,7 @@ export type ComingUpItem = MediaComingUpItem | BookComingUpItem;
 
 export interface BookItemDetail {
     id: number;
-    google_books_id: string;
+    open_library_id: string;
     title: string;
     authors: string | null;
     overview: string | null;

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Actions\Books\SearchBooksAction;
-use App\Support\GoogleBooks\GoogleBooksRequestException;
+use App\Support\OpenLibrary\OpenLibraryRequestException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -21,9 +21,9 @@ class BookSearchController extends Controller
 
         try {
             return response()->json(['results' => $action->handle($query)]);
-        } catch (GoogleBooksRequestException) {
+        } catch (OpenLibraryRequestException) {
             // Distinct from an empty result set: the frontend shouldn't tell the user their
-            // search came up empty when the actual cause is Google's API being unreachable.
+            // search came up empty when the actual cause is Open Library being unreachable.
             return response()->json(['results' => [], 'unavailable' => true], 503);
         }
     }

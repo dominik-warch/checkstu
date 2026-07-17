@@ -49,7 +49,7 @@ class BookEntryPresenter
     {
         return [
             'id' => $item->id,
-            'google_books_id' => $item->google_books_id,
+            'open_library_id' => $item->open_library_id,
             'title' => $item->title,
             'authors' => $item->authors,
             'thumbnail_url' => $item->thumbnail_url,

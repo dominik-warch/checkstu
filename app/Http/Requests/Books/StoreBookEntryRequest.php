@@ -22,7 +22,7 @@ class StoreBookEntryRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'google_books_id' => ['required', 'string', 'max:64'],
+            'open_library_id' => ['required', 'string', 'max:64'],
             'status' => ['required', Rule::in([WatchStatus::Watchlist->value, WatchStatus::Completed->value])],
             'read_at' => ['nullable', 'date'],
         ];

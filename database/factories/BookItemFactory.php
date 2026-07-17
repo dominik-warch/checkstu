@@ -14,11 +14,11 @@ class BookItemFactory extends Factory
     public function definition(): array
     {
         return [
-            'google_books_id' => fake()->unique()->bothify('########'),
+            'open_library_id' => '/books/OL'.fake()->unique()->numerify('########').'M',
             'title' => fake()->sentence(3),
             'authors' => fake()->name(),
             'overview' => fake()->paragraph(),
-            'thumbnail_url' => 'https://books.google.com/'.fake()->uuid().'.jpg',
+            'thumbnail_url' => 'https://covers.openlibrary.org/b/id/'.fake()->numberBetween(1, 9999999).'-M.jpg',
             'published_date' => fake()->date(),
         ];
     }

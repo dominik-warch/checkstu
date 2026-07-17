@@ -16,18 +16,22 @@ class AddBookEntryTest extends TestCase
 {
     use RefreshDatabase;
 
+    private const OPEN_LIBRARY_ID = '/books/OL1M';
+
     private function fakeBookDetails(): void
     {
         Http::fake([
-            '*/volumes/zyTCAlFPjgYC*' => Http::response([
-                'id' => 'zyTCAlFPjgYC',
-                'volumeInfo' => [
-                    'title' => 'Der Fänger im Roggen',
-                    'authors' => ['J.D. Salinger'],
-                    'description' => 'Ein Klassiker.',
-                    'publishedDate' => '1951-07-16',
-                ],
+            '*/books/OL1M.json' => Http::response([
+                'key' => self::OPEN_LIBRARY_ID,
+                'title' => 'Der Fänger im Roggen',
+                'publish_date' => '1951',
+                'works' => [['key' => '/works/OL1W']],
             ]),
+            '*/works/OL1W.json' => Http::response([
+                'description' => 'Ein Klassiker.',
+                'authors' => [['author' => ['key' => '/authors/OL1A']]],
+            ]),
+            '*/authors/OL1A.json' => Http::response(['name' => 'J.D. Salinger']),
         ]);
     }
 
@@ -37,10 +41,10 @@ class AddBookEntryTest extends TestCase
         $user = User::factory()->create();
 
         $this->actingAs($user)
-            ->post(route('books.entries.store'), ['google_books_id' => 'zyTCAlFPjgYC', 'status' => 'watchlist'])
+            ->post(route('books.entries.store'), ['open_library_id' => self::OPEN_LIBRARY_ID, 'status' => 'watchlist'])
             ->assertRedirect();
 
-        $item = BookItem::firstWhere('google_books_id', 'zyTCAlFPjgYC');
+        $item = BookItem::firstWhere('open_library_id', self::OPEN_LIBRARY_ID);
         $this->assertNotNull($item);
         $this->assertSame('Der Fänger im Roggen', $item->title);
         $this->assertSame('J.D. Salinger', $item->authors);
@@ -55,7 +59,7 @@ class AddBookEntryTest extends TestCase
         $user = User::factory()->create();
 
         $this->actingAs($user)->post(route('books.entries.store'), [
-            'google_books_id' => 'zyTCAlFPjgYC', 'status' => 'completed', 'read_at' => '2026-07-10',
+            'open_library_id' => self::OPEN_LIBRARY_ID, 'status' => 'completed', 'read_at' => '2026-07-10',
         ])->assertRedirect();
 
         $entry = BookEntry::where('user_id', $user->id)->first();
@@ -63,15 +67,17 @@ class AddBookEntryTest extends TestCase
         $this->assertSame('2026-07-10', $entry->read_at->toDateString());
     }
 
-    public function test_adding_the_same_book_twice_does_not_call_google_books_again(): void
+    public function test_adding_the_same_book_twice_does_not_call_open_library_again(): void
     {
         $this->fakeBookDetails();
         $user = User::factory()->create();
 
-        $this->actingAs($user)->post(route('books.entries.store'), ['google_books_id' => 'zyTCAlFPjgYC', 'status' => 'watchlist']);
-        $this->actingAs($user)->post(route('books.entries.store'), ['google_books_id' => 'zyTCAlFPjgYC', 'status' => 'completed']);
+        $this->actingAs($user)->post(route('books.entries.store'), ['open_library_id' => self::OPEN_LIBRARY_ID, 'status' => 'watchlist']);
+        $this->actingAs($user)->post(route('books.entries.store'), ['open_library_id' => self::OPEN_LIBRARY_ID, 'status' => 'completed']);
 
-        Http::assertSentCount(1);
+        // 3 calls total (edition, work, author) — all from the first add. The second
+        // add finds the cached BookItem and skips Open Library entirely.
+        Http::assertSentCount(3);
         $this->assertSame(1, BookItem::count());
         $entry = BookEntry::where('user_id', $user->id)->first();
         $this->assertSame(WatchStatus::Completed, $entry->status);
@@ -83,7 +89,7 @@ class AddBookEntryTest extends TestCase
         $user = User::factory()->create();
 
         $this->actingAs($user)
-            ->post(route('books.entries.store'), ['google_books_id' => 'zyTCAlFPjgYC', 'status' => 'watching'])
+            ->post(route('books.entries.store'), ['open_library_id' => self::OPEN_LIBRARY_ID, 'status' => 'watching'])
             ->assertSessionHasErrors('status');
     }
 }

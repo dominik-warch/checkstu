@@ -86,11 +86,11 @@ export default function MediaSearch({ onAdded }: MediaSearchProps) {
     }
 
     function addBook(result: BookSearchResult, status: 'watchlist' | 'completed') {
-        const key = `book-${result.google_books_id}`;
+        const key = `book-${result.open_library_id}`;
         setAddingKey(key);
         router.post(
             route('books.entries.store'),
-            { google_books_id: result.google_books_id, status },
+            { open_library_id: result.open_library_id, status },
             { preserveScroll: true, onFinish: () => setAddingKey(null), onSuccess: () => onAdded?.() },
         );
     }
@@ -115,7 +115,7 @@ export default function MediaSearch({ onAdded }: MediaSearchProps) {
             <div className="flex flex-col gap-2">
                 {type === 'book'
                     ? bookResults.map((result) => {
-                          const key = `book-${result.google_books_id}`;
+                          const key = `book-${result.open_library_id}`;
                           const busy = addingKey === key;
 
                           return (

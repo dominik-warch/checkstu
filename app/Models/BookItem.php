@@ -14,7 +14,7 @@ class BookItem extends Model
     use HasFactory;
 
     protected $fillable = [
-        'google_books_id',
+        'open_library_id',
         'title',
         'authors',
         'overview',

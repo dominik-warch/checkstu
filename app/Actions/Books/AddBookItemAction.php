@@ -5,27 +5,27 @@ declare(strict_types=1);
 namespace App\Actions\Books;
 
 use App\Models\BookItem;
-use App\Support\GoogleBooks\GoogleBooksClient;
+use App\Support\OpenLibrary\OpenLibraryClient;
 
 class AddBookItemAction
 {
     public function __construct(
-        private readonly GoogleBooksClient $googleBooks,
+        private readonly OpenLibraryClient $openLibrary,
     ) {}
 
     /**
      * Idempotent: returns the cached BookItem if it already exists, otherwise
-     * fetches authoritative details from Google Books (not the client-supplied
+     * fetches authoritative details from Open Library (not the client-supplied
      * search result) and caches them permanently.
      */
-    public function handle(string $googleBooksId): BookItem
+    public function handle(string $openLibraryId): BookItem
     {
-        $existing = BookItem::where('google_books_id', $googleBooksId)->first();
+        $existing = BookItem::where('open_library_id', $openLibraryId)->first();
         if ($existing !== null) {
             return $existing;
         }
 
-        $details = $this->googleBooks->details($googleBooksId);
+        $details = $this->openLibrary->details($openLibraryId);
 
         return BookItem::create($details);
     }

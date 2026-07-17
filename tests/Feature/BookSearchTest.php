@@ -13,12 +13,17 @@ class BookSearchTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_searching_returns_normalized_google_books_results(): void
+    public function test_searching_returns_normalized_open_library_results(): void
     {
         Http::fake([
-            '*/volumes?*' => Http::response([
-                'items' => [
-                    ['id' => 'zyTCAlFPjgYC', 'volumeInfo' => ['title' => 'Fänger im Roggen', 'authors' => ['J.D. Salinger']]],
+            '*/search.json*' => Http::response([
+                'docs' => [
+                    [
+                        'key' => '/works/OL1W',
+                        'title' => 'Fänger im Roggen',
+                        'author_name' => ['J.D. Salinger'],
+                        'editions' => ['docs' => [['key' => '/books/OL1M', 'title' => 'Fänger im Roggen']]],
+                    ],
                 ],
             ]),
         ]);
@@ -28,11 +33,11 @@ class BookSearchTest extends TestCase
         $response = $this->actingAs($user)->getJson(route('books.search', ['query' => 'Fänger im Roggen']));
 
         $response->assertOk();
-        $response->assertJsonPath('results.0.google_books_id', 'zyTCAlFPjgYC');
+        $response->assertJsonPath('results.0.open_library_id', '/books/OL1M');
         $response->assertJsonPath('results.0.title', 'Fänger im Roggen');
     }
 
-    public function test_an_empty_query_returns_no_results_without_calling_google_books(): void
+    public function test_an_empty_query_returns_no_results_without_calling_open_library(): void
     {
         Http::fake();
         $user = User::factory()->create();
@@ -44,9 +49,9 @@ class BookSearchTest extends TestCase
         Http::assertNothingSent();
     }
 
-    public function test_repeated_identical_searches_hit_google_books_only_once(): void
+    public function test_repeated_identical_searches_hit_open_library_only_once(): void
     {
-        Http::fake(['*/volumes?*' => Http::response(['items' => []])]);
+        Http::fake(['*/search.json*' => Http::response(['docs' => []])]);
         $user = User::factory()->create();
 
         $this->actingAs($user)->getJson(route('books.search', ['query' => 'Dune']));
@@ -57,7 +62,7 @@ class BookSearchTest extends TestCase
 
     public function test_a_persistent_upstream_failure_is_flagged_as_unavailable_not_a_plain_error(): void
     {
-        Http::fake(['*/volumes?*' => Http::response([], 503)]);
+        Http::fake(['*/search.json*' => Http::response([], 503)]);
         $user = User::factory()->create();
 
         $response = $this->actingAs($user)->getJson(route('books.search', ['query' => 'Kinder des Nebels']));
