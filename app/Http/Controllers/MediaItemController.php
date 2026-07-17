@@ -27,8 +27,13 @@ class MediaItemController extends Controller
             ->where('media_item_id', $mediaItem->id)
             ->first();
 
+        $sharedBy = MediaEntry::where('media_item_id', $mediaItem->id)
+            ->where('user_id', '!=', $request->user()->id)
+            ->with('user')
+            ->get();
+
         return Inertia::render('media/show', [
-            'item' => MediaItemPresenter::detail($mediaItem, $entry, $request->user()),
+            'item' => MediaItemPresenter::detail($mediaItem, $entry, $request->user(), $sharedBy),
         ]);
     }
 

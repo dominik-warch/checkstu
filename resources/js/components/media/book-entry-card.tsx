@@ -2,6 +2,7 @@ import { Link, router } from '@inertiajs/react';
 import { Trash2 } from 'lucide-react';
 
 import MediaPoster from '@/components/media/media-poster';
+import SharedByDots from '@/components/media/shared-by-dots';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { t } from '@/lib/i18n';
@@ -33,9 +34,10 @@ export default function BookEntryCard({ entry }: BookEntryCardProps) {
                 <div className="min-w-0 flex-1">
                     <p className="truncate font-medium">{item.title}</p>
                     {item.authors && <p className="text-muted-foreground truncate text-sm">{t('media.byAuthor', { authors: item.authors })}</p>}
-                    <Badge variant="secondary" className="mt-1">
-                        {statusLabel[entry.status]}
-                    </Badge>
+                    <div className="mt-1 flex items-center gap-1.5">
+                        <Badge variant="secondary">{statusLabel[entry.status]}</Badge>
+                        <SharedByDots members={entry.shared_by} />
+                    </div>
                 </div>
             </Link>
 

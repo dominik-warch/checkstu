@@ -44,9 +44,29 @@ class MediaLibraryController extends Controller
                 ->get()
             : collect();
 
+        // Grouped once up front (rather than per-row) so the shared-by lookup for N entries
+        // costs one query per kind, not N.
+        $sharedMediaByItem = MediaEntry::whereIn('media_item_id', $mediaEntries->pluck('media_item_id'))
+            ->where('user_id', '!=', $user->id)
+            ->with('user')
+            ->get()
+            ->groupBy('media_item_id');
+
+        $sharedBooksByItem = BookEntry::whereIn('book_item_id', $bookEntries->pluck('book_item_id'))
+            ->where('user_id', '!=', $user->id)
+            ->with('user')
+            ->get()
+            ->groupBy('book_item_id');
+
         $entries = $mediaEntries
-            ->map(fn (MediaEntry $entry) => ['sort' => $entry->created_at, 'data' => MediaEntryPresenter::toArray($entry)])
-            ->concat($bookEntries->map(fn (BookEntry $entry) => ['sort' => $entry->created_at, 'data' => BookEntryPresenter::toArray($entry)]))
+            ->map(fn (MediaEntry $entry) => [
+                'sort' => $entry->created_at,
+                'data' => MediaEntryPresenter::toArray($entry, $sharedMediaByItem->get($entry->media_item_id)),
+            ])
+            ->concat($bookEntries->map(fn (BookEntry $entry) => [
+                'sort' => $entry->created_at,
+                'data' => BookEntryPresenter::toArray($entry, $sharedBooksByItem->get($entry->book_item_id)),
+            ]))
             ->sortByDesc('sort')
             ->pluck('data')
             ->values();

@@ -9,6 +9,7 @@ use App\Models\MediaEpisodeWatch;
 use App\Models\MediaItem;
 use App\Models\MediaSeason;
 use App\Models\User;
+use Illuminate\Support\Collection;
 
 class MediaItemPresenter
 {
@@ -16,9 +17,10 @@ class MediaItemPresenter
      * Shape a TV/movie item + the current user's progress for the detail page.
      * Assumes `seasons.episodes` is already eager-loaded on $item.
      *
+     * @param  Collection<int, MediaEntry>  $sharedBy  other users' entries for this item, with `user` eager-loaded
      * @return array<string, mixed>
      */
-    public static function detail(MediaItem $item, ?MediaEntry $entry, User $user): array
+    public static function detail(MediaItem $item, ?MediaEntry $entry, User $user, Collection $sharedBy): array
     {
         return [
             'id' => $item->id,
@@ -51,6 +53,12 @@ class MediaItemPresenter
                         : 0,
                 ];
             })->values()->all(),
+            'shared_by' => $sharedBy->map(fn (MediaEntry $entry) => [
+                'id' => $entry->user->id,
+                'name' => $entry->user->name,
+                'color' => $entry->user->color,
+                'status' => $entry->status->value,
+            ])->values()->all(),
         ];
     }
 }

@@ -4,6 +4,7 @@ import { useState } from 'react';
 
 import MediaPoster from '@/components/media/media-poster';
 import SeasonAccordion from '@/components/media/season-accordion';
+import SharedByList from '@/components/media/shared-by-list';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import CheckstuLayout, { mediaNavItems } from '@/layouts/checkstu-layout';
@@ -79,6 +80,8 @@ export default function Show({ item }: ShowProps) {
             </div>
 
             {item.overview && <p className="mt-4 text-sm">{item.overview}</p>}
+
+            <SharedByList members={item.shared_by} />
 
             {item.type === 'tv' && item.entry && (
                 <Button type="button" variant="outline" size="sm" className="mt-4" disabled={processing} onClick={markAllWatched}>

@@ -3,6 +3,7 @@ import { ArrowLeft } from 'lucide-react';
 import { useState } from 'react';
 
 import MediaPoster from '@/components/media/media-poster';
+import SharedByList from '@/components/media/shared-by-list';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import CheckstuLayout, { mediaNavItems } from '@/layouts/checkstu-layout';
@@ -61,6 +62,8 @@ export default function BookShow({ item }: BookShowProps) {
             </div>
 
             {item.overview && <p className="mt-4 text-sm">{item.overview}</p>}
+
+            <SharedByList members={item.shared_by} />
 
             {item.entry && (
                 <div className="mt-4 flex items-center gap-2">

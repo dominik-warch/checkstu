@@ -20,6 +20,16 @@ export interface BookSearchResult {
     published_date: string | null;
 }
 
+export interface SharedByMember {
+    id: number;
+    name: string;
+    color: string | null;
+}
+
+export interface SharedByEntry extends SharedByMember {
+    status: WatchStatus;
+}
+
 export interface MediaItemSummary {
     id: number;
     tmdb_id: number;
@@ -45,6 +55,7 @@ export interface MediaEntrySummary {
     status: WatchStatus;
     watched_at: string | null;
     media_item: MediaItemSummary;
+    shared_by: SharedByMember[];
 }
 
 export interface BookEntrySummary {
@@ -53,6 +64,7 @@ export interface BookEntrySummary {
     status: WatchStatus;
     read_at: string | null;
     book_item: BookItemSummary;
+    shared_by: SharedByMember[];
 }
 
 export type LibraryEntry = MediaEntrySummary | BookEntrySummary;
@@ -108,6 +120,7 @@ export interface BookItemDetail {
     thumbnail_url: string | null;
     published_date: string | null;
     entry: { id: number; status: WatchStatus; read_at: string | null } | null;
+    shared_by: SharedByEntry[];
 }
 
 export interface MediaItemDetail {
@@ -122,4 +135,5 @@ export interface MediaItemDetail {
     tv_status: string | null;
     entry: { id: number; status: WatchStatus; watched_at: string | null } | null;
     seasons: MediaSeasonSummary[];
+    shared_by: SharedByEntry[];
 }

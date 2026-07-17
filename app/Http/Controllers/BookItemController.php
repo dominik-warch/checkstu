@@ -19,8 +19,13 @@ class BookItemController extends Controller
             ->where('book_item_id', $bookItem->id)
             ->first();
 
+        $sharedBy = BookEntry::where('book_item_id', $bookItem->id)
+            ->where('user_id', '!=', $request->user()->id)
+            ->with('user')
+            ->get();
+
         return Inertia::render('media/book-show', [
-            'item' => BookEntryPresenter::detail($bookItem, $entry),
+            'item' => BookEntryPresenter::detail($bookItem, $entry, $sharedBy),
         ]);
     }
 }

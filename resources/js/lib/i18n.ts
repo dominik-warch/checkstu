@@ -151,6 +151,7 @@ const de = {
         seasons: 'Staffeln',
         allCaughtUp: 'Alle verfügbaren Folgen gesehen.',
         addNew: 'Hinzufügen',
+        sharedWith: 'Auch bei:',
         comingUp: 'Demnächst',
         comingUpEmpty: 'Nichts Neues in Sicht.',
     },
