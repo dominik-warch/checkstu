@@ -1,4 +1,5 @@
 import { router } from '@inertiajs/react';
+import { Check } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import MediaPoster from '@/components/media/media-poster';
@@ -124,6 +125,12 @@ export default function MediaSearch({ onAdded }: MediaSearchProps) {
                                   <div className="min-w-0 flex-1">
                                       <p className="line-clamp-2 font-medium break-words">{result.title}</p>
                                       {result.authors && <p className="text-muted-foreground truncate text-xs">{result.authors}</p>}
+                                      {result.in_library && (
+                                          <p className="flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400">
+                                              <Check className="size-3" />
+                                              {t('media.inLibrary')}
+                                          </p>
+                                      )}
                                   </div>
                                   <div className="flex shrink-0 flex-col gap-1">
                                       <Button size="sm" variant="outline" disabled={busy} onClick={() => addBook(result, 'watchlist')}>
@@ -146,6 +153,12 @@ export default function MediaSearch({ onAdded }: MediaSearchProps) {
                                   <div className="min-w-0 flex-1">
                                       <p className="line-clamp-2 font-medium break-words">{result.title}</p>
                                       {result.release_date && <p className="text-muted-foreground text-xs">{result.release_date.slice(0, 4)}</p>}
+                                      {result.in_library && (
+                                          <p className="flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400">
+                                              <Check className="size-3" />
+                                              {t('media.inLibrary')}
+                                          </p>
+                                      )}
                                   </div>
                                   <div className="flex shrink-0 flex-col gap-1">
                                       <Button size="sm" variant="outline" disabled={busy} onClick={() => addMedia(result, 'watchlist')}>

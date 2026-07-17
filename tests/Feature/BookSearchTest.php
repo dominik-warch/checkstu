@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\Models\BookEntry;
+use App\Models\BookItem;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
@@ -13,7 +15,7 @@ class BookSearchTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_searching_returns_normalized_open_library_results(): void
+    private function fakeSearch(): void
     {
         Http::fake([
             '*/search.json*' => Http::response([
@@ -27,7 +29,11 @@ class BookSearchTest extends TestCase
                 ],
             ]),
         ]);
+    }
 
+    public function test_searching_returns_normalized_open_library_results(): void
+    {
+        $this->fakeSearch();
         $user = User::factory()->create();
 
         $response = $this->actingAs($user)->getJson(route('books.search', ['query' => 'Fänger im Roggen']));
@@ -35,6 +41,32 @@ class BookSearchTest extends TestCase
         $response->assertOk();
         $response->assertJsonPath('results.0.open_library_id', '/books/OL1M');
         $response->assertJsonPath('results.0.title', 'Fänger im Roggen');
+        $response->assertJsonPath('results.0.in_library', false);
+    }
+
+    public function test_a_result_already_in_the_users_library_is_flagged(): void
+    {
+        $this->fakeSearch();
+        $user = User::factory()->create();
+        $item = BookItem::factory()->create(['open_library_id' => '/books/OL1M']);
+        BookEntry::factory()->for($user)->for($item, 'bookItem')->create();
+
+        $response = $this->actingAs($user)->getJson(route('books.search', ['query' => 'Fänger im Roggen']));
+
+        $response->assertJsonPath('results.0.in_library', true);
+    }
+
+    public function test_another_users_library_does_not_flag_a_result_as_owned(): void
+    {
+        $this->fakeSearch();
+        $user = User::factory()->create();
+        $otherUser = User::factory()->create();
+        $item = BookItem::factory()->create(['open_library_id' => '/books/OL1M']);
+        BookEntry::factory()->for($otherUser)->for($item, 'bookItem')->create();
+
+        $response = $this->actingAs($user)->getJson(route('books.search', ['query' => 'Fänger im Roggen']));
+
+        $response->assertJsonPath('results.0.in_library', false);
     }
 
     public function test_an_empty_query_returns_no_results_without_calling_open_library(): void

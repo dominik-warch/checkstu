@@ -9,6 +9,7 @@ export interface MediaSearchResult {
     overview: string;
     poster_path: string | null;
     release_date: string | null;
+    in_library: boolean;
 }
 
 export interface BookSearchResult {
@@ -18,6 +19,7 @@ export interface BookSearchResult {
     overview: string;
     thumbnail_url: string | null;
     published_date: string | null;
+    in_library: boolean;
 }
 
 export interface TogetherMember {
