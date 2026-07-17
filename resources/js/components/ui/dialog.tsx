@@ -43,7 +43,13 @@ const DialogContent = React.forwardRef<
                 // dvh-based max-height (which DOES track the shrunk visual viewport) keeps
                 // the dialog fully visible and in the same place whether or not the keyboard
                 // is open.
-                'fixed left-[50%] top-[max(1rem,env(safe-area-inset-top))] z-50 grid max-h-[calc(100dvh-2rem)] w-full max-w-lg translate-x-[-50%] gap-4 overflow-y-auto border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 sm:rounded-lg',
+                //
+                // flex flex-col (not grid): a grid track sizes to its content's min-content
+                // width by default, so a long unbreakable string in a descendant (e.g. a movie
+                // title) can blow the dialog wider than max-w-lg. Flex items stretched to the
+                // container width don't have that blowout — overflowing content stays contained
+                // instead of growing the box, which is what overflow-x-hidden here relies on.
+                'fixed left-[50%] top-[max(1rem,env(safe-area-inset-top))] z-50 flex max-h-[calc(100dvh-2rem)] w-full max-w-lg translate-x-[-50%] flex-col gap-4 overflow-x-hidden overflow-y-auto border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 sm:rounded-lg',
                 className,
             )}
             {...props}

@@ -32,7 +32,7 @@ export default function MediaEntryCard({ entry }: MediaEntryCardProps) {
                 <MediaPoster path={item.poster_path} alt={item.title_de} className="h-20 w-14" />
                 <div className="min-w-0 flex-1">
                     <p className="truncate font-medium">{item.title_de}</p>
-                    <p className="text-muted-foreground truncate text-sm">{item.title_en}</p>
+                    {item.release_date && <p className="text-muted-foreground text-sm">{item.release_date.slice(0, 4)}</p>}
                     <Badge variant="secondary" className="mt-1">
                         {statusLabel[entry.status]}
                     </Badge>
