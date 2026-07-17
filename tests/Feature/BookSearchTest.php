@@ -54,4 +54,15 @@ class BookSearchTest extends TestCase
 
         Http::assertSentCount(1);
     }
+
+    public function test_a_persistent_upstream_failure_is_flagged_as_unavailable_not_a_plain_error(): void
+    {
+        Http::fake(['*/volumes?*' => Http::response([], 503)]);
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->getJson(route('books.search', ['query' => 'Kinder des Nebels']));
+
+        $response->assertStatus(503);
+        $response->assertJson(['results' => [], 'unavailable' => true]);
+    }
 }

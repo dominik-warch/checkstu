@@ -126,6 +126,7 @@ const de = {
         searchPlaceholderBook: 'Buch suchen …',
         searchEmpty: 'Keine Ergebnisse.',
         searchError: 'Suche fehlgeschlagen.',
+        searchUnavailable: 'Die Suche ist gerade nicht erreichbar — das liegt nicht an deiner Eingabe. Bitte versuche es in ein paar Minuten erneut.',
         addToWatchlist: 'Zur Merkliste',
         markWatched: 'Gesehen',
         markRead: 'Gelesen',

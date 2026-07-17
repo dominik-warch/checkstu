@@ -32,7 +32,7 @@ export default function MediaSearch({ onAdded }: MediaSearchProps) {
     const [mediaResults, setMediaResults] = useState<MediaSearchResult[]>([]);
     const [bookResults, setBookResults] = useState<BookSearchResult[]>([]);
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(false);
+    const [error, setError] = useState<'failed' | 'unavailable' | null>(null);
     const [addingKey, setAddingKey] = useState<string | null>(null);
 
     useEffect(() => {
@@ -40,31 +40,35 @@ export default function MediaSearch({ onAdded }: MediaSearchProps) {
         if (trimmed === '') {
             setMediaResults([]);
             setBookResults([]);
-            setError(false);
+            setError(null);
             setLoading(false);
             return;
         }
 
         setLoading(true);
         const timeout = setTimeout(() => {
+            // A non-ok response is parsed too (not just discarded) — the backend flags a
+            // temporary upstream outage (e.g. Google Books being unreachable) with
+            // `unavailable: true`, distinct from a plain failure, so the UI can say "not your
+            // fault, try again shortly" instead of a generic error.
+            async function parse<T>(res: Response): Promise<T> {
+                const data = await res.json();
+                if (!res.ok) throw new Error(data?.unavailable ? 'unavailable' : 'failed');
+                return data as T;
+            }
+
             const request =
                 type === 'book'
                     ? fetch(route('books.search', { query: trimmed }), { headers: { Accept: 'application/json' } })
-                          .then((res) => {
-                              if (!res.ok) throw new Error('search failed');
-                              return res.json();
-                          })
-                          .then((data: { results: BookSearchResult[] }) => setBookResults(data.results))
+                          .then((res) => parse<{ results: BookSearchResult[] }>(res))
+                          .then((data) => setBookResults(data.results))
                     : fetch(route('media.search', { query: trimmed, type }), { headers: { Accept: 'application/json' } })
-                          .then((res) => {
-                              if (!res.ok) throw new Error('search failed');
-                              return res.json();
-                          })
-                          .then((data: { results: MediaSearchResult[] }) => setMediaResults(data.results));
+                          .then((res) => parse<{ results: MediaSearchResult[] }>(res))
+                          .then((data) => setMediaResults(data.results));
 
             request
-                .then(() => setError(false))
-                .catch(() => setError(true))
+                .then(() => setError(null))
+                .catch((err: Error) => setError(err.message === 'unavailable' ? 'unavailable' : 'failed'))
                 .finally(() => setLoading(false));
         }, 300);
 
@@ -104,7 +108,8 @@ export default function MediaSearch({ onAdded }: MediaSearchProps) {
             <Input autoFocus autoComplete="off" value={query} onChange={(e) => setQuery(e.target.value)} placeholder={placeholder[type]} />
 
             {loading && <p className="text-muted-foreground text-sm">{t('common.loading')}</p>}
-            {!loading && error && <p className="text-sm text-rose-600 dark:text-rose-400">{t('media.searchError')}</p>}
+            {!loading && error === 'failed' && <p className="text-sm text-rose-600 dark:text-rose-400">{t('media.searchError')}</p>}
+            {!loading && error === 'unavailable' && <p className="text-sm text-rose-600 dark:text-rose-400">{t('media.searchUnavailable')}</p>}
             {!loading && !error && isEmpty && <p className="text-muted-foreground text-sm">{t('media.searchEmpty')}</p>}
 
             <div className="flex flex-col gap-2">

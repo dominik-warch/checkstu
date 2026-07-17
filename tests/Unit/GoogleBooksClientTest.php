@@ -98,4 +98,33 @@ class GoogleBooksClientTest extends TestCase
 
         (new GoogleBooksClient)->search('anything');
     }
+
+    public function test_a_transient_server_error_is_retried_and_can_succeed(): void
+    {
+        Http::fake([
+            '*/volumes?*' => Http::sequence()
+                ->push([], 503)
+                ->push(['items' => [['id' => 'abc', 'volumeInfo' => ['title' => 'Retried Book']]]], 200),
+        ]);
+
+        $results = (new GoogleBooksClient)->search('anything');
+
+        $this->assertSame('Retried Book', $results[0]['title']);
+        Http::assertSentCount(2);
+    }
+
+    public function test_a_client_error_is_not_retried(): void
+    {
+        Http::fake([
+            '*/volumes?*' => Http::response([], 400),
+        ]);
+
+        try {
+            (new GoogleBooksClient)->search('anything');
+        } catch (GoogleBooksRequestException) {
+            // expected
+        }
+
+        Http::assertSentCount(1);
+    }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Support\GoogleBooks;
 
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
 
@@ -92,7 +93,12 @@ class GoogleBooksClient
      */
     private function get(string $endpoint, array $query = []): array
     {
+        // Google's Books "List"/search endpoint has a well-documented habit of returning
+        // transient 503s with no relation to quota or query — two extra attempts turn most
+        // of those into a success instead of a user-facing failure. 4xx isn't retried: those
+        // are deterministic (bad key, bad request) and won't change on a second try.
         $response = Http::baseUrl(config('services.google_books.base_url'))
+            ->retry(2, 250, fn (\Throwable $exception) => $exception instanceof RequestException && $exception->response->serverError(), throw: false)
             ->get($endpoint, array_filter([
                 ...$query,
                 'key' => config('services.google_books.key'),
