@@ -1,4 +1,9 @@
-# Production stack for checkstu (SQLite, no external services).
+# Production stack for checkstu (SQLite for data, Redis for sessions/cache).
+#
+# Redis takes the highest-frequency writes (every request's session, cache
+# reads/writes) off the SQLite file, which is also shared by the worker and
+# scheduler containers — see git history for the "database is locked" issue
+# this addresses.
 #
 # Put the app behind a reverse proxy that terminates TLS (Caddy / Traefik /
 # nginx / Cloudflare Tunnel) and forwards to the `app` service on port 8080.
@@ -26,10 +31,12 @@ x-env: &app-env
   APP_FALLBACK_LOCALE: en
   DB_CONNECTION: sqlite
   DB_DATABASE: /var/www/html/storage/database/database.sqlite
-  SESSION_DRIVER: database
+  SESSION_DRIVER: redis
   SESSION_SECURE_COOKIE: ${SESSION_SECURE_COOKIE:-true}
-  CACHE_STORE: database
+  CACHE_STORE: redis
   QUEUE_CONNECTION: database
+  REDIS_HOST: redis
+  REDIS_PORT: 6379
   TRUSTED_PROXIES: ${TRUSTED_PROXIES:-*}
   LOG_CHANNEL: stderr
   LOG_LEVEL: ${LOG_LEVEL:-warning}
@@ -37,9 +44,16 @@ x-env: &app-env
   VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY}
   VAPID_PRIVATE_KEY: ${VAPID_PRIVATE_KEY}
   TMDB_API_KEY: ${TMDB_API_KEY}
-  GOOGLE_BOOKS_API_KEY: ${GOOGLE_BOOKS_API_KEY}
 
 services:
+  redis:
+    image: 'redis:alpine'
+    ports:
+      - '6379:6379'
+    volumes:
+      - 'redis:/data'
+    restart: always
+
   app:
     <<: *app-image
     build:
@@ -59,6 +73,8 @@ services:
       timeout: 5s
       retries: 5
       start_period: 40s
+    depends_on:
+      - redis
 
   worker:
     <<: *app-image
@@ -71,6 +87,7 @@ services:
       disable: true
     depends_on:
       - app
+      - redis
 
   scheduler:
     <<: *app-image
@@ -82,6 +99,8 @@ services:
       disable: true
     depends_on:
       - app
+      - redis
 
 volumes:
   checkstu-data:
+  redis:

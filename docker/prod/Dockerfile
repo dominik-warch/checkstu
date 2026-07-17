@@ -5,7 +5,7 @@ FROM serversideup/php:8.5-fpm-nginx AS php-build
 WORKDIR /var/www/html
 
 USER root
-RUN install-php-extensions intl pdo_sqlite gmp
+RUN install-php-extensions intl pdo_sqlite gmp redis
 
 COPY . .
 
@@ -52,7 +52,7 @@ RUN apt-get update && \
 
 # gmp: minishlink/web-push (VAPID push encryption) errors out without GMP or
 # BCMath — Laravel promotes its trigger_error() notice to a fatal exception.
-RUN install-php-extensions intl pdo_sqlite gmp
+RUN install-php-extensions intl pdo_sqlite gmp redis
 
 # nginx tweaks
 COPY docker/prod/nginx.conf /etc/nginx/conf.d/custom.conf
