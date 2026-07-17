@@ -25,6 +25,7 @@ export const mediaNavItems: NavItem[] = [
     { label: t('media.home'), icon: Film, routeName: 'media.home', href: '/media' },
     { label: t('media.comingUp'), icon: CalendarDays, routeName: 'media.comingUp', href: '/media/coming-up' },
     { label: t('media.library'), icon: Library, routeName: 'media.library', href: '/media/library' },
+    { label: t('media.together'), icon: Users, routeName: 'media.together', href: '/media/together' },
 ];
 
 interface CheckstuLayoutProps {

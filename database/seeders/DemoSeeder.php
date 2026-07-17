@@ -124,7 +124,12 @@ class DemoSeeder extends Seeder
             'title_en' => 'Stranger Things',
             'overview' => 'Übernatürliche Ereignisse erschüttern eine Kleinstadt in den 80ern.',
             'release_date' => '2016-07-15',
-            'tv_status' => 'Returning Series',
+            // 'Ended' (not 'Returning Series'), even though the real show wasn't at time of
+            // writing — RefreshShowSeasonsAction and ResolveNextEpisodeAction both treat a
+            // non-ended show with no cached seasons as needing a live re-sync and would hit
+            // the real TMDb API with this fake tmdb_id, 404ing. Demo data must never trigger
+            // a real network call.
+            'tv_status' => 'Ended',
         ]);
 
         $kungFuPanda = MediaItem::create([

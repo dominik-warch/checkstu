@@ -154,6 +154,9 @@ const de = {
         sharedWith: 'Auch bei:',
         comingUp: 'Demnächst',
         comingUpEmpty: 'Nichts Neues in Sicht.',
+        together: 'Gemeinsam',
+        togetherPrompt: 'Wähle ein Familienmitglied, um eure gemeinsame Merkliste zu sehen.',
+        togetherEmpty: 'Nichts, das ihr beide auf der Merkliste habt.',
     },
     notifications: {
         title: 'Benachrichtigungen',

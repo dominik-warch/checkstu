@@ -14,6 +14,7 @@ use App\Http\Controllers\MediaItemController;
 use App\Http\Controllers\MediaLibraryController;
 use App\Http\Controllers\MediaSearchController;
 use App\Http\Controllers\MediaSeasonController;
+use App\Http\Controllers\MediaTogetherController;
 use App\Http\Controllers\PushSubscriptionController;
 use App\Http\Controllers\TaskCompletionController;
 use App\Http\Controllers\TaskController;
@@ -55,6 +56,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/', [MediaHomeController::class, 'index'])->name('home');
         Route::get('coming-up', [MediaComingUpController::class, 'index'])->name('comingUp');
         Route::get('library', [MediaLibraryController::class, 'index'])->name('library');
+        Route::get('together', [MediaTogetherController::class, 'index'])->name('together');
         Route::get('search', [MediaSearchController::class, 'index'])->name('search');
         Route::post('entries', [MediaEntryController::class, 'store'])->name('entries.store');
         Route::patch('entries/{entry}', [MediaEntryController::class, 'update'])->name('entries.update');

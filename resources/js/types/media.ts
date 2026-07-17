@@ -20,6 +20,12 @@ export interface BookSearchResult {
     published_date: string | null;
 }
 
+export interface TogetherMember {
+    id: number;
+    name: string;
+    color: string | null;
+}
+
 export interface SharedByMember {
     id: number;
     name: string;
