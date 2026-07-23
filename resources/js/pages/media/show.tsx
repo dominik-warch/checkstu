@@ -1,5 +1,5 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { ArrowLeft, CheckCheck } from 'lucide-react';
+import { ArrowLeft, CheckCheck, ExternalLink } from 'lucide-react';
 import { useState } from 'react';
 
 import MediaPoster from '@/components/media/media-poster';
@@ -76,6 +76,15 @@ export default function Show({ item }: ShowProps) {
                         </Badge>
                     )}
                     {item.release_date && <p className="text-muted-foreground mt-2 text-sm">{item.release_date.slice(0, 4)}</p>}
+                    <a
+                        href={`https://www.werstreamt.es/filme-serien/?q=${encodeURIComponent(item.title_de)}&action_results=suchen`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-muted-foreground mt-2 inline-flex items-center gap-1 text-sm hover:underline"
+                    >
+                        <ExternalLink className="size-4" />
+                        {t('media.whereToStream')}
+                    </a>
                 </div>
             </div>
 

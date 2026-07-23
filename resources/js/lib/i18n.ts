@@ -159,6 +159,7 @@ const de = {
         together: 'Gemeinsam',
         togetherPrompt: 'Wähle ein Familienmitglied, um eure gemeinsame Merkliste zu sehen.',
         togetherEmpty: 'Nichts, das ihr beide auf der Merkliste habt.',
+        whereToStream: 'Wo streamen?',
     },
     notifications: {
         title: 'Benachrichtigungen',
