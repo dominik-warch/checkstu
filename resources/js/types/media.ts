@@ -97,6 +97,7 @@ export interface MediaEpisodeDetail {
     name: string;
     air_date: string | null;
     watched: boolean;
+    watched_at: string | null;
 }
 
 export interface MediaNextEpisodeEntry {

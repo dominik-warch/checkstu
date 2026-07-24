@@ -14,7 +14,7 @@ class MediaEpisodeWatchController extends Controller
 {
     public function store(MediaEpisodeWatchRequest $request, MediaEpisode $episode, MarkEpisodeWatchedAction $action): RedirectResponse
     {
-        $action->handle($request->user(), $episode);
+        $action->handle($request->user(), $episode, $request->validated('watched_at'));
 
         return back();
     }

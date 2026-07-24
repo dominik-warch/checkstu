@@ -43,12 +43,26 @@ export default function SeasonAccordion({ season }: SeasonAccordionProps) {
 
     function toggle(episode: MediaEpisodeDetail) {
         const nowWatched = !episode.watched;
-        setEpisodes((prev) => prev?.map((e) => (e.id === episode.id ? { ...e, watched: nowWatched } : e)) ?? prev);
+        setEpisodes(
+            (prev) =>
+                prev?.map((e) => (e.id === episode.id ? { ...e, watched: nowWatched, watched_at: nowWatched ? e.watched_at : null } : e)) ?? prev,
+        );
 
         fetch(route(nowWatched ? 'media.episodes.watch.store' : 'media.episodes.watch.destroy', episode.id), {
             method: nowWatched ? 'POST' : 'DELETE',
             headers: { 'Content-Type': 'application/json', ...xsrfHeader() },
             credentials: 'same-origin',
+        });
+    }
+
+    function changeDate(episode: MediaEpisodeDetail, date: string) {
+        setEpisodes((prev) => prev?.map((e) => (e.id === episode.id ? { ...e, watched_at: date || null } : e)) ?? prev);
+
+        fetch(route('media.episodes.watch.store', episode.id), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', ...xsrfHeader() },
+            credentials: 'same-origin',
+            body: JSON.stringify({ watched_at: date || null }),
         });
     }
 
@@ -88,7 +102,14 @@ export default function SeasonAccordion({ season }: SeasonAccordionProps) {
             </div>
             <CollapsibleContent className="divide-y border-t">
                 {loading && <p className="text-muted-foreground p-3 text-sm">{t('common.loading')}</p>}
-                {episodes?.map((episode) => <EpisodeRow key={episode.id} episode={episode} onToggle={() => toggle(episode)} />)}
+                {episodes?.map((episode) => (
+                    <EpisodeRow
+                        key={episode.id}
+                        episode={episode}
+                        onToggle={() => toggle(episode)}
+                        onChangeDate={(date) => changeDate(episode, date)}
+                    />
+                ))}
             </CollapsibleContent>
         </Collapsible>
     );

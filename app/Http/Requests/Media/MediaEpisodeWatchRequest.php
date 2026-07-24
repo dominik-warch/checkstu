@@ -28,6 +28,8 @@ class MediaEpisodeWatchRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [];
+        return [
+            'watched_at' => ['nullable', 'date'],
+        ];
     }
 }

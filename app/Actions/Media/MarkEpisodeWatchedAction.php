@@ -15,12 +15,12 @@ class MarkEpisodeWatchedAction
         private readonly RecomputeMediaEntryStatusAction $recompute,
     ) {}
 
-    public function handle(User $user, MediaEpisode $episode): void
+    public function handle(User $user, MediaEpisode $episode, ?string $watchedAt = null): void
     {
-        DB::transaction(function () use ($user, $episode): void {
+        DB::transaction(function () use ($user, $episode, $watchedAt): void {
             MediaEpisodeWatch::updateOrCreate(
                 ['user_id' => $user->id, 'media_episode_id' => $episode->id],
-                ['watched_at' => now()->toDateString()],
+                ['watched_at' => $watchedAt ?? now()->toDateString()],
             );
 
             $this->recompute->handle($user, $episode->season->mediaItem);
