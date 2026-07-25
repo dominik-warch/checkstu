@@ -31,11 +31,12 @@ class MarkAllEpisodesWatchedAction
             $airedIds = $episodes->filter(fn (MediaEpisode $episode) => $episode->hasAired())->pluck('id');
 
             DB::transaction(function () use ($user, $airedIds): void {
-                $today = now()->toDateString();
                 foreach ($airedIds as $episodeId) {
+                    // No known watch date for a bulk mark — left blank rather than
+                    // defaulting to today, which would misrepresent when it was actually watched.
                     MediaEpisodeWatch::updateOrCreate(
                         ['user_id' => $user->id, 'media_episode_id' => $episodeId],
-                        ['watched_at' => $today],
+                        ['watched_at' => null],
                     );
                 }
             });

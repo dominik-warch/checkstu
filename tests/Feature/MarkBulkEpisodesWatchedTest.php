@@ -50,6 +50,19 @@ class MarkBulkEpisodesWatchedTest extends TestCase
         $this->assertSame(WatchStatus::Completed, MediaEntry::where('user_id', $user->id)->first()->status);
     }
 
+    public function test_marking_a_season_watched_leaves_the_watch_date_blank(): void
+    {
+        $user = User::factory()->create();
+        $item = MediaItem::factory()->tv()->create();
+        $season = $this->makeCachedSeason($item, 1, 2);
+        MediaEntry::factory()->for($user)->for($item, 'mediaItem')->create(['status' => WatchStatus::Watchlist]);
+
+        $this->actingAs($user)->post(route('media.seasons.watchAll', $season))->assertRedirect();
+
+        $this->assertTrue(MediaEpisodeWatch::where('user_id', $user->id)->whereNull('watched_at')->exists());
+        $this->assertSame(0, MediaEpisodeWatch::where('user_id', $user->id)->whereNotNull('watched_at')->count());
+    }
+
     public function test_marking_a_season_watched_skips_unaired_episodes(): void
     {
         $user = User::factory()->create();
@@ -111,6 +124,18 @@ class MarkBulkEpisodesWatchedTest extends TestCase
 
         $this->assertSame(4, MediaEpisodeWatch::where('user_id', $user->id)->count());
         $this->assertSame(WatchStatus::Completed, MediaEntry::where('user_id', $user->id)->first()->status);
+    }
+
+    public function test_marking_the_whole_show_watched_leaves_the_watch_date_blank(): void
+    {
+        $user = User::factory()->create();
+        $item = MediaItem::factory()->tv()->create();
+        $this->makeCachedSeason($item, 1, 2);
+        MediaEntry::factory()->for($user)->for($item, 'mediaItem')->create(['status' => WatchStatus::Watchlist]);
+
+        $this->actingAs($user)->post(route('media.items.watchAll', $item))->assertRedirect();
+
+        $this->assertSame(0, MediaEpisodeWatch::where('user_id', $user->id)->whereNotNull('watched_at')->count());
     }
 
     public function test_marking_the_whole_show_watched_fetches_any_uncached_seasons(): void
