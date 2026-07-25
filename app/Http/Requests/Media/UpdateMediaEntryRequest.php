@@ -33,7 +33,6 @@ class UpdateMediaEntryRequest extends FormRequest
                     }
                 },
             ],
-            'watched_at' => ['nullable', 'date'],
         ];
     }
 }

@@ -5,6 +5,7 @@ import { useState } from 'react';
 import MediaPoster from '@/components/media/media-poster';
 import SeasonAccordion from '@/components/media/season-accordion';
 import SharedByList from '@/components/media/shared-by-list';
+import WatchHistory from '@/components/media/watch-history';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import CheckstuLayout, { mediaNavItems } from '@/layouts/checkstu-layout';
@@ -46,14 +47,22 @@ export default function Show({ item }: ShowProps) {
         setProcessing(true);
         router.patch(
             route('media.entries.update', item.entry.id),
-            { status: item.entry.status === 'completed' ? 'watchlist' : 'completed', watched_at: null },
+            { status: item.entry.status === 'completed' ? 'watchlist' : 'completed' },
             { preserveScroll: true, onFinish: () => setProcessing(false) },
         );
     }
 
-    function changeDate(date: string) {
+    function addWatch() {
         if (!item.entry) return;
-        router.patch(route('media.entries.update', item.entry.id), { status: 'completed', watched_at: date || null }, { preserveScroll: true });
+        router.post(route('media.entries.watches.store', item.entry.id), {}, { preserveScroll: true });
+    }
+
+    function changeWatchDate(watchId: number, date: string) {
+        router.patch(route('media.entryWatches.update', watchId), { watched_at: date || null }, { preserveScroll: true });
+    }
+
+    function removeWatch(watchId: number) {
+        router.delete(route('media.entryWatches.destroy', watchId), { preserveScroll: true });
     }
 
     return (
@@ -105,13 +114,7 @@ export default function Show({ item }: ShowProps) {
                         {item.entry.status === 'completed' ? t('media.addToWatchlist') : t('media.markWatched')}
                     </Button>
                     {item.entry.status === 'completed' && (
-                        <input
-                            type="date"
-                            value={item.entry.watched_at ?? ''}
-                            onChange={(e) => changeDate(e.target.value)}
-                            aria-label={t('media.watchedAt')}
-                            className="border-input bg-background rounded-md border px-2 py-1 text-sm"
-                        />
+                        <WatchHistory watches={item.entry.watches} onAdd={addWatch} onChangeDate={changeWatchDate} onRemove={removeWatch} />
                     )}
                 </div>
             )}

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Support;
 
 use App\Models\MediaEntry;
+use App\Models\MediaEntryWatch;
 use App\Models\MediaEpisodeWatch;
 use App\Models\MediaItem;
 use App\Models\MediaSeason;
@@ -35,7 +36,10 @@ class MediaItemPresenter
             'entry' => $entry ? [
                 'id' => $entry->id,
                 'status' => $entry->status->value,
-                'watched_at' => $entry->watched_at?->toDateString(),
+                'watches' => $entry->watches->map(fn (MediaEntryWatch $watch) => [
+                    'id' => $watch->id,
+                    'watched_at' => $watch->watched_at?->toDateString(),
+                ])->values()->all(),
             ] : null,
             'seasons' => $item->seasons->map(function (MediaSeason $season) use ($user) {
                 $isCached = $season->isEpisodesCached();
@@ -46,9 +50,12 @@ class MediaItemPresenter
                     'name' => $season->name,
                     'episode_count' => $season->episode_count,
                     'is_cached' => $isCached,
+                    // Distinct episodes, not rows — an episode may carry more than one watch.
                     'watched_count' => $isCached
                         ? MediaEpisodeWatch::where('user_id', $user->id)
                             ->whereIn('media_episode_id', $season->episodes->pluck('id'))
+                            ->pluck('media_episode_id')
+                            ->unique()
                             ->count()
                         : 0,
                 ];

@@ -37,8 +37,12 @@ class RecomputeMediaEntryStatusAction
             ->filter(fn (MediaEpisode $episode) => $episode->hasAired())
             ->pluck('id');
 
+        // Distinct episodes, not rows — an episode can now carry more than one
+        // watch (rewatches), which must not inflate the "how much is watched" count.
         $watchedAiredCount = MediaEpisodeWatch::where('user_id', $user->id)
             ->whereIn('media_episode_id', $airedEpisodeIds)
+            ->pluck('media_episode_id')
+            ->unique()
             ->count();
 
         $status = match (true) {
@@ -48,14 +52,7 @@ class RecomputeMediaEntryStatusAction
         };
 
         $entry = MediaEntry::firstOrNew(['user_id' => $user->id, 'media_item_id' => $item->id]);
-        $wasCompleted = $entry->exists && $entry->status === WatchStatus::Completed;
-
         $entry->status = $status;
-        $entry->watched_at = match (true) {
-            $status === WatchStatus::Completed && ! $wasCompleted => now()->toDateString(),
-            $status === WatchStatus::Completed && $wasCompleted => $entry->watched_at,
-            default => null,
-        };
         $entry->save();
 
         return $entry;

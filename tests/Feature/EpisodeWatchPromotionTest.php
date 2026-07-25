@@ -64,7 +64,6 @@ class EpisodeWatchPromotionTest extends TestCase
 
         $entry = MediaEntry::where('user_id', $user->id)->first();
         $this->assertSame(WatchStatus::Completed, $entry->status);
-        $this->assertNotNull($entry->watched_at);
     }
 
     public function test_specials_season_does_not_block_completion(): void

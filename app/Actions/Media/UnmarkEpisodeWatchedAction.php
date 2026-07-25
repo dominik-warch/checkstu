@@ -15,6 +15,7 @@ class UnmarkEpisodeWatchedAction
         private readonly RecomputeMediaEntryStatusAction $recompute,
     ) {}
 
+    /** Clears every watch (however many rewatches were logged), not just one. */
     public function handle(User $user, MediaEpisode $episode): void
     {
         DB::transaction(function () use ($user, $episode): void {

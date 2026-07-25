@@ -83,7 +83,7 @@ class AddMediaEntryTest extends TestCase
 
         $entry = MediaEntry::where('user_id', $user->id)->first();
         $this->assertSame(WatchStatus::Completed, $entry->status);
-        $this->assertSame('2026-07-10', $entry->watched_at->toDateString());
+        $this->assertSame('2026-07-10', $entry->watches->first()->watched_at->toDateString());
     }
 
     public function test_a_show_cannot_be_added_as_directly_completed(): void

@@ -29,56 +29,94 @@ export default function SeasonAccordion({ season }: SeasonAccordionProps) {
     const [loading, setLoading] = useState(false);
     const [markingAll, setMarkingAll] = useState(false);
 
+    function loadEpisodes() {
+        return fetch(route('media.seasons.episodes', season.id), { headers: { Accept: 'application/json' } })
+            .then((res) => res.json())
+            .then((data: { episodes: MediaEpisodeDetail[] }) => setEpisodes(data.episodes));
+    }
+
     useEffect(() => {
         if (!open || episodes !== null) {
             return;
         }
 
         setLoading(true);
-        fetch(route('media.seasons.episodes', season.id), { headers: { Accept: 'application/json' } })
-            .then((res) => res.json())
-            .then((data: { episodes: MediaEpisodeDetail[] }) => setEpisodes(data.episodes))
-            .finally(() => setLoading(false));
+        loadEpisodes().finally(() => setLoading(false));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [open, episodes, season.id]);
 
     function toggle(episode: MediaEpisodeDetail) {
-        const nowWatched = !episode.watched;
+        const nowWatched = episode.watches.length === 0;
+        // A placeholder row (blank date, matching what the server actually creates)
+        // gives instant checkbox feedback; loadEpisodes() reconciles real ids after.
         setEpisodes(
             (prev) =>
-                prev?.map((e) => (e.id === episode.id ? { ...e, watched: nowWatched, watched_at: nowWatched ? e.watched_at : null } : e)) ?? prev,
+                prev?.map((e) => (e.id === episode.id ? { ...e, watches: nowWatched ? [{ id: -1, watched_at: null }] : [] } : e)) ?? prev,
         );
 
         fetch(route(nowWatched ? 'media.episodes.watch.store' : 'media.episodes.watch.destroy', episode.id), {
             method: nowWatched ? 'POST' : 'DELETE',
             headers: { 'Content-Type': 'application/json', ...xsrfHeader() },
             credentials: 'same-origin',
-        });
+        }).then(loadEpisodes);
     }
 
-    function changeDate(episode: MediaEpisodeDetail, date: string) {
-        setEpisodes((prev) => prev?.map((e) => (e.id === episode.id ? { ...e, watched_at: date || null } : e)) ?? prev);
-
+    function addWatch(episode: MediaEpisodeDetail) {
         fetch(route('media.episodes.watch.store', episode.id), {
             method: 'POST',
+            headers: { 'Content-Type': 'application/json', ...xsrfHeader() },
+            credentials: 'same-origin',
+        }).then(loadEpisodes);
+    }
+
+    function changeWatchDate(episode: MediaEpisodeDetail, watchId: number, date: string) {
+        setEpisodes(
+            (prev) =>
+                prev?.map((e) =>
+                    e.id === episode.id ? { ...e, watches: e.watches.map((w) => (w.id === watchId ? { ...w, watched_at: date || null } : w)) } : e,
+                ) ?? prev,
+        );
+
+        fetch(route('media.episodeWatches.update', watchId), {
+            method: 'PATCH',
             headers: { 'Content-Type': 'application/json', ...xsrfHeader() },
             credentials: 'same-origin',
             body: JSON.stringify({ watched_at: date || null }),
         });
     }
 
+    function removeWatch(episode: MediaEpisodeDetail, watchId: number) {
+        setEpisodes(
+            (prev) => prev?.map((e) => (e.id === episode.id ? { ...e, watches: e.watches.filter((w) => w.id !== watchId) } : e)) ?? prev,
+        );
+
+        fetch(route('media.episodeWatches.destroy', watchId), {
+            method: 'DELETE',
+            headers: xsrfHeader(),
+            credentials: 'same-origin',
+        });
+    }
+
     function markSeasonWatched(e: MouseEvent) {
         e.stopPropagation();
         setMarkingAll(true);
-        setEpisodes((prev) => prev?.map((ep) => (ep.watched ? ep : { ...ep, watched: true })) ?? prev);
+        setEpisodes((prev) => prev?.map((ep) => (ep.watches.length > 0 ? ep : { ...ep, watches: [{ id: -1, watched_at: null }] })) ?? prev);
 
         router.post(
             route('media.seasons.watchAll', season.id),
             {},
-            { preserveScroll: true, preserveState: true, onFinish: () => setMarkingAll(false) },
+            {
+                preserveScroll: true,
+                preserveState: true,
+                onFinish: () => {
+                    setMarkingAll(false);
+                    loadEpisodes();
+                },
+            },
         );
     }
 
-    const watchedCount = episodes ? episodes.filter((ep) => ep.watched).length : season.watched_count;
+    const watchedCount = episodes ? episodes.filter((ep) => ep.watches.length > 0).length : season.watched_count;
 
     return (
         <Collapsible open={open} onOpenChange={setOpen} className="rounded-lg border">
@@ -107,7 +145,9 @@ export default function SeasonAccordion({ season }: SeasonAccordionProps) {
                         key={episode.id}
                         episode={episode}
                         onToggle={() => toggle(episode)}
-                        onChangeDate={(date) => changeDate(episode, date)}
+                        onAddWatch={() => addWatch(episode)}
+                        onChangeWatchDate={(watchId, date) => changeWatchDate(episode, watchId, date)}
+                        onRemoveWatch={(watchId) => removeWatch(episode, watchId)}
                     />
                 ))}
             </CollapsibleContent>

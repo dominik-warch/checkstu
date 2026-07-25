@@ -61,7 +61,6 @@ export interface MediaEntrySummary {
     kind: 'media';
     id: number;
     status: WatchStatus;
-    watched_at: string | null;
     media_item: MediaItemSummary;
     shared_by: SharedByMember[];
 }
@@ -100,13 +99,17 @@ export interface MediaSeasonSummary {
     watched_count: number;
 }
 
+export interface MediaWatchRecord {
+    id: number;
+    watched_at: string | null;
+}
+
 export interface MediaEpisodeDetail {
     id: number;
     episode_number: number;
     name: string;
     air_date: string | null;
-    watched: boolean;
-    watched_at: string | null;
+    watches: MediaWatchRecord[];
 }
 
 export interface MediaNextEpisodeEntry {
@@ -151,7 +154,7 @@ export interface MediaItemDetail {
     poster_path: string | null;
     release_date: string | null;
     tv_status: string | null;
-    entry: { id: number; status: WatchStatus; watched_at: string | null } | null;
+    entry: { id: number; status: WatchStatus; watches: MediaWatchRecord[] } | null;
     seasons: MediaSeasonSummary[];
     shared_by: SharedByEntry[];
 }

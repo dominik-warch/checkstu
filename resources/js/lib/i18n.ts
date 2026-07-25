@@ -139,6 +139,8 @@ const de = {
         sortLastWatched: 'Zuletzt geschaut',
         emptyLibrary: 'Noch nichts in der Bibliothek.',
         watchedAt: 'Gesehen am',
+        watchedTimes: ':count× gesehen',
+        logAnotherWatch: 'Weiteres Mal loggen',
         readAt: 'Gelesen am',
         byAuthor: 'von :authors',
         remove: 'Entfernen',

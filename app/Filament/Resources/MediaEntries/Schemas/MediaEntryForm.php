@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\MediaEntries\Schemas;
 
 use App\Enums\WatchStatus;
-use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Schemas\Schema;
 
@@ -24,7 +23,6 @@ class MediaEntryForm
                 Select::make('status')
                     ->options(WatchStatus::class)
                     ->required(),
-                DatePicker::make('watched_at'),
             ]);
     }
 }

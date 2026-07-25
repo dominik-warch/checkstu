@@ -8,6 +8,7 @@ use App\Http\Controllers\FamilyController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MediaComingUpController;
 use App\Http\Controllers\MediaEntryController;
+use App\Http\Controllers\MediaEntryWatchController;
 use App\Http\Controllers\MediaEpisodeWatchController;
 use App\Http\Controllers\MediaHomeController;
 use App\Http\Controllers\MediaItemController;
@@ -61,12 +62,17 @@ Route::middleware(['auth'])->group(function () {
         Route::post('entries', [MediaEntryController::class, 'store'])->name('entries.store');
         Route::patch('entries/{entry}', [MediaEntryController::class, 'update'])->name('entries.update');
         Route::delete('entries/{entry}', [MediaEntryController::class, 'destroy'])->name('entries.destroy');
+        Route::post('entries/{entry}/watches', [MediaEntryWatchController::class, 'store'])->name('entries.watches.store');
+        Route::patch('entry-watches/{watch}', [MediaEntryWatchController::class, 'update'])->name('entryWatches.update');
+        Route::delete('entry-watches/{watch}', [MediaEntryWatchController::class, 'destroy'])->name('entryWatches.destroy');
         Route::get('items/{mediaItem}', [MediaItemController::class, 'show'])->name('items.show');
         Route::post('items/{mediaItem}/watch-all', [MediaItemController::class, 'markAllWatched'])->name('items.watchAll');
         Route::get('seasons/{season}/episodes', [MediaSeasonController::class, 'episodes'])->name('seasons.episodes');
         Route::post('seasons/{season}/watch-all', [MediaSeasonController::class, 'markWatched'])->name('seasons.watchAll');
         Route::post('episodes/{episode}/watch', [MediaEpisodeWatchController::class, 'store'])->name('episodes.watch.store');
         Route::delete('episodes/{episode}/watch', [MediaEpisodeWatchController::class, 'destroy'])->name('episodes.watch.destroy');
+        Route::patch('episode-watches/{watch}', [MediaEpisodeWatchController::class, 'update'])->name('episodeWatches.update');
+        Route::delete('episode-watches/{watch}', [MediaEpisodeWatchController::class, 'destroyOne'])->name('episodeWatches.destroy');
     });
 
     // Book tracking — folded into the same Media library/coming-up pages as movies/TV,

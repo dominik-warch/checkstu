@@ -32,9 +32,11 @@ class MarkAllEpisodesWatchedAction
 
             DB::transaction(function () use ($user, $airedIds): void {
                 foreach ($airedIds as $episodeId) {
-                    // No known watch date for a bulk mark — left blank rather than
+                    // firstOrCreate, not updateOrCreate — an already-watched episode (however
+                    // many times, and whenever) must be left alone, not have its date wiped.
+                    // No known watch date for a genuinely new one — left blank rather than
                     // defaulting to today, which would misrepresent when it was actually watched.
-                    MediaEpisodeWatch::updateOrCreate(
+                    MediaEpisodeWatch::firstOrCreate(
                         ['user_id' => $user->id, 'media_episode_id' => $episodeId],
                         ['watched_at' => null],
                     );

@@ -21,10 +21,11 @@ class MediaSeasonController extends Controller
     {
         $episodes = $fetch->handle($season);
 
-        $watches = MediaEpisodeWatch::where('user_id', $request->user()->id)
+        $watchesByEpisode = MediaEpisodeWatch::where('user_id', $request->user()->id)
             ->whereIn('media_episode_id', $episodes->pluck('id'))
+            ->orderBy('id')
             ->get()
-            ->keyBy('media_episode_id');
+            ->groupBy('media_episode_id');
 
         return response()->json([
             'episodes' => $episodes->map(fn (MediaEpisode $episode) => [
@@ -32,8 +33,10 @@ class MediaSeasonController extends Controller
                 'episode_number' => $episode->episode_number,
                 'name' => $episode->name,
                 'air_date' => $episode->air_date?->toDateString(),
-                'watched' => $watches->has($episode->id),
-                'watched_at' => $watches->get($episode->id)?->watched_at?->toDateString(),
+                'watches' => $watchesByEpisode->get($episode->id, collect())->map(fn (MediaEpisodeWatch $watch) => [
+                    'id' => $watch->id,
+                    'watched_at' => $watch->watched_at?->toDateString(),
+                ])->values(),
             ])->values(),
         ]);
     }

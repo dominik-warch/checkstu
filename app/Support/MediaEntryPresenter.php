@@ -21,7 +21,6 @@ class MediaEntryPresenter
             'kind' => 'media',
             'id' => $entry->id,
             'status' => $entry->status->value,
-            'watched_at' => $entry->watched_at?->toDateString(),
             'media_item' => [
                 'id' => $item->id,
                 'tmdb_id' => $item->tmdb_id,

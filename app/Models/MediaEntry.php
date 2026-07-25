@@ -8,6 +8,7 @@ use App\Enums\WatchStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class MediaEntry extends Model
 {
@@ -18,14 +19,12 @@ class MediaEntry extends Model
         'user_id',
         'media_item_id',
         'status',
-        'watched_at',
     ];
 
     protected function casts(): array
     {
         return [
             'status' => WatchStatus::class,
-            'watched_at' => 'date',
         ];
     }
 
@@ -37,5 +36,10 @@ class MediaEntry extends Model
     public function mediaItem(): BelongsTo
     {
         return $this->belongsTo(MediaItem::class);
+    }
+
+    public function watches(): HasMany
+    {
+        return $this->hasMany(MediaEntryWatch::class)->orderBy('id');
     }
 }

@@ -21,9 +21,6 @@ class MediaEntriesTable
                 TextColumn::make('status')
                     ->badge()
                     ->searchable(),
-                TextColumn::make('watched_at')
-                    ->date()
-                    ->sortable(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

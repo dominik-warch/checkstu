@@ -27,10 +27,18 @@ class CreateMediaEntryAction
 
             // updateOrCreate so re-adding a previously-removed item (or
             // re-submitting from search) just refreshes the status, not a duplicate row.
-            return MediaEntry::updateOrCreate(
+            $entry = MediaEntry::updateOrCreate(
                 ['user_id' => $user->id, 'media_item_id' => $item->id],
-                ['status' => $data['status'], 'watched_at' => $data['watched_at'] ?? null],
+                ['status' => $data['status']],
             );
+
+            if ($entry->status === WatchStatus::Completed && $entry->watches()->doesntExist()) {
+                $entry->watches()->create(['watched_at' => $data['watched_at'] ?? null]);
+            } elseif ($entry->status !== WatchStatus::Completed) {
+                $entry->watches()->delete();
+            }
+
+            return $entry;
         });
 
         $status = WatchStatus::from($data['status']);

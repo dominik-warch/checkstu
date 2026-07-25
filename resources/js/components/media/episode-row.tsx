@@ -1,3 +1,4 @@
+import WatchHistory from '@/components/media/watch-history';
 import { Checkbox } from '@/components/ui/checkbox';
 import { t } from '@/lib/i18n';
 import type { MediaEpisodeDetail } from '@/types/media';
@@ -5,17 +6,21 @@ import type { MediaEpisodeDetail } from '@/types/media';
 interface EpisodeRowProps {
     episode: MediaEpisodeDetail;
     onToggle: () => void;
-    onChangeDate: (date: string) => void;
+    onAddWatch: () => void;
+    onChangeWatchDate: (watchId: number, date: string) => void;
+    onRemoveWatch: (watchId: number) => void;
 }
 
-export default function EpisodeRow({ episode, onToggle, onChangeDate }: EpisodeRowProps) {
+export default function EpisodeRow({ episode, onToggle, onAddWatch, onChangeWatchDate, onRemoveWatch }: EpisodeRowProps) {
+    const watched = episode.watches.length > 0;
+
     return (
-        <div className="hover:bg-muted/50 flex items-center gap-3 px-3 py-2">
+        <div className="hover:bg-muted/50 flex flex-col gap-1 px-3 py-2">
             <label className="flex min-w-0 flex-1 cursor-pointer items-center gap-3">
                 <Checkbox
-                    checked={episode.watched}
+                    checked={watched}
                     onCheckedChange={onToggle}
-                    aria-label={episode.watched ? t('media.unmarkEpisodeWatched') : t('media.markEpisodeWatched')}
+                    aria-label={watched ? t('media.unmarkEpisodeWatched') : t('media.markEpisodeWatched')}
                 />
                 <div className="min-w-0 flex-1">
                     <p className="truncate text-sm">
@@ -24,14 +29,10 @@ export default function EpisodeRow({ episode, onToggle, onChangeDate }: EpisodeR
                     {episode.air_date && <p className="text-muted-foreground text-xs">{episode.air_date}</p>}
                 </div>
             </label>
-            {episode.watched && (
-                <input
-                    type="date"
-                    value={episode.watched_at ?? ''}
-                    onChange={(e) => onChangeDate(e.target.value)}
-                    aria-label={t('media.watchedAt')}
-                    className="border-input bg-background rounded-md border px-2 py-1 text-sm"
-                />
+            {watched && (
+                <div className="pl-9">
+                    <WatchHistory watches={episode.watches} onAdd={onAddWatch} onChangeDate={onChangeWatchDate} onRemove={onRemoveWatch} />
+                </div>
             )}
         </div>
     );

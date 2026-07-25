@@ -38,7 +38,7 @@ class MediaEpisode extends Model
 
     public function watches(): HasMany
     {
-        return $this->hasMany(MediaEpisodeWatch::class);
+        return $this->hasMany(MediaEpisodeWatch::class)->orderBy('id');
     }
 
     public function hasAired(): bool
