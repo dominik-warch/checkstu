@@ -116,7 +116,7 @@ class MediaLibraryFilterTest extends TestCase
         );
     }
 
-    public function test_media_and_book_entries_are_interleaved_by_recency(): void
+    public function test_media_and_book_entries_are_interleaved_by_recency_when_sorted_by_recent(): void
     {
         $user = User::factory()->create();
         $baseline = now();
@@ -132,12 +132,53 @@ class MediaLibraryFilterTest extends TestCase
 
         Carbon::setTestNow();
 
-        $this->actingAs($user)->get(route('media.library'))->assertInertia(
+        $this->actingAs($user)->get(route('media.library', ['sort' => 'recent']))->assertInertia(
             fn (Assert $page) => $page
                 ->has('entries', 3)
                 ->where('entries.0.media_item.title_de', 'Neuester Film')
                 ->where('entries.1.book_item.title', 'Neueres Buch')
                 ->where('entries.2.media_item.title_de', 'Älterer Film'),
+        );
+    }
+
+    public function test_it_sorts_alphabetically_by_default(): void
+    {
+        $user = User::factory()->create();
+        MediaEntry::factory()->for($user)->for(MediaItem::factory()->state(['title_de' => 'Zebra Film']), 'mediaItem')->create();
+        BookEntry::factory()->for($user)->for(BookItem::factory()->state(['title' => 'Anfangsbuch']), 'bookItem')->create();
+        MediaEntry::factory()->for($user)->for(MediaItem::factory()->state(['title_de' => 'Mittlerer Film']), 'mediaItem')->create();
+
+        $this->actingAs($user)->get(route('media.library'))->assertInertia(
+            fn (Assert $page) => $page
+                ->where('filters.sort', 'alphabetical')
+                ->has('entries', 3)
+                ->where('entries.0.book_item.title', 'Anfangsbuch')
+                ->where('entries.1.media_item.title_de', 'Mittlerer Film')
+                ->where('entries.2.media_item.title_de', 'Zebra Film'),
+        );
+    }
+
+    public function test_it_sorts_by_release_date(): void
+    {
+        $user = User::factory()->create();
+        MediaEntry::factory()->for($user)->for(MediaItem::factory()->state(['title_de' => 'Alter Film', 'release_date' => '2000-01-01']), 'mediaItem')->create();
+        MediaEntry::factory()->for($user)->for(MediaItem::factory()->state(['title_de' => 'Neuer Film', 'release_date' => '2020-01-01']), 'mediaItem')->create();
+
+        $this->actingAs($user)->get(route('media.library', ['sort' => 'release']))->assertInertia(
+            fn (Assert $page) => $page
+                ->has('entries', 2)
+                ->where('entries.0.media_item.title_de', 'Neuer Film')
+                ->where('entries.1.media_item.title_de', 'Alter Film'),
+        );
+    }
+
+    public function test_an_invalid_sort_value_falls_back_to_alphabetical(): void
+    {
+        $user = User::factory()->create();
+        MediaEntry::factory()->for($user)->for(MediaItem::factory(), 'mediaItem')->create();
+
+        $this->actingAs($user)->get(route('media.library', ['sort' => 'not-a-sort']))->assertInertia(
+            fn (Assert $page) => $page->where('filters.sort', 'alphabetical'),
         );
     }
 }

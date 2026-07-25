@@ -21,6 +21,8 @@ class MediaHomeController extends Controller
     public function index(Request $request, ResolveNextEpisodeAction $resolveNextEpisode): Response
     {
         $user = $request->user();
+        $sortParam = $request->string('sort', 'last_watched')->toString();
+        $sort = in_array($sortParam, ['last_watched', 'alphabetical'], true) ? $sortParam : 'last_watched';
 
         $entries = MediaEntry::query()
             ->where('user_id', $user->id)
@@ -28,7 +30,9 @@ class MediaHomeController extends Controller
             ->with('mediaItem.seasons.episodes')
             ->get();
 
-        $entries = $this->sortByLastWatched($entries, $user);
+        $entries = $sort === 'alphabetical'
+            ? $entries->sortBy(fn (MediaEntry $entry) => mb_strtolower($entry->mediaItem->title_de))->values()
+            : $this->sortByLastWatched($entries, $user);
 
         // A show with nothing aired-and-unwatched right now (caught up, next
         // episode not out yet) has no place on a "next episode" list — it
@@ -45,6 +49,9 @@ class MediaHomeController extends Controller
 
         return Inertia::render('media/home', [
             'nextEpisodes' => $nextEpisodes,
+            'filters' => [
+                'sort' => $sort,
+            ],
         ]);
     }
 

@@ -6,14 +6,25 @@ import MediaPoster from '@/components/media/media-poster';
 import { Button } from '@/components/ui/button';
 import CheckstuLayout, { mediaNavItems } from '@/layouts/checkstu-layout';
 import { t } from '@/lib/i18n';
-import type { MediaNextEpisodeEntry } from '@/types/media';
+import { cn } from '@/lib/utils';
+import type { MediaHomeFilters, MediaHomeSort, MediaNextEpisodeEntry } from '@/types/media';
 
 interface HomeProps {
     nextEpisodes: MediaNextEpisodeEntry[];
+    filters: MediaHomeFilters;
 }
 
-export default function Home({ nextEpisodes }: HomeProps) {
+export default function Home({ nextEpisodes, filters }: HomeProps) {
     const [markingId, setMarkingId] = useState<number | null>(null);
+
+    const sortOptions: { value: MediaHomeSort; label: string }[] = [
+        { value: 'last_watched', label: t('media.sortLastWatched') },
+        { value: 'alphabetical', label: t('media.sortAlphabetical') },
+    ];
+
+    function updateSort(sort: MediaHomeSort) {
+        router.get(route('media.home'), { sort }, { preserveState: true, preserveScroll: true, replace: true });
+    }
 
     // A full round trip (not the optimistic local-toggle used in season-accordion.tsx) is
     // deliberate here: marking the shown episode watched can advance which episode is "next"
@@ -29,6 +40,21 @@ export default function Home({ nextEpisodes }: HomeProps) {
             <Head title={t('media.home')} />
 
             <h1 className="mb-4 text-2xl font-bold tracking-tight">{t('media.nextEpisode')}</h1>
+
+            <div className="mb-4 flex flex-wrap gap-2">
+                {sortOptions.map((opt) => (
+                    <Button
+                        key={opt.value}
+                        type="button"
+                        size="sm"
+                        variant={filters.sort === opt.value ? 'default' : 'outline'}
+                        className={cn('flex-1')}
+                        onClick={() => updateSort(opt.value)}
+                    >
+                        {opt.label}
+                    </Button>
+                ))}
+            </div>
 
             {nextEpisodes.length === 0 && (
                 <div className="text-muted-foreground rounded-xl border border-dashed p-8 text-center">{t('media.nothingInProgress')}</div>

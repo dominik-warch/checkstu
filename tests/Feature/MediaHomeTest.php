@@ -190,6 +190,29 @@ class MediaHomeTest extends TestCase
         );
     }
 
+    public function test_shows_can_be_sorted_alphabetically(): void
+    {
+        $user = User::factory()->create();
+
+        $itemB = MediaItem::factory()->tv()->create(['title_de' => 'Serie B']);
+        $seasonB = MediaSeason::factory()->for($itemB, 'mediaItem')->create(['episode_count' => 1, 'episodes_fetched_at' => now()]);
+        MediaEpisode::factory()->for($seasonB, 'season')->create(['episode_number' => 1, 'air_date' => now()->subDay()]);
+        MediaEntry::factory()->for($user)->for($itemB, 'mediaItem')->create(['status' => WatchStatus::Watching]);
+
+        $itemA = MediaItem::factory()->tv()->create(['title_de' => 'Serie A']);
+        $seasonA = MediaSeason::factory()->for($itemA, 'mediaItem')->create(['episode_count' => 1, 'episodes_fetched_at' => now()]);
+        MediaEpisode::factory()->for($seasonA, 'season')->create(['episode_number' => 1, 'air_date' => now()->subDay()]);
+        MediaEntry::factory()->for($user)->for($itemA, 'mediaItem')->create(['status' => WatchStatus::Watching]);
+
+        $this->actingAs($user)->get(route('media.home', ['sort' => 'alphabetical']))->assertInertia(
+            fn (Assert $page) => $page
+                ->where('filters.sort', 'alphabetical')
+                ->has('nextEpisodes', 2)
+                ->where('nextEpisodes.0.media_item.title_de', 'Serie A')
+                ->where('nextEpisodes.1.media_item.title_de', 'Serie B'),
+        );
+    }
+
     public function test_it_excludes_watchlist_and_completed_entries(): void
     {
         $user = User::factory()->create();

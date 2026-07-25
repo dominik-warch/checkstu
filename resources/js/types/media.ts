@@ -77,9 +77,18 @@ export interface BookEntrySummary {
 
 export type LibraryEntry = MediaEntrySummary | BookEntrySummary;
 
+export type LibrarySort = 'alphabetical' | 'recent' | 'release';
+
 export interface LibraryFilters {
     status: WatchStatus | 'all';
     type: MediaType | 'book' | 'all';
+    sort: LibrarySort;
+}
+
+export type MediaHomeSort = 'last_watched' | 'alphabetical';
+
+export interface MediaHomeFilters {
+    sort: MediaHomeSort;
 }
 
 export interface MediaSeasonSummary {

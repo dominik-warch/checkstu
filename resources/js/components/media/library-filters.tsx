@@ -28,6 +28,12 @@ export default function LibraryFilters({ filters }: LibraryFiltersProps) {
         { value: 'book', label: t('media.typeBook') },
     ];
 
+    const sortOptions: { value: Filters['sort']; label: string }[] = [
+        { value: 'alphabetical', label: t('media.sortAlphabetical') },
+        { value: 'recent', label: t('media.sortRecent') },
+        { value: 'release', label: t('media.sortRelease') },
+    ];
+
     return (
         <div className="mb-4 flex flex-col gap-2">
             <div className="flex flex-wrap gap-2">
@@ -53,6 +59,20 @@ export default function LibraryFilters({ filters }: LibraryFiltersProps) {
                         variant={filters.type === opt.value ? 'default' : 'outline'}
                         className={cn('flex-1')}
                         onClick={() => update({ type: opt.value })}
+                    >
+                        {opt.label}
+                    </Button>
+                ))}
+            </div>
+            <div className="flex flex-wrap gap-2">
+                {sortOptions.map((opt) => (
+                    <Button
+                        key={opt.value}
+                        type="button"
+                        size="sm"
+                        variant={filters.sort === opt.value ? 'default' : 'outline'}
+                        className={cn('flex-1')}
+                        onClick={() => update({ sort: opt.value })}
                     >
                         {opt.label}
                     </Button>
