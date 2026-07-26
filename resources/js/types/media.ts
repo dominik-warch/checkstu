@@ -1,5 +1,5 @@
 export type MediaType = 'movie' | 'tv';
-export type WatchStatus = 'watchlist' | 'watching' | 'completed';
+export type WatchStatus = 'watchlist' | 'watching' | 'completed' | 'dropped';
 
 export interface MediaSearchResult {
     tmdb_id: number;

@@ -20,6 +20,7 @@ const statusLabel: Record<WatchStatus, string> = {
     watchlist: t('media.watchlist'),
     watching: t('media.watching'),
     completed: t('media.completed'),
+    dropped: t('media.dropped'),
 };
 
 export default function Show({ item }: ShowProps) {
@@ -40,6 +41,12 @@ export default function Show({ item }: ShowProps) {
                 onFinish: () => setProcessing(false),
             },
         );
+    }
+
+    function setTvStatus(status: 'completed' | 'dropped') {
+        if (!item.entry) return;
+        setProcessing(true);
+        router.patch(route('media.entries.update', item.entry.id), { status }, { preserveScroll: true, onFinish: () => setProcessing(false) });
     }
 
     function toggleWatched() {
@@ -102,10 +109,22 @@ export default function Show({ item }: ShowProps) {
             <SharedByList members={item.shared_by} />
 
             {item.type === 'tv' && item.entry && (
-                <Button type="button" variant="outline" size="sm" className="mt-4" disabled={processing} onClick={markAllWatched}>
-                    <CheckCheck className="size-4" />
-                    {t('media.markAllWatched')}
-                </Button>
+                <div className="mt-4 flex flex-wrap items-center gap-2">
+                    <Button type="button" variant="outline" size="sm" disabled={processing} onClick={markAllWatched}>
+                        <CheckCheck className="size-4" />
+                        {t('media.markAllWatched')}
+                    </Button>
+                    {item.entry.status !== 'completed' && item.entry.status !== 'dropped' && (
+                        <>
+                            <Button type="button" variant="outline" size="sm" disabled={processing} onClick={() => setTvStatus('completed')}>
+                                {t('media.markCompletedTv')}
+                            </Button>
+                            <Button type="button" variant="outline" size="sm" disabled={processing} onClick={() => setTvStatus('dropped')}>
+                                {t('media.markDropped')}
+                            </Button>
+                        </>
+                    )}
+                </div>
             )}
 
             {item.type === 'movie' && item.entry && (

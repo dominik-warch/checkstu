@@ -19,6 +19,7 @@ export default function LibraryFilters({ filters }: LibraryFiltersProps) {
         { value: 'watchlist', label: t('media.watchlist') },
         { value: 'watching', label: t('media.watching') },
         { value: 'completed', label: t('media.completed') },
+        { value: 'dropped', label: t('media.dropped') },
     ];
 
     const typeOptions: { value: Filters['type']; label: string }[] = [

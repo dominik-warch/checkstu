@@ -9,5 +9,6 @@ enum WatchStatus: string
 {
     case Watchlist = 'watchlist';
     case Watching = 'watching';   // TV only — at least one episode watched, not all aired ones yet
-    case Completed = 'completed'; // movie/book: watched/read; TV: every aired episode watched
+    case Completed = 'completed'; // movie/book: watched/read; TV: every aired episode watched, or manually closed out
+    case Dropped = 'dropped';     // TV only — manually abandoned; set directly, never derived
 }

@@ -5,6 +5,7 @@ const statusLabel: Record<WatchStatus, string> = {
     watchlist: t('media.watchlist'),
     watching: t('media.watching'),
     completed: t('media.completed'),
+    dropped: t('media.dropped'),
 };
 
 interface SharedByListProps {
