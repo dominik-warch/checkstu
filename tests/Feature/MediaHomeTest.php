@@ -213,6 +213,35 @@ class MediaHomeTest extends TestCase
         );
     }
 
+    public function test_shows_can_be_sorted_by_fewest_remaining_episodes(): void
+    {
+        $user = User::factory()->create();
+
+        // Serie A: 3 aired episodes, 0 watched -> 3 remaining.
+        $itemA = MediaItem::factory()->tv()->create(['title_de' => 'Serie A']);
+        $seasonA = MediaSeason::factory()->for($itemA, 'mediaItem')->create(['episode_count' => 3, 'episodes_fetched_at' => now()]);
+        MediaEpisode::factory()->for($seasonA, 'season')->create(['episode_number' => 1, 'air_date' => now()->subMonth()]);
+        MediaEpisode::factory()->for($seasonA, 'season')->create(['episode_number' => 2, 'air_date' => now()->subWeeks(3)]);
+        MediaEpisode::factory()->for($seasonA, 'season')->create(['episode_number' => 3, 'air_date' => now()->subWeeks(2)]);
+        MediaEntry::factory()->for($user)->for($itemA, 'mediaItem')->create(['status' => WatchStatus::Watching]);
+
+        // Serie B: 2 aired episodes, 1 watched -> 1 remaining.
+        $itemB = MediaItem::factory()->tv()->create(['title_de' => 'Serie B']);
+        $seasonB = MediaSeason::factory()->for($itemB, 'mediaItem')->create(['episode_count' => 2, 'episodes_fetched_at' => now()]);
+        $epB1 = MediaEpisode::factory()->for($seasonB, 'season')->create(['episode_number' => 1, 'air_date' => now()->subMonth()]);
+        MediaEpisode::factory()->for($seasonB, 'season')->create(['episode_number' => 2, 'air_date' => now()->subWeek()]);
+        MediaEntry::factory()->for($user)->for($itemB, 'mediaItem')->create(['status' => WatchStatus::Watching]);
+        MediaEpisodeWatch::factory()->for($user)->for($epB1, 'episode')->create();
+
+        $this->actingAs($user)->get(route('media.home', ['sort' => 'fewest_remaining']))->assertInertia(
+            fn (Assert $page) => $page
+                ->where('filters.sort', 'fewest_remaining')
+                ->has('nextEpisodes', 2)
+                ->where('nextEpisodes.0.media_item.title_de', 'Serie B')
+                ->where('nextEpisodes.1.media_item.title_de', 'Serie A'),
+        );
+    }
+
     public function test_it_excludes_watchlist_and_completed_entries(): void
     {
         $user = User::factory()->create();

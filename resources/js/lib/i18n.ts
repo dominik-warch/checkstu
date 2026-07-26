@@ -140,6 +140,7 @@ const de = {
         sortRecent: 'Zuletzt hinzugefügt',
         sortRelease: 'Veröffentlichung',
         sortLastWatched: 'Zuletzt geschaut',
+        sortFewestRemaining: 'Wenigste Folgen übrig',
         emptyLibrary: 'Noch nichts in der Bibliothek.',
         watchedAt: 'Gesehen am',
         watchedTimes: ':count× gesehen',

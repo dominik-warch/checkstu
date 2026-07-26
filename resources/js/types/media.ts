@@ -84,7 +84,7 @@ export interface LibraryFilters {
     sort: LibrarySort;
 }
 
-export type MediaHomeSort = 'last_watched' | 'alphabetical';
+export type MediaHomeSort = 'last_watched' | 'alphabetical' | 'fewest_remaining';
 
 export interface MediaHomeFilters {
     sort: MediaHomeSort;

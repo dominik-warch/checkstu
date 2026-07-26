@@ -20,6 +20,7 @@ export default function Home({ nextEpisodes, filters }: HomeProps) {
     const sortOptions: { value: MediaHomeSort; label: string }[] = [
         { value: 'last_watched', label: t('media.sortLastWatched') },
         { value: 'alphabetical', label: t('media.sortAlphabetical') },
+        { value: 'fewest_remaining', label: t('media.sortFewestRemaining') },
     ];
 
     function updateSort(sort: MediaHomeSort) {
