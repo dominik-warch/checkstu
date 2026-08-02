@@ -8,12 +8,16 @@ use Illuminate\Support\Facades\Http;
 use SimpleXMLElement;
 
 /**
- * Thin wrapper around BoardGameGeek's XML API v2 — no API key needed. Unlike
- * TmdbClient/GoogleBooksClient (JSON), BGG only ever speaks XML, so responses
- * are parsed with SimpleXML instead of Http::json(). Deliberately never
- * requests `stats=1` on the `thing` endpoint — that flag makes BGG queue
- * stats generation and can return a 202 needing a retry, which this domain
- * has no use for (no ratings/rankings in v1).
+ * Thin wrapper around BoardGameGeek's XML API v2. Unlike TmdbClient (JSON),
+ * BGG only ever speaks XML, so responses are parsed with SimpleXML instead of
+ * Http::json(). Deliberately never requests `stats=1` on the `thing`
+ * endpoint — that flag makes BGG queue stats generation and can return a 202
+ * needing a retry, which this domain has no use for (no ratings/rankings in v1).
+ *
+ * BGG requires a registered application + `Authorization: Bearer <token>`
+ * header as of their 2025 policy change (register at
+ * https://boardgamegeek.com/applications) — without `services.bgg.token`
+ * configured, every request 401s.
  */
 class BggClient
 {
@@ -94,7 +98,11 @@ class BggClient
      */
     private function get(string $endpoint, array $query): SimpleXMLElement
     {
-        $response = Http::baseUrl(config('services.bgg.base_url'))->get($endpoint, $query);
+        $token = config('services.bgg.token');
+
+        $response = Http::baseUrl(config('services.bgg.base_url'))
+            ->when($token, fn ($http) => $http->withToken($token))
+            ->get($endpoint, $query);
 
         if ($response->failed()) {
             throw new BggRequestException("BGG request to [{$endpoint}] failed with status {$response->status()}.");

@@ -140,6 +140,17 @@ export default function BoardGameSearch({ onAdded }: BoardGameSearchProps) {
                     </Button>
                 </div>
             </div>
+
+            {/* Required by BGG's XML API terms for public-facing applications
+                ("Using other parts of our API" / "Application Tokens" section). */}
+            <a
+                href="https://boardgamegeek.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-muted-foreground self-center text-xs underline"
+            >
+                {t('boardGames.poweredByBgg')}
+            </a>
         </div>
     );
 }

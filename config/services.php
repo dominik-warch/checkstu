@@ -47,7 +47,10 @@ return [
     ],
 
     'bgg' => [
-        // No API key — BoardGameGeek's XML API v2 is free and unauthenticated.
+        // BGG now requires a registered application + Bearer token (rolled out
+        // 2025) — register at https://boardgamegeek.com/applications. Without a
+        // token every request 401s; the rest of the app still works fine.
+        'token' => env('BGG_API_TOKEN'),
         'base_url' => env('BGG_BASE_URL', 'https://boardgamegeek.com/xmlapi2'),
     ],
 

@@ -91,4 +91,24 @@ class BggClientTest extends TestCase
 
         (new BggClient)->search('anything');
     }
+
+    public function test_a_configured_token_is_sent_as_a_bearer_authorization_header(): void
+    {
+        config(['services.bgg.token' => 'e3f8c3ff-9926-4efc-863c-3b92acda4d32']);
+        Http::fake(['*/search*' => Http::response(self::SEARCH_XML, 200, ['Content-Type' => 'application/xml'])]);
+
+        (new BggClient)->search('Catan');
+
+        Http::assertSent(fn ($request) => $request->hasHeader('Authorization', 'Bearer e3f8c3ff-9926-4efc-863c-3b92acda4d32'));
+    }
+
+    public function test_no_authorization_header_is_sent_without_a_configured_token(): void
+    {
+        config(['services.bgg.token' => null]);
+        Http::fake(['*/search*' => Http::response(self::SEARCH_XML, 200, ['Content-Type' => 'application/xml'])]);
+
+        (new BggClient)->search('Catan');
+
+        Http::assertSent(fn ($request) => ! $request->hasHeader('Authorization'));
+    }
 }

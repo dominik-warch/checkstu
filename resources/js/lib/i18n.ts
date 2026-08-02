@@ -182,6 +182,7 @@ const de = {
         searchEmpty: 'Keine Ergebnisse.',
         searchError: 'Suche fehlgeschlagen.',
         searchUnavailable: 'Die Suche ist gerade nicht erreichbar — das liegt nicht an deiner Eingabe. Bitte versuche es in ein paar Minuten erneut.',
+        poweredByBgg: 'Spieledaten von BoardGameGeek',
         addManually: 'Manuell hinzufügen',
         gameName: 'Name des Spiels',
         moveToOwned: 'Als „Haben wir" markieren',
