@@ -43,6 +43,28 @@ export default function CheckstuLayout({ children, navItems = tasksNavItems, con
             <header className="bg-background/80 sticky top-0 z-10 flex items-center justify-between border-b px-4 py-3 backdrop-blur">
                 <span className="text-lg font-semibold tracking-tight">{t('common.appName')}</span>
                 <div className="flex items-center gap-3">
+                    <Link
+                        href="/"
+                        className={cn(
+                            'inline-flex items-center gap-1 text-sm',
+                            context === 'tasks' ? 'text-primary font-medium' : 'text-muted-foreground hover:text-foreground',
+                        )}
+                        aria-label={t('nav.switchToTasks')}
+                        aria-current={context === 'tasks' ? 'page' : undefined}
+                    >
+                        <House className="size-4" />
+                    </Link>
+                    <Link
+                        href="/media"
+                        className={cn(
+                            'inline-flex items-center gap-1 text-sm',
+                            context === 'media' ? 'text-primary font-medium' : 'text-muted-foreground hover:text-foreground',
+                        )}
+                        aria-label={t('nav.switchToMedia')}
+                        aria-current={context === 'media' ? 'page' : undefined}
+                    >
+                        <Film className="size-4" />
+                    </Link>
                     {context === 'tasks' && (
                         <Link
                             href="/archive"
