@@ -6,6 +6,7 @@ namespace App\Support;
 
 use App\Enums\RecurrenceType;
 use App\Models\TaskOccurrence;
+use App\Models\User;
 
 class OccurrencePresenter
 {
@@ -15,7 +16,7 @@ class OccurrencePresenter
      * @param  array<int, int>  $blockedTaskIds
      * @return array<string, mixed>
      */
-    public static function toArray(TaskOccurrence $occurrence, array $blockedTaskIds = []): array
+    public static function toArray(TaskOccurrence $occurrence, User $user, array $blockedTaskIds = []): array
     {
         $task = $occurrence->task;
 
@@ -48,6 +49,7 @@ class OccurrencePresenter
                 'name' => $c->name,
                 'color' => $c->color,
             ])->all(),
+            'can_delete' => $user->can('delete', $task),
         ];
     }
 }

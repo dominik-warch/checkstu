@@ -30,7 +30,7 @@ class HomeController extends Controller
             ->with(['task.categories', 'task.dependencies', 'assignee'])
             ->orderByRaw('due_date IS NULL, due_date asc')
             ->get()
-            ->map(fn (TaskOccurrence $o) => OccurrencePresenter::toArray($o, $blocked))
+            ->map(fn (TaskOccurrence $o) => OccurrencePresenter::toArray($o, $request->user(), $blocked))
             ->values();
 
         return Inertia::render('home/today', [

@@ -6,7 +6,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Task;
 use App\Models\TaskOccurrence;
-use App\Models\User;
 use App\Support\OccurrencePresenter;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -29,7 +28,7 @@ class ArchiveController extends Controller
             ->orderByDesc('completed_at')
             ->limit(self::LIMIT)
             ->get()
-            ->map(fn (TaskOccurrence $o) => OccurrencePresenter::toArray($o))
+            ->map(fn (TaskOccurrence $o) => OccurrencePresenter::toArray($o, $request->user()))
             ->values();
 
         return Inertia::render('archive/index', [

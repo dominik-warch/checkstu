@@ -36,7 +36,7 @@ class TaskController extends Controller
             ->with(['task.categories', 'task.dependencies', 'assignee'])
             ->orderByRaw('due_date IS NULL, due_date asc')
             ->get()
-            ->map(fn (TaskOccurrence $o) => OccurrencePresenter::toArray($o, $blocked))
+            ->map(fn (TaskOccurrence $o) => OccurrencePresenter::toArray($o, $request->user(), $blocked))
             ->values();
 
         return Inertia::render('tasks/index', [
@@ -67,7 +67,7 @@ class TaskController extends Controller
 
         return Inertia::render('tasks/show', [
             'occurrence' => $task->openOccurrence
-                ? OccurrencePresenter::toArray($task->openOccurrence, $deps->blockedTaskIds()->all())
+                ? OccurrencePresenter::toArray($task->openOccurrence, $request->user(), $deps->blockedTaskIds()->all())
                 : null,
             'task' => [
                 'id' => $task->id,

@@ -4,10 +4,13 @@ const THRESHOLD = 96; // px past which a release triggers completion
 const MAX = 140; // max drag distance (rubber-banded)
 
 /**
- * Lightweight right-swipe-to-complete gesture using native pointer events.
+ * Lightweight swipe gesture using native pointer events: swipe right to complete,
+ * and (if `onSwipeLeft` is given) swipe left for a second action, e.g. delete.
+ * Return `false` from `onSwipeLeft` to cancel (e.g. the user declined a confirm
+ * dialog) and snap the card back instead of sliding it off.
  * No dependency; `touch-action: pan-y` lets vertical scrolling pass through.
  */
-export function useSwipeToComplete(onComplete: () => void, enabled: boolean) {
+export function useSwipeToComplete(onComplete: () => void, enabled: boolean, onSwipeLeft?: () => boolean | void) {
     const [dx, setDx] = useState(0);
     const [animating, setAnimating] = useState(false);
 
@@ -44,7 +47,8 @@ export function useSwipeToComplete(onComplete: () => void, enabled: boolean) {
 
         if (axis.current === 'h') {
             swiped.current = true;
-            set(Math.max(0, Math.min(ddx, MAX)));
+            const min = onSwipeLeft ? -MAX : 0;
+            set(Math.max(min, Math.min(ddx, MAX)));
         }
     };
 
@@ -56,6 +60,9 @@ export function useSwipeToComplete(onComplete: () => void, enabled: boolean) {
         if (axis.current === 'h' && dxRef.current >= THRESHOLD) {
             set(MAX * 3); // slide off, then complete
             onComplete();
+        } else if (axis.current === 'h' && onSwipeLeft && dxRef.current <= -THRESHOLD) {
+            const proceed = onSwipeLeft();
+            set(proceed === false ? 0 : -MAX * 3); // slide off unless the action was cancelled
         } else {
             set(0);
         }

@@ -1,5 +1,5 @@
-import { Link } from '@inertiajs/react';
-import { Check, Circle, Clock, Lock, Repeat } from 'lucide-react';
+import { Link, router } from '@inertiajs/react';
+import { Check, Circle, Clock, Lock, Repeat, Trash2 } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -47,8 +47,18 @@ interface TaskCardProps {
 export default function TaskCard({ occurrence, members, canCompleteOnBehalf }: TaskCardProps) {
     const { processing, complete } = useCompleteOccurrence(occurrence.id, occurrence.assignee?.color);
 
-    const swipe = useSwipeToComplete(() => complete(), !occurrence.is_blocked && !processing);
+    const remove = () => {
+        if (!confirm(t('task.deleteConfirm'))) return false;
+        router.delete(route('tasks.destroy', occurrence.task_id), { preserveScroll: true });
+    };
+
+    const swipe = useSwipeToComplete(
+        () => complete(),
+        !occurrence.is_blocked && !processing,
+        occurrence.can_delete ? remove : undefined,
+    );
     const reached = swipe.dx >= 96;
+    const reachedDelete = swipe.dx <= -96;
     const overdue = occurrence.status === 'overdue';
 
     const assigneeColor = occurrence.assignee?.color ?? null;
@@ -63,13 +73,24 @@ export default function TaskCard({ occurrence, members, canCompleteOnBehalf }: T
             {/* Swipe-reveal background */}
             <div
                 className={cn(
-                    'absolute inset-0 flex items-center gap-2 pl-4 text-white transition-colors',
-                    reached ? 'bg-emerald-600' : 'bg-emerald-500/70',
+                    'absolute inset-0 flex items-center text-white transition-colors',
+                    swipe.dx < 0
+                        ? cn('justify-end gap-2 pr-4', reachedDelete ? 'bg-rose-600' : 'bg-rose-500/70')
+                        : cn('gap-2 pl-4', reached ? 'bg-emerald-600' : 'bg-emerald-500/70'),
                 )}
                 aria-hidden
             >
-                <Check className="size-5" />
-                {reached && <span className="text-sm font-medium">{t('common.done')}</span>}
+                {swipe.dx < 0 ? (
+                    <>
+                        {reachedDelete && <span className="text-sm font-medium">{t('common.delete')}</span>}
+                        <Trash2 className="size-5" />
+                    </>
+                ) : (
+                    <>
+                        <Check className="size-5" />
+                        {reached && <span className="text-sm font-medium">{t('common.done')}</span>}
+                    </>
+                )}
             </div>
 
             {/* Foreground card (draggable) */}

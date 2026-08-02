@@ -29,6 +29,7 @@ export interface Occurrence {
     completed_by: { id: number; name: string } | null;
     completed_at: string | null;
     categories: CategoryTag[];
+    can_delete: boolean;
 }
 
 export interface TaskAbilities {
