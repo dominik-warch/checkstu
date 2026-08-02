@@ -46,4 +46,9 @@ return [
         'base_url' => env('OPEN_LIBRARY_BASE_URL', 'https://openlibrary.org'),
     ],
 
+    'bgg' => [
+        // No API key — BoardGameGeek's XML API v2 is free and unauthenticated.
+        'base_url' => env('BGG_BASE_URL', 'https://boardgamegeek.com/xmlapi2'),
+    ],
+
 ];

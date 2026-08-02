@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { Archive, CalendarDays, Film, House, Library, ListChecks, LogOut, Menu, Settings, Users } from 'lucide-react';
+import { Archive, CalendarDays, Dices, Film, House, Library, ListChecks, LogOut, Menu, Settings, Trophy, Users } from 'lucide-react';
 import { PropsWithChildren } from 'react';
 
 import PullToRefresh from '@/components/pull-to-refresh';
@@ -28,9 +28,14 @@ export const mediaNavItems: NavItem[] = [
     { label: t('media.together'), icon: Users, routeName: 'media.together', href: '/media/together' },
 ];
 
+export const boardGamesNavItems: NavItem[] = [
+    { label: t('boardGames.catalogue'), icon: Dices, routeName: 'boardgames.catalogue', href: '/boardgames' },
+    { label: t('boardGames.plays'), icon: Trophy, routeName: 'boardgames.plays.index', href: '/boardgames/plays' },
+];
+
 interface CheckstuLayoutProps {
     navItems?: NavItem[];
-    context?: 'tasks' | 'media';
+    context?: 'tasks' | 'media' | 'boardgames';
 }
 
 export default function CheckstuLayout({ children, navItems = tasksNavItems, context = 'tasks' }: PropsWithChildren<CheckstuLayoutProps>) {
@@ -64,6 +69,17 @@ export default function CheckstuLayout({ children, navItems = tasksNavItems, con
                         aria-current={context === 'media' ? 'page' : undefined}
                     >
                         <Film className="size-4" />
+                    </Link>
+                    <Link
+                        href="/boardgames"
+                        className={cn(
+                            'inline-flex items-center gap-1 text-sm',
+                            context === 'boardgames' ? 'text-primary font-medium' : 'text-muted-foreground hover:text-foreground',
+                        )}
+                        aria-label={t('nav.switchToBoardGames')}
+                        aria-current={context === 'boardgames' ? 'page' : undefined}
+                    >
+                        <Dices className="size-4" />
                     </Link>
                     {context === 'tasks' && (
                         <Link
@@ -116,6 +132,19 @@ export default function CheckstuLayout({ children, navItems = tasksNavItems, con
                                 </Link>
                             </SheetClose>
 
+                            <SheetClose asChild>
+                                <Link
+                                    href="/boardgames"
+                                    className={cn(
+                                        'flex items-center gap-2 rounded-md px-2 py-2 text-sm',
+                                        context === 'boardgames' ? 'text-primary font-medium' : 'hover:bg-accent',
+                                    )}
+                                >
+                                    <Dices className="size-4" />
+                                    {t('nav.switchToBoardGames')}
+                                </Link>
+                            </SheetClose>
+
                             <div className="my-1 border-t" />
 
                             {!isGuest && context === 'tasks' && (
@@ -159,9 +188,10 @@ export default function CheckstuLayout({ children, navItems = tasksNavItems, con
                 isn't enough clearance for the nav to stay comfortably tappable. */}
             <nav className="bg-background/95 fixed inset-x-0 bottom-0 z-10 mx-auto flex w-full max-w-2xl items-stretch border-t pb-[calc(env(safe-area-inset-bottom)+0.75rem)] backdrop-blur">
                 {navItems.map((item) => {
-                    // Section-root hrefs ('/', '/media') are exact-match only — otherwise they'd
-                    // also light up as "active" on every sub-page whose href they're a prefix of.
-                    const isSectionRoot = item.href === '/' || item.href === '/media';
+                    // Section-root hrefs ('/', '/media', '/boardgames') are exact-match only —
+                    // otherwise they'd also light up as "active" on every sub-page whose href
+                    // they're a prefix of.
+                    const isSectionRoot = item.href === '/' || item.href === '/media' || item.href === '/boardgames';
                     const active = isSectionRoot ? current === item.href : current.startsWith(item.href);
                     const Icon = item.icon;
                     return (

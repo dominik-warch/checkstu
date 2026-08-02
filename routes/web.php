@@ -1,6 +1,10 @@
 <?php
 
 use App\Http\Controllers\ArchiveController;
+use App\Http\Controllers\BoardGameCatalogController;
+use App\Http\Controllers\BoardGameController;
+use App\Http\Controllers\BoardGamePlayController;
+use App\Http\Controllers\BoardGameSearchController;
 use App\Http\Controllers\BookEntryController;
 use App\Http\Controllers\BookItemController;
 use App\Http\Controllers\BookSearchController;
@@ -83,6 +87,21 @@ Route::middleware(['auth'])->group(function () {
         Route::patch('entries/{entry}', [BookEntryController::class, 'update'])->name('entries.update');
         Route::delete('entries/{entry}', [BookEntryController::class, 'destroy'])->name('entries.destroy');
         Route::get('items/{bookItem}', [BookItemController::class, 'show'])->name('items.show');
+    });
+
+    // Board games — a third app context: a shared household catalogue (unlike
+    // Media, never personal-per-user) plus a play log with winners (see
+    // IMPLEMENTATION_PLAN.md §Board games).
+    Route::prefix('boardgames')->name('boardgames.')->group(function () {
+        Route::get('/', [BoardGameCatalogController::class, 'index'])->name('catalogue');
+        Route::get('search', [BoardGameSearchController::class, 'index'])->name('search');
+        Route::post('/', [BoardGameController::class, 'store'])->name('store');
+        Route::patch('{boardGame}', [BoardGameController::class, 'update'])->name('update');
+        Route::delete('{boardGame}', [BoardGameController::class, 'destroy'])->name('destroy');
+        Route::get('plays', [BoardGamePlayController::class, 'index'])->name('plays.index');
+        Route::post('plays', [BoardGamePlayController::class, 'store'])->name('plays.store');
+        Route::patch('plays/{play}', [BoardGamePlayController::class, 'update'])->name('plays.update');
+        Route::delete('plays/{play}', [BoardGamePlayController::class, 'destroy'])->name('plays.destroy');
     });
 });
 
