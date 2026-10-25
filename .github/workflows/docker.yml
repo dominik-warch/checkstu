@@ -63,6 +63,9 @@ jobs:
           context: .
           file: docker/prod/Dockerfile
           push: true
+          # Always re-resolve the floating base tags, otherwise a rebuild can
+          # keep shipping the cached (unpatched) serversideup/php layer.
+          pull: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
