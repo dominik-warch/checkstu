@@ -74,14 +74,14 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                                     href={route('verification.send')}
                                     method="post"
                                     as="button"
-                                    className="rounded-md text-sm text-neutral-600 underline hover:text-neutral-900 focus:ring-2 focus:ring-offset-2 focus:outline-hidden"
+                                    className="text-muted-foreground hover:text-foreground rounded-md text-sm underline underline-offset-4 focus:ring-2 focus:ring-offset-2 focus:outline-hidden"
                                 >
                                     {t('settings.resendVerification')}
                                 </Link>
                             </p>
 
                             {status === 'verification-link-sent' && (
-                                <div className="mt-2 text-sm font-medium text-green-600">{t('settings.verificationSent')}</div>
+                                <div className="text-done mt-2 text-sm font-medium">{t('settings.verificationSent')}</div>
                             )}
                         </div>
                     )}

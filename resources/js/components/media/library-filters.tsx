@@ -1,8 +1,7 @@
 import { router } from '@inertiajs/react';
 
-import { Button } from '@/components/ui/button';
+import PillSelect from '@/components/pill-select';
 import { t } from '@/lib/i18n';
-import { cn } from '@/lib/utils';
 import type { LibraryFilters as Filters } from '@/types/media';
 
 interface LibraryFiltersProps {
@@ -15,7 +14,7 @@ export default function LibraryFilters({ filters }: LibraryFiltersProps) {
     }
 
     const statusOptions: { value: Filters['status']; label: string }[] = [
-        { value: 'all', label: t('common.all') },
+        { value: 'all', label: 'Jeder Status' },
         { value: 'watchlist', label: t('media.watchlist') },
         { value: 'watching', label: t('media.watching') },
         { value: 'completed', label: t('media.completed') },
@@ -23,7 +22,7 @@ export default function LibraryFilters({ filters }: LibraryFiltersProps) {
     ];
 
     const typeOptions: { value: Filters['type']; label: string }[] = [
-        { value: 'all', label: t('common.all') },
+        { value: 'all', label: 'Alle Typen' },
         { value: 'movie', label: t('media.typeMovie') },
         { value: 'tv', label: t('media.typeTv') },
         { value: 'book', label: t('media.typeBook') },
@@ -36,49 +35,10 @@ export default function LibraryFilters({ filters }: LibraryFiltersProps) {
     ];
 
     return (
-        <div className="mb-4 flex flex-col gap-2">
-            <div className="flex flex-wrap gap-2">
-                {statusOptions.map((opt) => (
-                    <Button
-                        key={opt.value}
-                        type="button"
-                        size="sm"
-                        variant={filters.status === opt.value ? 'default' : 'outline'}
-                        className={cn('flex-1')}
-                        onClick={() => update({ status: opt.value })}
-                    >
-                        {opt.label}
-                    </Button>
-                ))}
-            </div>
-            <div className="flex flex-wrap gap-2">
-                {typeOptions.map((opt) => (
-                    <Button
-                        key={opt.value}
-                        type="button"
-                        size="sm"
-                        variant={filters.type === opt.value ? 'default' : 'outline'}
-                        className={cn('flex-1')}
-                        onClick={() => update({ type: opt.value })}
-                    >
-                        {opt.label}
-                    </Button>
-                ))}
-            </div>
-            <div className="flex flex-wrap gap-2">
-                {sortOptions.map((opt) => (
-                    <Button
-                        key={opt.value}
-                        type="button"
-                        size="sm"
-                        variant={filters.sort === opt.value ? 'default' : 'outline'}
-                        className={cn('flex-1')}
-                        onClick={() => update({ sort: opt.value })}
-                    >
-                        {opt.label}
-                    </Button>
-                ))}
-            </div>
+        <div className="mb-3 flex gap-1.5">
+            <PillSelect label="Status" options={statusOptions} value={filters.status} neutral="all" onChange={(status) => update({ status })} />
+            <PillSelect label="Typ" options={typeOptions} value={filters.type} neutral="all" onChange={(type) => update({ type })} />
+            <PillSelect label="Sortierung" options={sortOptions} value={filters.sort} onChange={(sort) => update({ sort })} />
         </div>
     );
 }

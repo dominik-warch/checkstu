@@ -40,4 +40,20 @@ class DashboardTest extends TestCase
                 ->where('occurrences.0.id', $overdue->id)
                 ->where('occurrences.1.id', $dueToday->id));
     }
+
+    public function test_today_reports_only_the_users_own_progress(): void
+    {
+        $user = User::factory()->create();
+        $sibling = User::factory()->create();
+
+        TaskOccurrence::factory()->for(Task::factory())->create(['due_date' => now(), 'assignee_id' => $user->id]);
+        TaskOccurrence::factory()->for(Task::factory())->create(['due_date' => now(), 'assignee_id' => $user->id, 'completed_at' => now(), 'completed_by' => $user->id]);
+        TaskOccurrence::factory()->for(Task::factory())->create(['due_date' => now(), 'assignee_id' => $sibling->id]);
+        TaskOccurrence::factory()->for(Task::factory())->create(['due_date' => now(), 'assignee_id' => $sibling->id, 'completed_at' => now(), 'completed_by' => $sibling->id]);
+
+        $this->actingAs($user)->get(route('home'))
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('progress.done', 1)
+                ->where('progress.open', 1));
+    }
 }

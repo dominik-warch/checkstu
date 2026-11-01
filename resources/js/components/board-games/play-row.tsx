@@ -20,7 +20,7 @@ export default function PlayRow({ play, games, members }: PlayRowProps) {
     }
 
     return (
-        <div className="rounded-xl border p-3">
+        <div className="bg-card rounded-2xl border-[1.5px] p-3">
             <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0 flex-1">
                     <p className="truncate font-medium">{play.board_game.name}</p>

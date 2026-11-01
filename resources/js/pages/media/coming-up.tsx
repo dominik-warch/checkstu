@@ -1,6 +1,7 @@
 import { Head, Link } from '@inertiajs/react';
 
 import MediaPoster from '@/components/media/media-poster';
+import { cardGrid, EmptyState } from '@/components/page-header';
 import CheckstuLayout, { mediaNavItems } from '@/layouts/checkstu-layout';
 import { t } from '@/lib/i18n';
 import type { ComingUpItem } from '@/types/media';
@@ -22,7 +23,7 @@ function dayLabel(date: string): string {
 function ComingUpRow({ item }: { item: ComingUpItem }) {
     if (item.kind === 'book') {
         return (
-            <div className="flex items-center gap-3 rounded-xl border p-3">
+            <div className="bg-card flex items-center gap-3 rounded-2xl border-[1.5px] p-3">
                 <MediaPoster path={item.book_item.thumbnail_url} alt={item.book_item.title} className="h-20 w-14" />
                 <div className="min-w-0 flex-1">
                     <p className="truncate font-medium">{item.book_item.title}</p>
@@ -47,11 +48,14 @@ function ComingUpRow({ item }: { item: ComingUpItem }) {
     );
 
     return item.media_item.type === 'tv' ? (
-        <Link href={route('media.items.show', item.media_item.id)} className="hover:bg-muted/50 flex items-center gap-3 rounded-xl border p-3">
+        <Link
+            href={route('media.items.show', item.media_item.id)}
+            className="bg-card hover:bg-muted/60 flex items-center gap-3 rounded-2xl border-[1.5px] p-3 transition-colors"
+        >
             {content}
         </Link>
     ) : (
-        <div className="flex items-center gap-3 rounded-xl border p-3">{content}</div>
+        <div className="bg-card flex items-center gap-3 rounded-2xl border-[1.5px] p-3">{content}</div>
     );
 }
 
@@ -70,14 +74,12 @@ export default function ComingUp({ items }: ComingUpProps) {
 
             <h1 className="mb-4 text-2xl font-bold tracking-tight">{t('media.comingUp')}</h1>
 
-            {items.length === 0 && (
-                <div className="text-muted-foreground rounded-xl border border-dashed p-8 text-center">{t('media.comingUpEmpty')}</div>
-            )}
+            {items.length === 0 && <EmptyState>{t('media.comingUpEmpty')}</EmptyState>}
 
             {[...groups.entries()].map(([date, list]) => (
                 <section key={date} className="mb-6">
-                    <h2 className="text-muted-foreground mb-2 text-sm font-semibold tracking-wide uppercase">{dayLabel(date)}</h2>
-                    <div className="flex flex-col gap-2">
+                    <h2 className="mb-2 text-sm font-bold">{dayLabel(date)}</h2>
+                    <div className={cardGrid}>
                         {list.map((item) => (
                             <ComingUpRow key={item.kind === 'book' ? `book-${item.book_item.id}` : `media-${item.media_item.id}`} item={item} />
                         ))}

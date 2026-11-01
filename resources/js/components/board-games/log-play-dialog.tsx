@@ -99,7 +99,7 @@ export default function LogPlayDialog({ games, members, play, trigger }: LogPlay
                 {trigger ?? (
                     <Button
                         size="icon"
-                        className="fixed right-4 bottom-[calc(env(safe-area-inset-bottom)+5rem)] z-20 size-14 rounded-full shadow-lg"
+                        className="bg-player text-player-ink hover:bg-player ring-background lg:bg-player-ink lg:text-player lg:hover:bg-player-ink fixed right-4 bottom-[calc(env(safe-area-inset-bottom)+5.25rem)] z-30 size-14 rounded-full ring-4 transition-transform duration-300 ease-[var(--ease-out-expo)] group-data-[scroll=down]/shell:translate-y-[calc(100%+6rem)] hover:brightness-110 lg:top-5 lg:right-auto lg:bottom-auto lg:left-[12.75rem] lg:size-11 lg:ring-0 lg:group-data-[scroll=down]/shell:translate-y-0"
                         aria-label={t('boardGames.logPlay')}
                     >
                         <Plus className="size-6" />
@@ -142,7 +142,7 @@ export default function LogPlayDialog({ games, members, play, trigger }: LogPlay
                         <Label>{t('boardGames.players')}</Label>
                         <div className="flex flex-col gap-2">
                             {form.data.players.map((player, index) => (
-                                <div key={index} className="flex items-center gap-2 rounded-lg border p-2">
+                                <div key={index} className="bg-card flex items-center gap-2 rounded-2xl border-[1.5px] p-2">
                                     <button
                                         type="button"
                                         onClick={() => updatePlayer(index, { is_winner: !player.is_winner })}
@@ -153,7 +153,9 @@ export default function LogPlayDialog({ games, members, play, trigger }: LogPlay
                                     </button>
 
                                     {player.user_id !== null ? (
-                                        <span className="flex-1 text-sm font-medium">{members.find((m) => m.id === player.user_id)?.name ?? '—'}</span>
+                                        <span className="flex-1 text-sm font-medium">
+                                            {members.find((m) => m.id === player.user_id)?.name ?? '—'}
+                                        </span>
                                     ) : (
                                         <Input
                                             className="flex-1"

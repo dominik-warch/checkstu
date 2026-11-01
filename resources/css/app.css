@@ -6,13 +6,50 @@
 
 @custom-variant dark (&:is(.dark *));
 
-@theme {
-    --font-sans:
-        'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+/* Inline so utilities read the variable where they are used: the layout sets
+   --player per user on its root element, below :root. */
+@theme inline {
+    --color-player: var(--player);
+    --color-player-ink: var(--player-ink);
+}
 
-    --radius-lg: var(--radius);
-    --radius-md: calc(var(--radius) - 2px);
-    --radius-sm: calc(var(--radius) - 4px);
+@theme {
+    --font-sans: 'Lexend', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+
+    /* Das Spielbrett type: three sizes app-wide. Rank comes from weight and
+       reversal, so every Tailwind size utility collapses onto one of them. */
+    --text-xs: 0.8125rem;
+    --text-xs--line-height: 1.25rem;
+    --text-sm: 0.8125rem;
+    --text-sm--line-height: 1.25rem;
+    --text-base: 1rem;
+    --text-base--line-height: 1.5rem;
+    --text-lg: 1rem;
+    --text-lg--line-height: 1.5rem;
+    --text-xl: 1.625rem;
+    --text-xl--line-height: 1.15;
+    --text-2xl: 1.625rem;
+    --text-2xl--line-height: 1.15;
+    --text-3xl: 1.625rem;
+    --text-3xl--line-height: 1.15;
+
+    --ease-pop: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+    --color-plate: var(--plate);
+    --color-plate-foreground: var(--plate-foreground);
+    --color-urgent: var(--urgent);
+    --color-urgent-soft: var(--urgent-soft);
+    --color-urgent-ink: var(--urgent-ink);
+    --color-warn-soft: var(--warn-soft);
+    --color-warn-ink: var(--warn-ink);
+    --color-done: var(--done);
+
+    --radius-sm: 0.5rem;
+    --radius-md: 0.75rem;
+    --radius-lg: 1rem;
+    --radius-xl: 1.25rem;
+    --radius-2xl: 1.5rem;
 
     --color-background: var(--background);
     --color-foreground: var(--foreground);
@@ -72,79 +109,83 @@
     ::before,
     ::backdrop,
     ::file-selector-button {
-        border-color: var(--color-gray-200, currentColor);
+        border-color: var(--border, currentColor);
     }
 }
 
 :root {
-    --background: hsl(0, 0%, 100%);
-    --foreground: hsl(0, 0%, 3.9%);
-    --card: hsl(0, 0%, 100%);
-    --card-foreground: hsl(0, 0%, 3.9%);
-    --popover: hsl(0, 0%, 100%);
-    --popover-foreground: hsl(0, 0%, 3.9%);
-    --primary: hsl(0, 0%, 9%);
-    --primary-foreground: hsl(0, 0%, 98%);
-    --secondary: hsl(0, 0%, 96.1%);
-    --secondary-foreground: hsl(0, 0%, 9%);
-    --muted: hsl(0, 0%, 96.1%);
-    --muted-foreground: hsl(0, 0%, 45.1%);
-    --accent: hsl(0, 0%, 96.1%);
-    --accent-foreground: hsl(0, 0%, 9%);
-    --destructive: hsl(0, 84.2%, 60.2%);
-    --destructive-foreground: hsl(0, 0%, 98%);
-    --border: hsl(0, 0%, 92.8%);
-    --input: hsl(0, 0%, 89.8%);
-    --ring: hsl(0, 0%, 3.9%);
-    --chart-1: hsl(12, 76%, 61%);
-    --chart-2: hsl(173, 58%, 39%);
-    --chart-3: hsl(197, 37%, 24%);
-    --chart-4: hsl(43, 74%, 66%);
-    --chart-5: hsl(27, 87%, 67%);
-    --radius: 0.5rem;
-    --sidebar-background: hsl(0, 0%, 98%);
-    --sidebar-foreground: hsl(240, 5.3%, 30%);
-    --sidebar-primary: hsl(0, 0%, 10%);
-    --sidebar-primary-foreground: hsl(0, 0%, 98%);
-    --sidebar-accent: hsl(0, 0%, 94%);
-    --sidebar-accent-foreground: hsl(0, 0%, 30%);
-    --sidebar-border: hsl(0, 0%, 91%);
-    --sidebar-ring: hsl(217.2, 91.2%, 59.8%);
+    /* Board white, never cream: a cool printed field, ink outlines. */
+    --background: #f4f5f8;
+    --foreground: #14161c;
+    --card: #ffffff;
+    --card-foreground: #14161c;
+    --popover: #ffffff;
+    --popover-foreground: #14161c;
+    --primary: #14161c;
+    --primary-foreground: #ffffff;
+    --secondary: #e8eaef;
+    --secondary-foreground: #14161c;
+    --muted: #e8eaef;
+    --muted-foreground: #565b68;
+    --accent: #e8eaef;
+    --accent-foreground: #14161c;
+    --destructive: #d42a3c;
+    --destructive-foreground: #ffffff;
+    --border: #d7dae2;
+    --input: #c3c8d2;
+    --ring: #14161c;
+
+    /* The reversed plate: the one ink surface per screen (up next). */
+    --plate: #14161c;
+    --plate-foreground: #ffffff;
+
+    /* The logged-in player's colour; overridden inline by the layout. */
+    --player: #4f46e5;
+    --player-ink: #ffffff;
+
+    --urgent: #e11d48;
+    --urgent-soft: #ffe1e6;
+    --urgent-ink: #9f1239;
+    --warn-soft: #fdefc3;
+    --warn-ink: #8a3c0b;
+    --done: #059669;
+
+    --chart-1: #e11d48;
+    --chart-2: #059669;
+    --chart-3: #2563eb;
+    --chart-4: #f59e0b;
+    --chart-5: #a855f7;
+    --radius: 1rem;
 }
 
 .dark {
-    --background: hsl(0, 0%, 3.9%);
-    --foreground: hsl(0, 0%, 98%);
-    --card: hsl(0, 0%, 3.9%);
-    --card-foreground: hsl(0, 0%, 98%);
-    --popover: hsl(0, 0%, 3.9%);
-    --popover-foreground: hsl(0, 0%, 98%);
-    --primary: hsl(0, 0%, 98%);
-    --primary-foreground: hsl(0, 0%, 9%);
-    --secondary: hsl(0, 0%, 14.9%);
-    --secondary-foreground: hsl(0, 0%, 98%);
-    --muted: hsl(0, 0%, 6.9%);
-    --muted-foreground: hsl(0, 0%, 63.9%);
-    --accent: hsl(0, 0%, 14.9%);
-    --accent-foreground: hsl(0, 0%, 98%);
-    --destructive: hsl(0, 84%, 60%);
-    --destructive-foreground: hsl(0, 0%, 98%);
-    --border: hsl(0, 0%, 14.9%);
-    --input: hsl(0, 0%, 14.9%);
-    --ring: hsl(0, 0%, 83.1%);
-    --chart-1: hsl(220, 70%, 50%);
-    --chart-2: hsl(160, 60%, 45%);
-    --chart-3: hsl(30, 80%, 55%);
-    --chart-4: hsl(280, 65%, 60%);
-    --chart-5: hsl(340, 75%, 55%);
-    --sidebar-background: hsl(0, 0%, 7%);
-    --sidebar-foreground: hsl(0, 0%, 80%);
-    --sidebar-primary: hsl(360, 100%, 100%);
-    --sidebar-primary-foreground: hsl(0, 0%, 100%);
-    --sidebar-accent: hsl(0, 0%, 15.9%);
-    --sidebar-accent-foreground: hsl(240, 4.8%, 95.9%);
-    --sidebar-border: hsl(0, 0%, 15.9%);
-    --sidebar-ring: hsl(217.2, 91.2%, 59.8%);
+    --background: #0f1115;
+    --foreground: #f1f2f5;
+    --card: #191c22;
+    --card-foreground: #f1f2f5;
+    --popover: #191c22;
+    --popover-foreground: #f1f2f5;
+    --primary: #f1f2f5;
+    --primary-foreground: #14161c;
+    --secondary: #242830;
+    --secondary-foreground: #f1f2f5;
+    --muted: #242830;
+    --muted-foreground: #a0a6b2;
+    --accent: #242830;
+    --accent-foreground: #f1f2f5;
+    --destructive: #f0505f;
+    --destructive-foreground: #14161c;
+    --border: #2b3039;
+    --input: #3a404c;
+    --ring: #f1f2f5;
+    --plate: #000000;
+    --plate-foreground: #ffffff;
+    --urgent: #fb5675;
+    --urgent-soft: #4a1020;
+    --urgent-ink: #ffc9d3;
+    --warn-soft: #43300b;
+    --warn-ink: #fcd98a;
+    --done: #34d399;
 }
 
 @layer base {
@@ -152,7 +193,73 @@
         @apply border-border;
     }
 
+    html {
+        -webkit-tap-highlight-color: transparent;
+        scrollbar-color: var(--input) transparent;
+    }
+
     body {
         @apply bg-background text-foreground;
+        font-feature-settings: 'tnum' 0;
+    }
+
+    ::selection {
+        background: var(--player);
+        color: var(--player-ink);
+    }
+
+    :focus-visible {
+        outline: 2px solid var(--ring);
+        outline-offset: 2px;
+    }
+
+    input,
+    textarea {
+        caret-color: var(--player);
+    }
+
+    time,
+    .tabular {
+        font-variant-numeric: tabular-nums;
+    }
+}
+
+/* A home field filling: overshoots once, settles. */
+@keyframes field-fill {
+    0% {
+        transform: scale(0.4);
+        opacity: 0.4;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.animate-field-fill {
+    animation: field-fill 400ms var(--ease-pop) both;
+}
+
+/* The pawn hops one field on: up out of the previous field, down into this one. */
+@keyframes pawn-hop {
+    0% {
+        transform: translate(-2.125rem, 0);
+    }
+    45% {
+        transform: translate(-1.06rem, -0.9rem);
+    }
+    100% {
+        transform: translate(0, 0);
+    }
+}
+
+.animate-pawn-hop {
+    animation: pawn-hop 420ms var(--ease-out-expo) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .animate-field-fill,
+    .animate-pawn-hop {
+        animation: none;
     }
 }

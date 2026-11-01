@@ -33,13 +33,13 @@ export default function TitleAutocomplete({ value, onChange, templates, error }:
             <Label htmlFor="title">{t('task.title')}</Label>
 
             {mostUsed.length > 0 && (
-                <div className="flex flex-wrap gap-2">
+                <div className="-mx-5 flex gap-1.5 overflow-x-auto px-5 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:px-0">
                     {mostUsed.map((tpl) => (
                         <button
                             key={tpl.id}
                             type="button"
                             onClick={() => onChange(tpl.name)}
-                            className="hover:bg-muted rounded-full border px-3 py-1 text-xs"
+                            className="bg-card hover:border-foreground/40 h-9 shrink-0 rounded-full border-[1.5px] px-4 text-sm font-medium transition-colors"
                         >
                             {tpl.name}
                         </button>
@@ -59,7 +59,7 @@ export default function TitleAutocomplete({ value, onChange, templates, error }:
                     placeholder="z. B. Staubsaugen"
                 />
                 {focused && suggestions.length > 0 && (
-                    <div className="bg-popover text-popover-foreground absolute z-30 mt-1 w-full rounded-md border shadow-md">
+                    <div className="bg-popover text-popover-foreground absolute z-30 mt-1 w-full overflow-hidden rounded-lg border-[1.5px] p-1 shadow-[0_8px_24px_rgb(0_0_0/0.12)]">
                         {suggestions.map((tpl) => (
                             <button
                                 key={tpl.id}
@@ -68,7 +68,7 @@ export default function TitleAutocomplete({ value, onChange, templates, error }:
                                     onChange(tpl.name);
                                     setFocused(false);
                                 }}
-                                className="hover:bg-muted flex w-full items-center px-3 py-2 text-left text-sm first:rounded-t-md last:rounded-b-md"
+                                className="hover:bg-muted flex min-h-11 w-full items-center rounded-md px-3 text-left text-base"
                             >
                                 {tpl.name}
                             </button>

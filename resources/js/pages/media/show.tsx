@@ -140,7 +140,7 @@ export default function Show({ item }: ShowProps) {
 
             {item.type === 'tv' && (
                 <>
-                    <h2 className="mt-6 mb-2 font-semibold">{t('media.seasons')}</h2>
+                    <h2 className="mt-6 mb-2 font-bold">{t('media.seasons')}</h2>
                     <div className="flex flex-col gap-2">
                         {item.seasons.map((season) => (
                             <SeasonAccordion key={`${season.id}-${refreshKey}`} season={season} />

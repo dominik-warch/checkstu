@@ -17,23 +17,28 @@ export const USER_COLOR_PRESETS: string[] = [
     '#64748b', // slate
 ];
 
+function relativeLuminance(hex: string): number {
+    const channel = (offset: number) => {
+        const c = parseInt(hex.slice(offset, offset + 2), 16) / 255;
+        return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+    };
+    return 0.2126 * channel(0) + 0.7152 * channel(2) + 0.0722 * channel(4);
+}
+
 /**
- * Picks black or white text for a given hex background color using the YIQ
- * perceived-brightness formula — the standard, simple approach for this exact
- * "what text color reads on an arbitrary background" problem.
+ * Picks ink (#14161c) or white text for a given hex background color: whichever
+ * has the higher WCAG contrast ratio against it.
  */
-export function contrastTextColor(hex: string): '#000000' | '#ffffff' {
+export function contrastTextColor(hex: string): '#14161c' | '#ffffff' {
     const match = /^#?([0-9a-f]{6})$/i.exec(hex.trim());
     if (!match) {
-        return '#000000';
+        return '#14161c';
     }
 
-    const value = match[1];
-    const r = parseInt(value.slice(0, 2), 16);
-    const g = parseInt(value.slice(2, 4), 16);
-    const b = parseInt(value.slice(4, 6), 16);
+    const bg = relativeLuminance(match[1]);
+    const ink = relativeLuminance('14161c');
+    const onWhite = 1.05 / (bg + 0.05);
+    const onInk = (bg + 0.05) / (ink + 0.05);
 
-    const yiq = (r * 299 + g * 587 + b * 114) / 1000;
-
-    return yiq >= 128 ? '#000000' : '#ffffff';
+    return onInk >= onWhite ? '#14161c' : '#ffffff';
 }

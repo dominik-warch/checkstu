@@ -2,6 +2,7 @@ import { Head, router } from '@inertiajs/react';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
 
 import MemberDialog from '@/components/family/member-dialog';
+import { cardGrid } from '@/components/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import CheckstuLayout from '@/layouts/checkstu-layout';
@@ -26,7 +27,7 @@ export default function Family({ members, can }: FamilyProps) {
         <CheckstuLayout>
             <Head title={t('family.title')} />
 
-            <div className="mb-4 flex items-center justify-between">
+            <div className="mb-4 flex items-center justify-between gap-4">
                 <h1 className="text-2xl font-bold tracking-tight">{t('family.title')}</h1>
                 {can.manageUsers && (
                     <MemberDialog
@@ -40,18 +41,21 @@ export default function Family({ members, can }: FamilyProps) {
                 )}
             </div>
 
-            <div className="flex flex-col gap-2">
+            <div className={cardGrid}>
                 {members.map((member) => (
-                    <div key={member.id} className="flex items-center gap-3 rounded-xl border p-3">
+                    <div key={member.id} className="bg-card flex items-center gap-3 rounded-2xl border-[1.5px] p-3">
                         <div
-                            className={cn('flex size-10 shrink-0 items-center justify-center rounded-full font-medium', !member.color && 'bg-muted')}
+                            className={cn(
+                                'flex size-12 shrink-0 items-center justify-center rounded-full text-base font-bold',
+                                !member.color && 'bg-muted',
+                            )}
                             style={member.color ? { backgroundColor: member.color, color: contrastTextColor(member.color) } : undefined}
                         >
                             {member.name.charAt(0).toUpperCase()}
                         </div>
                         <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-2">
-                                <span className="truncate font-medium">{member.name}</span>
+                                <span className="truncate text-base font-bold">{member.name}</span>
                                 <Badge variant="secondary">{t(`role.${member.role}`)}</Badge>
                             </div>
                             <div className="text-muted-foreground text-sm">

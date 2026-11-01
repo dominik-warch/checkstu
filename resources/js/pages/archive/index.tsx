@@ -1,6 +1,7 @@
 import { Head } from '@inertiajs/react';
 
 import ArchiveCard from '@/components/archive/archive-card';
+import PageHeader, { cardGrid, EmptyState } from '@/components/page-header';
 import ScopeFilter from '@/components/tasks/scope-filter';
 import CheckstuLayout from '@/layouts/checkstu-layout';
 import { t } from '@/lib/i18n';
@@ -16,14 +17,13 @@ export default function ArchiveIndex({ occurrences, filters }: ArchiveIndexProps
         <CheckstuLayout>
             <Head title={t('archive.title')} />
 
-            <h1 className="mb-4 text-2xl font-bold tracking-tight">{t('archive.title')}</h1>
+            <PageHeader title={t('archive.title')} className="mb-4">
+                <ScopeFilter routeName="archive" scope={filters.scope} className="w-44" />
+            </PageHeader>
 
-            <ScopeFilter routeName="archive" scope={filters.scope} />
+            {occurrences.length === 0 && <EmptyState>{t('archive.empty')}</EmptyState>}
 
-            <div className="flex flex-col gap-2">
-                {occurrences.length === 0 && (
-                    <div className="text-muted-foreground rounded-xl border border-dashed p-8 text-center">{t('archive.empty')}</div>
-                )}
+            <div className={cardGrid}>
                 {occurrences.map((o) => (
                     <ArchiveCard key={o.id} occurrence={o} />
                 ))}

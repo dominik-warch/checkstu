@@ -50,8 +50,7 @@ export default function SeasonAccordion({ season }: SeasonAccordionProps) {
         // A placeholder row (blank date, matching what the server actually creates)
         // gives instant checkbox feedback; loadEpisodes() reconciles real ids after.
         setEpisodes(
-            (prev) =>
-                prev?.map((e) => (e.id === episode.id ? { ...e, watches: nowWatched ? [{ id: -1, watched_at: null }] : [] } : e)) ?? prev,
+            (prev) => prev?.map((e) => (e.id === episode.id ? { ...e, watches: nowWatched ? [{ id: -1, watched_at: null }] : [] } : e)) ?? prev,
         );
 
         fetch(route(nowWatched ? 'media.episodes.watch.store' : 'media.episodes.watch.destroy', episode.id), {
@@ -86,9 +85,7 @@ export default function SeasonAccordion({ season }: SeasonAccordionProps) {
     }
 
     function removeWatch(episode: MediaEpisodeDetail, watchId: number) {
-        setEpisodes(
-            (prev) => prev?.map((e) => (e.id === episode.id ? { ...e, watches: e.watches.filter((w) => w.id !== watchId) } : e)) ?? prev,
-        );
+        setEpisodes((prev) => prev?.map((e) => (e.id === episode.id ? { ...e, watches: e.watches.filter((w) => w.id !== watchId) } : e)) ?? prev);
 
         fetch(route('media.episodeWatches.destroy', watchId), {
             method: 'DELETE',
@@ -119,7 +116,7 @@ export default function SeasonAccordion({ season }: SeasonAccordionProps) {
     const watchedCount = episodes ? episodes.filter((ep) => ep.watches.length > 0).length : season.watched_count;
 
     return (
-        <Collapsible open={open} onOpenChange={setOpen} className="rounded-lg border">
+        <Collapsible open={open} onOpenChange={setOpen} className="bg-card rounded-2xl border-[1.5px]">
             <div className="flex items-center justify-between gap-2 pr-2">
                 <CollapsibleTrigger className="flex flex-1 items-center justify-between px-3 py-2 text-left">
                     <span className="font-medium">{season.name}</span>

@@ -33,8 +33,24 @@ class HomeController extends Controller
             ->map(fn (TaskOccurrence $o) => OccurrencePresenter::toArray($o, $request->user(), $blocked))
             ->values();
 
+        // The player's own progress for today, never anyone else's (no leaderboard).
+        $user = $request->user();
+        $progress = [
+            'done' => TaskOccurrence::query()
+                ->where('completed_by', $user->id)
+                ->whereDate('completed_at', Carbon::today())
+                ->count(),
+            'open' => TaskOccurrence::query()
+                ->visibleTo($user)
+                ->current()
+                ->where('assignee_id', $user->id)
+                ->whereDate('due_date', '<=', Carbon::today())
+                ->count(),
+        ];
+
         return Inertia::render('home/today', [
             'occurrences' => $occurrences,
+            'progress' => $progress,
             'filters' => ['scope' => $scope],
             'members' => $this->members(),
             'templates' => TaskTemplatePresenter::forPicker(),

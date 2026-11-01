@@ -11,7 +11,7 @@ export function UpdateToast() {
 
     return (
         <div className="fixed inset-x-4 bottom-4 z-50 mx-auto max-w-sm sm:right-4 sm:left-auto">
-            <Alert className="bg-background shadow-lg">
+            <Alert className="bg-card shadow-[0_8px_24px_rgb(0_0_0/0.12)]">
                 <AlertTitle>Neue Version verfügbar</AlertTitle>
                 <AlertDescription className="mt-2 flex items-center justify-between gap-3">
                     <span>Aktualisiere, um die neueste Version zu erhalten.</span>

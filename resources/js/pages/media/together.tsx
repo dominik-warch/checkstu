@@ -1,6 +1,7 @@
 import { Head, Link, router } from '@inertiajs/react';
 
 import MediaPoster from '@/components/media/media-poster';
+import { cardGrid, EmptyState } from '@/components/page-header';
 import CheckstuLayout, { mediaNavItems } from '@/layouts/checkstu-layout';
 import { contrastTextColor } from '@/lib/color-contrast';
 import { t } from '@/lib/i18n';
@@ -33,30 +34,34 @@ export default function Together({ members, selectedMemberId, items }: TogetherP
                             key={member.id}
                             type="button"
                             onClick={() => selectMember(member.id)}
-                            className={cn('rounded-full border px-3 py-1.5 text-sm font-medium transition-colors', !active && 'hover:bg-accent')}
+                            aria-pressed={active}
+                            className={cn(
+                                'bg-card flex h-11 items-center gap-2 rounded-full border-[1.5px] pr-4 pl-2 text-base font-medium transition-colors',
+                                !active && 'hover:border-foreground/40',
+                            )}
                             style={active ? { background: color, borderColor: color, color: contrastTextColor(color) } : undefined}
                         >
+                            <span
+                                className="size-7 rounded-full border-2"
+                                style={{ background: color, borderColor: active ? 'currentColor' : color }}
+                            />
                             {member.name}
                         </button>
                     );
                 })}
             </div>
 
-            {selectedMemberId === null && (
-                <div className="text-muted-foreground mt-8 rounded-xl border border-dashed p-8 text-center">{t('media.togetherPrompt')}</div>
-            )}
+            {selectedMemberId === null && <EmptyState className="mt-6">{t('media.togetherPrompt')}</EmptyState>}
 
-            {selectedMemberId !== null && items.length === 0 && (
-                <div className="text-muted-foreground mt-8 rounded-xl border border-dashed p-8 text-center">{t('media.togetherEmpty')}</div>
-            )}
+            {selectedMemberId !== null && items.length === 0 && <EmptyState className="mt-6">{t('media.togetherEmpty')}</EmptyState>}
 
             {items.length > 0 && (
-                <div className="mt-6 flex flex-col gap-2">
+                <div className={cn(cardGrid, 'mt-6')}>
                     {items.map((item) => (
                         <Link
                             key={item.id}
                             href={route('media.items.show', item.id)}
-                            className="hover:bg-muted/50 flex items-center gap-3 rounded-xl border p-3"
+                            className="bg-card hover:bg-muted/60 flex items-center gap-3 rounded-2xl border-[1.5px] p-3 transition-colors"
                         >
                             <MediaPoster path={item.poster_path} alt={item.title_de} className="h-20 w-14" />
                             <div className="min-w-0 flex-1">

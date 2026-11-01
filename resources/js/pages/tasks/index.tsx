@@ -1,5 +1,6 @@
 import { Head } from '@inertiajs/react';
 
+import PageHeader, { cardGrid, EmptyState } from '@/components/page-header';
 import ScopeFilter from '@/components/tasks/scope-filter';
 import TaskCard from '@/components/tasks/task-card';
 import TaskFormDialog from '@/components/tasks/task-form-dialog';
@@ -20,14 +21,13 @@ export default function TasksIndex({ occurrences, filters, members, templates, c
         <CheckstuLayout>
             <Head title={t('nav.tasks')} />
 
-            <h1 className="mb-4 text-2xl font-bold tracking-tight">{t('nav.tasks')}</h1>
+            <PageHeader title={t('nav.tasks')} className="mb-4">
+                <ScopeFilter routeName="tasks.index" scope={filters.scope} className="w-44" />
+            </PageHeader>
 
-            <ScopeFilter routeName="tasks.index" scope={filters.scope} />
+            {occurrences.length === 0 && <EmptyState>Keine offenen Aufgaben.</EmptyState>}
 
-            <div className="flex flex-col gap-2">
-                {occurrences.length === 0 && (
-                    <div className="text-muted-foreground rounded-xl border border-dashed p-8 text-center">Keine offenen Aufgaben.</div>
-                )}
+            <div className={cardGrid}>
                 {occurrences.map((o) => (
                     <TaskCard key={o.id} occurrence={o} members={members} canCompleteOnBehalf={can.completeOnBehalf} />
                 ))}

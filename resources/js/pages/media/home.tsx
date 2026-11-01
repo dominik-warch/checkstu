@@ -2,11 +2,12 @@ import { Head, Link, router } from '@inertiajs/react';
 import { Check } from 'lucide-react';
 import { useState } from 'react';
 
+import ChipRow from '@/components/chip-row';
 import MediaPoster from '@/components/media/media-poster';
+import { cardGrid, EmptyState } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import CheckstuLayout, { mediaNavItems } from '@/layouts/checkstu-layout';
 import { t } from '@/lib/i18n';
-import { cn } from '@/lib/utils';
 import type { MediaHomeFilters, MediaHomeSort, MediaNextEpisodeEntry } from '@/types/media';
 
 interface HomeProps {
@@ -42,31 +43,16 @@ export default function Home({ nextEpisodes, filters }: HomeProps) {
 
             <h1 className="mb-4 text-2xl font-bold tracking-tight">{t('media.nextEpisode')}</h1>
 
-            <div className="mb-4 flex flex-wrap gap-2">
-                {sortOptions.map((opt) => (
-                    <Button
-                        key={opt.value}
-                        type="button"
-                        size="sm"
-                        variant={filters.sort === opt.value ? 'default' : 'outline'}
-                        className={cn('flex-1')}
-                        onClick={() => updateSort(opt.value)}
-                    >
-                        {opt.label}
-                    </Button>
-                ))}
-            </div>
+            <ChipRow label="Sortierung" options={sortOptions} value={filters.sort} onChange={updateSort} className="mb-4" />
 
-            {nextEpisodes.length === 0 && (
-                <div className="text-muted-foreground rounded-xl border border-dashed p-8 text-center">{t('media.nothingInProgress')}</div>
-            )}
+            {nextEpisodes.length === 0 && <EmptyState>{t('media.nothingInProgress')}</EmptyState>}
 
-            <div className="flex flex-col gap-2">
+            <div className={cardGrid}>
                 {nextEpisodes.map((entry) => (
-                    <div key={entry.media_item.id} className="flex items-center gap-3 rounded-xl border p-3">
+                    <div key={entry.media_item.id} className="bg-card flex items-center gap-3 rounded-2xl border-[1.5px] p-3">
                         <Link
                             href={route('media.items.show', entry.media_item.id)}
-                            className="hover:bg-muted/50 flex min-w-0 flex-1 items-center gap-3 rounded-lg"
+                            className="hover:bg-muted/60 flex min-w-0 flex-1 items-center gap-3 rounded-xl"
                         >
                             <MediaPoster path={entry.media_item.poster_path} alt={entry.media_item.title_de} className="h-20 w-14" />
                             <div className="min-w-0 flex-1">

@@ -1,5 +1,7 @@
 import { Head } from '@inertiajs/react';
 
+import PageHeader, { cardGrid, EmptyState } from '@/components/page-header';
+import SectionHead from '@/components/section-head';
 import ScopeFilter from '@/components/tasks/scope-filter';
 import TaskCard from '@/components/tasks/task-card';
 import TaskFormDialog from '@/components/tasks/task-form-dialog';
@@ -41,20 +43,18 @@ export default function Upcoming({ occurrences, filters, members, templates, can
         <CheckstuLayout>
             <Head title={t('upcoming.title')} />
 
-            <h1 className="mb-4 text-2xl font-bold tracking-tight">{t('upcoming.title')}</h1>
+            <PageHeader title={t('upcoming.title')}>
+                <ScopeFilter routeName="upcoming" scope={filters.scope} className="w-44" />
+            </PageHeader>
 
-            <ScopeFilter routeName="upcoming" scope={filters.scope} />
-
-            {occurrences.length === 0 && (
-                <div className="text-muted-foreground rounded-xl border border-dashed p-8 text-center">{t('upcoming.empty')}</div>
-            )}
+            {occurrences.length === 0 && <EmptyState>{t('upcoming.empty')}</EmptyState>}
 
             {[...groups.entries()].map(([key, list]) => (
-                <section key={key} className="mb-6">
-                    <h2 className="text-muted-foreground mb-2 text-sm font-semibold tracking-wide uppercase">
-                        {key === 'overdue' ? 'Überfällig' : dayLabel(list[0].due_date as string)}
-                    </h2>
-                    <div className="flex flex-col gap-2">
+                <section key={key} className="mb-2">
+                    <SectionHead count={list.length}>
+                        {key === 'overdue' ? <span className="text-urgent">Überfällig</span> : dayLabel(list[0].due_date as string)}
+                    </SectionHead>
+                    <div className={cardGrid}>
                         {list.map((o) => (
                             <TaskCard key={o.id} occurrence={o} members={members} canCompleteOnBehalf={can.completeOnBehalf} />
                         ))}

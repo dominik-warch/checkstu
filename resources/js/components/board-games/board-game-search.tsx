@@ -87,11 +87,17 @@ export default function BoardGameSearch({ onAdded }: BoardGameSearchProps) {
 
     return (
         <div className="flex flex-col gap-4">
-            <Input autoFocus autoComplete="off" value={query} onChange={(e) => setQuery(e.target.value)} placeholder={t('boardGames.searchPlaceholder')} />
+            <Input
+                autoFocus
+                autoComplete="off"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder={t('boardGames.searchPlaceholder')}
+            />
 
             {loading && <p className="text-muted-foreground text-sm">{t('common.loading')}</p>}
-            {!loading && error === 'failed' && <p className="text-sm text-rose-600 dark:text-rose-400">{t('boardGames.searchError')}</p>}
-            {!loading && error === 'unavailable' && <p className="text-sm text-rose-600 dark:text-rose-400">{t('boardGames.searchUnavailable')}</p>}
+            {!loading && error === 'failed' && <p className="text-urgent text-sm">{t('boardGames.searchError')}</p>}
+            {!loading && error === 'unavailable' && <p className="text-urgent text-sm">{t('boardGames.searchUnavailable')}</p>}
             {!loading && !error && isEmpty && <p className="text-muted-foreground text-sm">{t('boardGames.searchEmpty')}</p>}
 
             <div className="flex flex-col gap-2">
@@ -99,7 +105,7 @@ export default function BoardGameSearch({ onAdded }: BoardGameSearchProps) {
                     const busy = addingId === result.bgg_id;
 
                     return (
-                        <div key={result.bgg_id} className="flex items-center gap-3 rounded-lg border p-2">
+                        <div key={result.bgg_id} className="bg-card flex items-center gap-3 rounded-2xl border-[1.5px] p-2">
                             <div className="min-w-0 flex-1">
                                 <p className="line-clamp-2 font-medium break-words">{result.name}</p>
                                 {result.year_published && <p className="text-muted-foreground text-xs">{result.year_published}</p>}

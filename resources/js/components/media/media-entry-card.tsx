@@ -3,8 +3,6 @@ import { Trash2 } from 'lucide-react';
 
 import MediaPoster from '@/components/media/media-poster';
 import SharedByDots from '@/components/media/shared-by-dots';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { t } from '@/lib/i18n';
 import type { MediaEntrySummary, WatchStatus } from '@/types/media';
 
@@ -28,23 +26,30 @@ export default function MediaEntryCard({ entry }: MediaEntryCardProps) {
         router.delete(route('media.entries.destroy', entry.id), { preserveScroll: true });
     }
 
+    const meta = item.release_date ? item.release_date.slice(0, 4) : null;
+
     return (
-        <div className="flex items-center gap-3 rounded-xl border p-3">
-            <Link href={route('media.items.show', item.id)} className="flex min-w-0 flex-1 items-center gap-3">
-                <MediaPoster path={item.poster_path} alt={item.title_de} className="h-20 w-14" />
+        <div className="bg-card flex items-center gap-1 rounded-2xl border-[1.5px] py-1.5 pr-1 pl-1.5">
+            <Link href={route('media.items.show', item.id)} className="hover:bg-muted/60 flex min-w-0 flex-1 items-center gap-3 rounded-xl p-1">
+                <MediaPoster path={item.poster_path} alt={item.title_de} className="h-14 w-10 rounded-md" />
                 <div className="min-w-0 flex-1">
-                    <p className="truncate font-medium">{item.title_de}</p>
-                    {item.release_date && <p className="text-muted-foreground text-sm">{item.release_date.slice(0, 4)}</p>}
-                    <div className="mt-1 flex items-center gap-1.5">
-                        <Badge variant="secondary">{statusLabel[entry.status]}</Badge>
+                    <p className="truncate text-base font-medium">{item.title_de}</p>
+                    <p className="text-muted-foreground flex min-w-0 items-center gap-1.5 text-sm">
+                        <span className="text-foreground shrink-0 font-bold">{statusLabel[entry.status]}</span>
+                        {meta && <span className="truncate">· {meta}</span>}
                         <SharedByDots members={entry.shared_by} />
-                    </div>
+                    </p>
                 </div>
             </Link>
 
-            <Button size="icon" variant="ghost" aria-label={t('media.remove')} onClick={remove}>
-                <Trash2 className="size-4" />
-            </Button>
+            <button
+                type="button"
+                onClick={remove}
+                aria-label={t('media.remove')}
+                className="text-muted-foreground hover:text-foreground hover:bg-muted grid size-11 shrink-0 place-items-center rounded-full"
+            >
+                <Trash2 className="size-5" />
+            </button>
         </div>
     );
 }

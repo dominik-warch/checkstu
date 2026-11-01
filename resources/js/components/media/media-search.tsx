@@ -109,8 +109,8 @@ export default function MediaSearch({ onAdded }: MediaSearchProps) {
             <Input autoFocus autoComplete="off" value={query} onChange={(e) => setQuery(e.target.value)} placeholder={placeholder[type]} />
 
             {loading && <p className="text-muted-foreground text-sm">{t('common.loading')}</p>}
-            {!loading && error === 'failed' && <p className="text-sm text-rose-600 dark:text-rose-400">{t('media.searchError')}</p>}
-            {!loading && error === 'unavailable' && <p className="text-sm text-rose-600 dark:text-rose-400">{t('media.searchUnavailable')}</p>}
+            {!loading && error === 'failed' && <p className="text-urgent text-sm">{t('media.searchError')}</p>}
+            {!loading && error === 'unavailable' && <p className="text-urgent text-sm">{t('media.searchUnavailable')}</p>}
             {!loading && !error && isEmpty && <p className="text-muted-foreground text-sm">{t('media.searchEmpty')}</p>}
 
             <div className="flex flex-col gap-2">
@@ -120,13 +120,13 @@ export default function MediaSearch({ onAdded }: MediaSearchProps) {
                           const busy = addingKey === key;
 
                           return (
-                              <div key={key} className="flex items-center gap-3 rounded-lg border p-2">
+                              <div key={key} className="bg-card flex items-center gap-3 rounded-2xl border-[1.5px] p-2">
                                   <MediaPoster path={result.thumbnail_url} alt={result.title} className="h-16 w-11" />
                                   <div className="min-w-0 flex-1">
                                       <p className="line-clamp-2 font-medium break-words">{result.title}</p>
                                       {result.authors && <p className="text-muted-foreground truncate text-xs">{result.authors}</p>}
                                       {result.in_library && (
-                                          <p className="flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400">
+                                          <p className="text-done flex items-center gap-1 text-xs font-medium">
                                               <Check className="size-3" />
                                               {t('media.inLibrary')}
                                           </p>
@@ -148,13 +148,13 @@ export default function MediaSearch({ onAdded }: MediaSearchProps) {
                           const busy = addingKey === key;
 
                           return (
-                              <div key={key} className="flex items-center gap-3 rounded-lg border p-2">
+                              <div key={key} className="bg-card flex items-center gap-3 rounded-2xl border-[1.5px] p-2">
                                   <MediaPoster path={result.poster_path} alt={result.title} className="h-16 w-11" />
                                   <div className="min-w-0 flex-1">
                                       <p className="line-clamp-2 font-medium break-words">{result.title}</p>
                                       {result.release_date && <p className="text-muted-foreground text-xs">{result.release_date.slice(0, 4)}</p>}
                                       {result.in_library && (
-                                          <p className="flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400">
+                                          <p className="text-done flex items-center gap-1 text-xs font-medium">
                                               <Check className="size-3" />
                                               {t('media.inLibrary')}
                                           </p>

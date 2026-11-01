@@ -28,11 +28,11 @@ export default function BoardGameCard({ game }: BoardGameCardProps) {
     ].filter(Boolean);
 
     return (
-        <div className="flex items-center gap-3 rounded-xl border p-3">
+        <div className="bg-card flex items-center gap-3 rounded-2xl border-[1.5px] p-3">
             {game.thumbnail_url ? (
-                <img src={game.thumbnail_url} alt={game.name} className="h-16 w-16 shrink-0 rounded-lg object-cover" />
+                <img src={game.thumbnail_url} alt={game.name} className="h-16 w-16 shrink-0 rounded-xl object-cover" />
             ) : (
-                <div className="bg-muted flex h-16 w-16 shrink-0 items-center justify-center rounded-lg">
+                <div className="bg-muted flex h-16 w-16 shrink-0 items-center justify-center rounded-xl">
                     <Dices className="text-muted-foreground size-6" />
                 </div>
             )}

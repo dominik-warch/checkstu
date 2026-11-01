@@ -1,4 +1,4 @@
-import { Button } from '@/components/ui/button';
+import { chipClass } from '@/components/chip-row';
 import CheckstuLayout from '@/layouts/checkstu-layout';
 import { t } from '@/lib/i18n';
 import { type NavItem } from '@/types';
@@ -34,17 +34,18 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
         <CheckstuLayout>
             <h1 className="mb-4 text-2xl font-bold tracking-tight">{t('settings.menuTitle')}</h1>
 
-            <nav className="mb-6 flex flex-wrap gap-2">
-                {sidebarNavItems.map((item) => (
-                    <Button key={item.url} size="sm" variant={currentPath === item.url ? 'default' : 'outline'} asChild>
-                        <Link href={item.url} prefetch>
+            <nav className="-mx-4 mb-6 flex gap-1.5 overflow-x-auto px-4 [scrollbar-width:none] lg:mx-0 lg:px-0" aria-label={t('settings.menuTitle')}>
+                {sidebarNavItems.map((item) => {
+                    const active = currentPath === item.url;
+                    return (
+                        <Link key={item.url} href={item.url} prefetch aria-current={active ? 'page' : undefined} className={chipClass(active)}>
                             {item.title}
                         </Link>
-                    </Button>
-                ))}
+                    );
+                })}
             </nav>
 
-            <div className="space-y-12">{children}</div>
+            <div className="max-w-xl space-y-10">{children}</div>
         </CheckstuLayout>
     );
 }

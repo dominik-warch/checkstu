@@ -27,7 +27,7 @@ export default function Notifications() {
                         <Button disabled={isLoading} onClick={isSubscribed ? unsubscribe : subscribe}>
                             {isSubscribed ? t('notifications.disable') : t('notifications.enable')}
                         </Button>
-                        {isSubscribed && <p className="text-sm text-green-600">{t('notifications.enabled')}</p>}
+                        {isSubscribed && <p className="text-done text-sm">{t('notifications.enabled')}</p>}
                     </div>
                 )}
             </div>

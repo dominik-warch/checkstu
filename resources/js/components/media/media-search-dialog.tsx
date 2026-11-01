@@ -20,7 +20,7 @@ export default function MediaSearchDialog() {
             <DialogTrigger asChild>
                 <Button
                     size="icon"
-                    className="fixed right-4 bottom-[calc(env(safe-area-inset-bottom)+5rem)] z-20 size-14 rounded-full shadow-lg"
+                    className="bg-player text-player-ink hover:bg-player ring-background lg:bg-player-ink lg:text-player lg:hover:bg-player-ink fixed right-4 bottom-[calc(env(safe-area-inset-bottom)+5.25rem)] z-30 size-14 rounded-full ring-4 transition-transform duration-300 ease-[var(--ease-out-expo)] group-data-[scroll=down]/shell:translate-y-[calc(100%+6rem)] hover:brightness-110 lg:top-5 lg:right-auto lg:bottom-auto lg:left-[12.75rem] lg:size-11 lg:ring-0 lg:group-data-[scroll=down]/shell:translate-y-0"
                     aria-label={t('media.addNew')}
                 >
                     <Plus className="size-6" />

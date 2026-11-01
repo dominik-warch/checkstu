@@ -2,20 +2,12 @@ import { router } from '@inertiajs/react';
 import { Lock, Repeat, RotateCcw } from 'lucide-react';
 import { useState } from 'react';
 
-import { Badge } from '@/components/ui/badge';
+import { priorityClass, priorityLabel } from '@/components/tasks/task-card';
 import { useSwipeToComplete } from '@/hooks/use-swipe-to-complete';
 import { contrastTextColor } from '@/lib/color-contrast';
 import { t } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import type { Occurrence } from '@/types/checkstu';
-
-const priorityLabel = ['priority.low', 'priority.normal', 'priority.high', 'priority.urgent'] as const;
-const priorityClass = [
-    'bg-muted text-muted-foreground',
-    'bg-muted text-muted-foreground',
-    'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-200',
-    'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-200',
-];
 
 function formatCompletedAt(iso: string | null): string {
     if (!iso) return '';
@@ -50,60 +42,62 @@ export default function ArchiveCard({ occurrence }: ArchiveCardProps) {
     const reached = swipe.dx >= 96;
 
     const color = occurrence.completed_by ? (occurrence.assignee?.color ?? null) : null;
-    const textColor = color ? contrastTextColor(color) : null;
-    const mutedStyle = textColor ? { color: textColor, opacity: 0.75 } : undefined;
+    const ink = color ? contrastTextColor(color) : null;
+    const priority = priorityClass[occurrence.priority];
 
     return (
-        <div className="relative overflow-hidden rounded-xl">
+        <div className="relative overflow-hidden rounded-2xl">
             <div
                 className={cn(
-                    'absolute inset-0 flex items-center gap-2 pl-4 text-white transition-colors',
-                    reached ? 'bg-amber-600' : 'bg-amber-500/70',
+                    'absolute inset-0 flex items-center gap-2 pl-5 text-white transition-colors',
+                    reached ? 'bg-[#b45309]' : 'bg-[#d97706]',
                 )}
                 aria-hidden
             >
                 <RotateCcw className="size-5" />
-                {reached && <span className="text-sm font-medium">{t('archive.restore')}</span>}
+                {reached && <span className="text-sm font-bold">{t('archive.restore')}</span>}
             </div>
 
             <div
-                className={cn('flex items-center gap-3 border p-3', !color && 'bg-background')}
+                className={cn('relative flex min-h-16 items-center gap-3 rounded-2xl py-2.5 pr-2.5 pl-4', !color && 'bg-card border-[1.5px]')}
                 style={{
                     transform: `translateX(${swipe.dx}px)`,
-                    transition: swipe.animating ? 'transform 200ms ease-out' : undefined,
+                    transition: swipe.animating ? 'transform 260ms var(--ease-pop)' : undefined,
                     touchAction: 'pan-y',
-                    ...(color ? { backgroundColor: color, color: textColor ?? undefined } : {}),
+                    ...(color ? { backgroundColor: color, color: ink ?? undefined } : {}),
                 }}
                 {...swipe.handlers}
             >
                 <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                        <span className="truncate font-medium line-through">{occurrence.title}</span>
-                        <Badge variant="secondary" className={cn('shrink-0', priorityClass[occurrence.priority])}>
-                            {t(priorityLabel[occurrence.priority])}
-                        </Badge>
-                        {occurrence.is_private && (
-                            <Lock
-                                className={cn('size-3.5 shrink-0', !color && 'text-muted-foreground')}
-                                style={mutedStyle}
-                                aria-label={t('task.private')}
-                            />
+                    <span className="line-clamp-2 text-base leading-snug font-medium [overflow-wrap:break-word] hyphens-auto line-through decoration-2">
+                        {occurrence.title}
+                    </span>
+                    <div className={cn('mt-0.5 flex flex-wrap items-center gap-x-2.5 text-sm', ink ? 'text-current/80' : 'text-muted-foreground')}>
+                        {priority && (
+                            <span className={cn('rounded-full px-2 text-xs leading-5 font-bold', priority)}>
+                                {t(priorityLabel[occurrence.priority])}
+                            </span>
                         )}
-                        {occurrence.is_recurring && (
-                            <Repeat
-                                className={cn('size-3.5 shrink-0', !color && 'text-muted-foreground')}
-                                style={mutedStyle}
-                                aria-label={t('task.recurring')}
-                            />
-                        )}
-                    </div>
-
-                    <div className={cn('mt-1 text-sm', !color && 'text-muted-foreground')} style={mutedStyle}>
-                        {occurrence.completed_by ? t('archive.completedBy', { name: occurrence.completed_by.name }) : null}
-                        {' · '}
-                        {formatCompletedAt(occurrence.completed_at)}
+                        {occurrence.completed_by && <span>{t('archive.completedBy', { name: occurrence.completed_by.name })}</span>}
+                        <time className="tabular-nums">{formatCompletedAt(occurrence.completed_at)}</time>
+                        {occurrence.is_private && <Lock className="size-3.5" aria-label={t('task.private')} />}
+                        {occurrence.is_recurring && <Repeat className="size-3.5" aria-label={t('task.recurring')} />}
                     </div>
                 </div>
+
+                {/* Tap equivalent of the swipe. */}
+                <button
+                    type="button"
+                    onClick={restore}
+                    disabled={processing}
+                    aria-label={`${occurrence.title}: ${t('archive.restore')}`}
+                    className={cn(
+                        'grid size-11 shrink-0 place-items-center rounded-full transition-transform active:scale-90 disabled:opacity-50',
+                        ink ? 'hover:bg-current/15' : 'hover:bg-muted text-muted-foreground',
+                    )}
+                >
+                    <RotateCcw className="size-5" />
+                </button>
             </div>
         </div>
     );

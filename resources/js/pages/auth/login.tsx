@@ -92,7 +92,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                 </div>
             </form>
 
-            {status && <div className="mb-4 text-center text-sm font-medium text-green-600">{status}</div>}
+            {status && <div className="text-done mb-4 text-center text-sm font-medium">{status}</div>}
         </AuthLayout>
     );
 }

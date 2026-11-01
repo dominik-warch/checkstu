@@ -77,7 +77,7 @@ export default function BookShow({ item }: BookShowProps) {
                             value={item.entry.read_at ?? ''}
                             onChange={(e) => changeDate(e.target.value)}
                             aria-label={t('media.readAt')}
-                            className="border-input bg-background rounded-md border px-2 py-1 text-sm"
+                            className="border-input bg-card h-11 rounded-full border-[1.5px] px-4 text-base"
                         />
                     )}
                 </div>

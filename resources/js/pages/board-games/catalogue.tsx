@@ -2,7 +2,8 @@ import { Head, router } from '@inertiajs/react';
 
 import BoardGameCard from '@/components/board-games/board-game-card';
 import BoardGameSearchDialog from '@/components/board-games/board-game-search-dialog';
-import { Button } from '@/components/ui/button';
+import ChipRow from '@/components/chip-row';
+import { cardGrid, EmptyState } from '@/components/page-header';
 import CheckstuLayout, { boardGamesNavItems } from '@/layouts/checkstu-layout';
 import { t } from '@/lib/i18n';
 import type { BoardGame, BoardGameCatalogueFilters } from '@/types/board-games';
@@ -29,25 +30,11 @@ export default function Catalogue({ games, filters }: CatalogueProps) {
 
             <h1 className="mb-4 text-2xl font-bold tracking-tight">{t('boardGames.catalogue')}</h1>
 
-            <div className="mb-4 flex gap-2">
-                {options.map((opt) => (
-                    <Button
-                        key={opt.value}
-                        type="button"
-                        size="sm"
-                        variant={filters.status === opt.value ? 'default' : 'outline'}
-                        className="flex-1"
-                        onClick={() => setStatus(opt.value)}
-                    >
-                        {opt.label}
-                    </Button>
-                ))}
-            </div>
+            <ChipRow label="Status" options={options} value={filters.status} onChange={setStatus} className="mb-4" />
 
-            <div className="flex flex-col gap-2">
-                {games.length === 0 && (
-                    <div className="text-muted-foreground rounded-xl border border-dashed p-8 text-center">{t('boardGames.emptyCatalogue')}</div>
-                )}
+            {games.length === 0 && <EmptyState>{t('boardGames.emptyCatalogue')}</EmptyState>}
+
+            <div className={cardGrid}>
                 {games.map((game) => (
                     <BoardGameCard key={game.id} game={game} />
                 ))}
