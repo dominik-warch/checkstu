@@ -235,14 +235,14 @@ class TaskTest extends TestCase
         $this->assertSoftDeleted($task);
     }
 
-    public function test_task_detail_and_upcoming_pages_render(): void
+    public function test_task_detail_renders_and_upcoming_redirects_to_the_task_list(): void
     {
         $user = User::factory()->create();
         $task = Task::factory()->create();
         TaskOccurrence::factory()->for($task)->create(['due_date' => now()->toDateString()]);
 
         $this->actingAs($user)->get(route('tasks.show', $task))->assertOk();
-        $this->actingAs($user)->get(route('upcoming'))->assertOk();
+        $this->actingAs($user)->get(route('upcoming'))->assertRedirect('/tasks');
     }
 
     public function test_task_detail_exposes_the_open_occurrence_for_completion(): void

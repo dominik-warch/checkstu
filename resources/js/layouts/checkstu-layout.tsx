@@ -19,7 +19,6 @@ export interface NavItem {
 export const tasksNavItems: NavItem[] = [
     { label: t('nav.today'), icon: House, routeName: 'home', href: '/' },
     { label: t('nav.tasks'), icon: ListChecks, routeName: 'tasks.index', href: '/tasks' },
-    { label: t('nav.upcoming'), icon: CalendarDays, routeName: 'upcoming', href: '/upcoming' },
 ];
 
 export const mediaNavItems: NavItem[] = [

@@ -25,7 +25,6 @@ const de = {
     nav: {
         today: 'Heute',
         tasks: 'Aufgaben',
-        upcoming: 'Demnächst',
         family: 'Familie',
         archive: 'Archiv',
         settings: 'Einstellungen',
@@ -56,10 +55,6 @@ const de = {
         noDescription: 'Keine Beschreibung',
         moreOptions: 'Mehr Optionen',
         alreadyDone: 'Diese Aufgabe ist bereits erledigt.',
-    },
-    upcoming: {
-        title: 'Demnächst',
-        empty: 'Nichts geplant.',
     },
     archive: {
         title: 'Archiv',
@@ -164,7 +159,7 @@ const de = {
         addNew: 'Hinzufügen',
         inLibrary: 'Schon in deiner Bibliothek',
         sharedWith: 'Auch bei:',
-        comingUp: 'Demnächst',
+        comingUp: 'Kommt bald',
         comingUpEmpty: 'Nichts Neues in Sicht.',
         together: 'Gemeinsam',
         togetherPrompt: 'Wähle ein Familienmitglied, um eure gemeinsame Merkliste zu sehen.',

@@ -64,9 +64,6 @@ class TaskTitleCatalogueTest extends TestCase
 
         $this->actingAs($user)->get(route('tasks.index'))
             ->assertInertia(fn (Assert $page) => $page->has('templates', 1));
-
-        $this->actingAs($user)->get(route('upcoming'))
-            ->assertInertia(fn (Assert $page) => $page->has('templates', 1));
     }
 
     public function test_templates_are_ordered_most_used_first(): void

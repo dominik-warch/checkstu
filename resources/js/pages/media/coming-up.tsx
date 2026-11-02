@@ -60,7 +60,7 @@ function ComingUpRow({ item }: { item: ComingUpItem }) {
 }
 
 export default function ComingUp({ items }: ComingUpProps) {
-    // Group by date (already sorted ascending server-side), same pattern as tasks/upcoming.
+    // Group by date (already sorted ascending server-side), same pattern as the task list.
     const groups = new Map<string, ComingUpItem[]>();
     for (const item of items) {
         const list = groups.get(item.date) ?? [];
