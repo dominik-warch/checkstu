@@ -19,6 +19,7 @@ class BoardGameCatalogController extends Controller
 
         $games = BoardGame::query()
             ->when($status, fn ($query) => $query->where('status', $status))
+            ->with('latestPlay.players.user')
             ->orderBy('name')
             ->get()
             ->map(fn (BoardGame $game) => BoardGamePresenter::toArray($game, $request->user()))

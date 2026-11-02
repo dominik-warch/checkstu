@@ -16,6 +16,7 @@ export interface BoardGame {
     max_players: number | null;
     playtime_minutes: number | null;
     status: BoardGameStatus;
+    last_play: { played_at: string; winners: { name: string; color: string | null }[] } | null;
     can: {
         delete: boolean;
     };

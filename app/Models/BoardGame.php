@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class BoardGame extends Model
 {
@@ -42,5 +43,11 @@ class BoardGame extends Model
     public function plays(): HasMany
     {
         return $this->hasMany(BoardGamePlay::class);
+    }
+
+    /** @return HasOne<BoardGamePlay, $this> */
+    public function latestPlay(): HasOne
+    {
+        return $this->hasOne(BoardGamePlay::class)->latestOfMany('played_at');
     }
 }

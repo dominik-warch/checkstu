@@ -25,7 +25,7 @@ export default function MediaEntryCard({ entry }: MediaEntryCardProps) {
     return (
         <div className="bg-card flex items-center rounded-2xl border-[1.5px] p-1.5">
             <Link href={route('media.items.show', item.id)} className="hover:bg-muted/60 flex min-w-0 flex-1 items-center gap-3 rounded-xl p-1">
-                <MediaPoster path={item.poster_path} alt={item.title_de} className="h-14 w-10 rounded-md" />
+                <MediaPoster path={item.poster_path} alt={item.title_de} className="h-16 w-11 rounded-md" />
                 <div className="min-w-0 flex-1">
                     <p className="truncate text-base font-medium">{item.title_de}</p>
                     <p className="text-muted-foreground flex min-w-0 items-center gap-1.5 text-sm">

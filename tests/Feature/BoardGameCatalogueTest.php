@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Models\BoardGame;
+use App\Models\BoardGamePlay;
+use App\Models\BoardGamePlayPlayer;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
@@ -98,6 +100,25 @@ class BoardGameCatalogueTest extends TestCase
             ->assertRedirect();
 
         $this->assertDatabaseHas('board_games', ['id' => $game->id, 'name' => 'Neuer Name', 'status' => 'owned']);
+    }
+
+    public function test_catalogue_shows_each_games_last_play_and_its_winner(): void
+    {
+        $user = User::factory()->create();
+        $leo = User::factory()->create(['name' => 'Leo', 'color' => '#06b6d4']);
+        $game = BoardGame::factory()->create(['name' => 'Azul']);
+        BoardGamePlay::factory()->for($game)->create(['played_at' => '2026-09-01']);
+        $latest = BoardGamePlay::factory()->for($game)->create(['played_at' => '2026-10-12']);
+        BoardGamePlayPlayer::factory()->for($latest, 'play')->create(['user_id' => $leo->id, 'guest_name' => null, 'is_winner' => true]);
+        BoardGamePlayPlayer::factory()->for($latest, 'play')->create(['guest_name' => 'Oma']);
+        BoardGame::factory()->create(['name' => 'Zug um Zug']); // never played
+
+        $this->actingAs($user)
+            ->get(route('boardgames.catalogue'))
+            ->assertInertia(fn ($page) => $page
+                ->where('games.0.last_play.played_at', '2026-10-12')
+                ->where('games.0.last_play.winners', [['name' => 'Leo', 'color' => '#06b6d4']])
+                ->where('games.1.last_play', null));
     }
 
     public function test_catalogue_can_be_filtered_by_status(): void

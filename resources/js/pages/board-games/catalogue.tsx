@@ -3,7 +3,7 @@ import { Head, router } from '@inertiajs/react';
 import BoardGameCard from '@/components/board-games/board-game-card';
 import BoardGameSearchDialog from '@/components/board-games/board-game-search-dialog';
 import ChipRow from '@/components/chip-row';
-import { cardGrid, EmptyState } from '@/components/page-header';
+import { EmptyState } from '@/components/page-header';
 import CheckstuLayout, { boardGamesNavItems } from '@/layouts/checkstu-layout';
 import { t } from '@/lib/i18n';
 import type { BoardGame, BoardGameCatalogueFilters } from '@/types/board-games';
@@ -34,7 +34,8 @@ export default function Catalogue({ games, filters }: CatalogueProps) {
 
             {games.length === 0 && <EmptyState>{t('boardGames.emptyCatalogue')}</EmptyState>}
 
-            <div className={cardGrid}>
+            {/* The shelf: box covers side by side, more of them as the screen widens. */}
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4 lg:gap-3 xl:grid-cols-5">
                 {games.map((game) => (
                     <BoardGameCard key={game.id} game={game} />
                 ))}
