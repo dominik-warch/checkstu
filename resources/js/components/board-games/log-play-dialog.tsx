@@ -149,7 +149,9 @@ export default function LogPlayDialog({ games, members, play, trigger }: LogPlay
                                         aria-label={t('boardGames.winner')}
                                         aria-pressed={player.is_winner}
                                     >
-                                        <Trophy className={player.is_winner ? 'size-5 text-amber-500' : 'text-muted-foreground size-5'} />
+                                        <Trophy
+                                            className={player.is_winner ? 'text-foreground size-5 fill-current' : 'text-muted-foreground size-5'}
+                                        />
                                     </button>
 
                                     {player.user_id !== null ? (

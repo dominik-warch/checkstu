@@ -72,7 +72,7 @@ export default function ArchiveCard({ occurrence }: ArchiveCardProps) {
                     <span className="line-clamp-2 text-base leading-snug font-medium [overflow-wrap:break-word] hyphens-auto line-through decoration-2">
                         {occurrence.title}
                     </span>
-                    <div className={cn('mt-0.5 flex flex-wrap items-center gap-x-2.5 text-sm', ink ? 'text-current/80' : 'text-muted-foreground')}>
+                    <div className={cn('mt-0.5 flex flex-wrap items-center gap-x-2.5 text-sm', !ink && 'text-muted-foreground')}>
                         {priority && (
                             <span className={cn('rounded-full px-2 text-xs leading-5 font-bold', priority)}>
                                 {t(priorityLabel[occurrence.priority])}

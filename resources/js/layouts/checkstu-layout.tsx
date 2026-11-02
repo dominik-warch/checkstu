@@ -100,7 +100,7 @@ export default function CheckstuLayout({ children, navItems = tasksNavItems, con
                 href={route('logout')}
                 method="post"
                 as="button"
-                className="flex min-h-11 items-center gap-3 rounded-full px-3 text-left text-sm font-medium opacity-80 hover:opacity-100"
+                className="flex min-h-11 items-center gap-3 rounded-full px-3 text-left text-sm font-medium hover:ring-[1.5px] hover:ring-current hover:ring-inset"
             >
                 <LogOut className="size-5" />
                 {t('settings.logOut')}
@@ -133,7 +133,7 @@ export default function CheckstuLayout({ children, navItems = tasksNavItems, con
                                 aria-current={active ? 'page' : undefined}
                                 className={cn(
                                     'flex min-h-11 items-center gap-3 rounded-full px-3 text-base font-medium transition-colors',
-                                    active ? 'bg-player-ink text-player' : 'hover:bg-player-ink/10',
+                                    active ? 'bg-player-ink text-player' : 'hover:ring-[1.5px] hover:ring-current hover:ring-inset',
                                 )}
                             >
                                 <Icon className="size-5" />
@@ -159,7 +159,7 @@ export default function CheckstuLayout({ children, navItems = tasksNavItems, con
                                 <SheetTrigger asChild>
                                     <button
                                         type="button"
-                                        className="hover:bg-player-ink/15 grid size-11 place-items-center rounded-full"
+                                        className="grid size-11 place-items-center rounded-full hover:ring-[1.5px] hover:ring-current hover:ring-inset"
                                         aria-label={t('nav.menu')}
                                     >
                                         <Menu className="size-5" />
@@ -236,7 +236,7 @@ function ContextSwitch({ context, withLabels = false }: { context: Context; with
                         className={cn(
                             'flex items-center gap-3 rounded-full transition-colors',
                             withLabels ? 'min-h-11 px-3 text-sm font-medium' : 'size-11 justify-center',
-                            active ? withLabels && 'bg-player-ink/15' : 'hover:bg-player-ink/10 opacity-75 hover:opacity-100',
+                            active ? withLabels && 'font-bold' : 'hover:ring-[1.5px] hover:ring-current hover:ring-inset',
                         )}
                     >
                         <span
@@ -262,7 +262,7 @@ function MenuLink({ href, icon: Icon, label, active }: { href: string; icon: typ
             aria-current={active ? 'page' : undefined}
             className={cn(
                 'flex min-h-11 items-center gap-3 rounded-full px-3 text-sm font-medium',
-                active ? 'bg-player-ink text-player' : 'hover:bg-player-ink/10',
+                active ? 'bg-player-ink text-player' : 'hover:ring-[1.5px] hover:ring-current hover:ring-inset',
             )}
         >
             <Icon className="size-5" />

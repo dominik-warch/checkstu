@@ -143,7 +143,7 @@
     --player: #4f46e5;
     --player-ink: #ffffff;
 
-    --urgent: #e11d48;
+    --urgent: #d0103a;
     --urgent-soft: #ffe1e6;
     --urgent-ink: #9f1239;
     --warn-soft: #fdefc3;
@@ -257,9 +257,26 @@
     animation: pawn-hop 420ms var(--ease-out-expo) both;
 }
 
+/* The undo toast slides up from under the thumb. */
+@keyframes toast-in {
+    0% {
+        transform: translateY(1rem);
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.animate-toast-in {
+    animation: toast-in 300ms var(--ease-out-expo) both;
+}
+
 @media (prefers-reduced-motion: reduce) {
     .animate-field-fill,
-    .animate-pawn-hop {
+    .animate-pawn-hop,
+    .animate-toast-in {
         animation: none;
     }
 }

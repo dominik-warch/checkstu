@@ -56,7 +56,7 @@ export default function PlayRow({ play, games, members }: PlayRowProps) {
                         key={player.id}
                         className={cn(
                             'inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs',
-                            player.is_winner && 'border-amber-500/50 bg-amber-500/10 font-medium text-amber-700 dark:text-amber-400',
+                            player.is_winner && 'bg-foreground text-background border-foreground font-bold',
                         )}
                     >
                         {player.is_winner && <Trophy className="size-3" />}

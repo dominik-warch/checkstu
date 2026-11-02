@@ -38,7 +38,7 @@ class DemoSeeder extends Seeder
         // and the media "shared with" dots — has something to show out of the box.
         $dominik = User::firstOrCreate(['username' => 'dominik'], ['name' => 'Dominik', 'email' => 'dominik@home.local', 'password' => 'password', 'role' => Role::Admin, 'color' => '#2563eb']);
         $sara = User::firstOrCreate(['username' => 'sara'], ['name' => 'Sara', 'email' => 'sara@home.local', 'password' => 'password', 'role' => Role::Admin, 'color' => '#db2777']);
-        $leo = User::firstOrCreate(['username' => 'leo'], ['name' => 'Leo', 'email' => null, 'password' => 'password', 'role' => Role::Member, 'color' => '#16a34a']);
+        $leo = User::firstOrCreate(['username' => 'leo'], ['name' => 'Leo', 'email' => null, 'password' => 'password', 'role' => Role::Member, 'color' => '#06b6d4']);
         $leni = User::firstOrCreate(['username' => 'leni'], ['name' => 'Leni', 'email' => null, 'password' => 'password', 'role' => Role::Member, 'color' => '#f59e0b']);
         // A guest helper (e.g. grandparent) — only sees tasks assigned to them.
         $opa = User::firstOrCreate(['username' => 'opa'], ['name' => 'Opa', 'email' => null, 'password' => 'password', 'role' => Role::Guest]);

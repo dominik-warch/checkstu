@@ -48,7 +48,7 @@ function formatLongDate(due: string | null): string {
 }
 
 export default function Show({ task, occurrence, members, can }: ShowProps) {
-    const { processing, complete } = useCompleteOccurrence(occurrence?.id ?? 0, occurrence?.assignee?.color);
+    const { processing, complete } = useCompleteOccurrence(occurrence, occurrence?.assignee?.color);
 
     const color = occurrence?.assignee?.color ?? null;
     const ink = color ? contrastTextColor(color) : null;
@@ -78,7 +78,7 @@ export default function Show({ task, occurrence, members, can }: ShowProps) {
                         className={cn('rounded-3xl p-5', !color && 'bg-card border-[1.5px]')}
                         style={color ? { backgroundColor: color, color: ink ?? undefined } : undefined}
                     >
-                        <div className={cn('flex flex-wrap items-center gap-2 text-sm font-bold', ink ? 'text-current/80' : 'text-muted-foreground')}>
+                        <div className={cn('flex flex-wrap items-center gap-2 text-sm font-bold', !ink && 'text-muted-foreground')}>
                             {task.priority >= 2 && (
                                 <span className={cn('rounded-full px-2.5 leading-6', priorityClass[task.priority])}>
                                     {t(priorityLabel[task.priority])}
@@ -100,14 +100,14 @@ export default function Show({ task, occurrence, members, can }: ShowProps) {
                         <h1 className="mt-2 text-2xl font-bold tracking-tight [overflow-wrap:break-word] hyphens-auto">{task.title}</h1>
 
                         <dl className="mt-5 grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-base">
-                            <dt className={ink ? 'text-current/80' : 'text-muted-foreground'}>{t('task.dueDate')}</dt>
-                            <dd className="font-medium">{formatLongDate(task.due_date)}</dd>
-                            <dt className={ink ? 'text-current/80' : 'text-muted-foreground'}>{t('task.assignee')}</dt>
-                            <dd className="font-medium">{task.assignee?.name ?? t('task.unassigned')}</dd>
+                            <dt className={cn(!ink && 'text-muted-foreground')}>{t('task.dueDate')}</dt>
+                            <dd className="font-bold">{formatLongDate(task.due_date)}</dd>
+                            <dt className={cn(!ink && 'text-muted-foreground')}>{t('task.assignee')}</dt>
+                            <dd className="font-bold">{task.assignee?.name ?? t('task.unassigned')}</dd>
                             {task.categories.length > 0 && (
                                 <>
-                                    <dt className={ink ? 'text-current/80' : 'text-muted-foreground'}>Kategorie</dt>
-                                    <dd className="flex flex-wrap gap-x-3 font-medium">
+                                    <dt className={cn(!ink && 'text-muted-foreground')}>Kategorie</dt>
+                                    <dd className="flex flex-wrap gap-x-3 font-bold">
                                         {task.categories.map((c) => (
                                             <span key={c.id} className="inline-flex items-center gap-1.5">
                                                 <span
@@ -125,7 +125,7 @@ export default function Show({ task, occurrence, members, can }: ShowProps) {
                         {task.description ? (
                             <p className="mt-4 max-w-[65ch] text-base whitespace-pre-line">{task.description}</p>
                         ) : (
-                            <p className={cn('mt-4 text-sm', ink ? 'text-current/80' : 'text-muted-foreground')}>{t('task.noDescription')}</p>
+                            <p className={cn('mt-4 text-sm', !ink && 'text-muted-foreground')}>{t('task.noDescription')}</p>
                         )}
                     </section>
 
@@ -144,7 +144,7 @@ export default function Show({ task, occurrence, members, can }: ShowProps) {
                                         <DropdownMenuLabel>{t('task.whoDidIt')}</DropdownMenuLabel>
                                         <DropdownMenuSeparator />
                                         {members.map((m) => (
-                                            <DropdownMenuItem key={m.id} onClick={() => complete(m.id)}>
+                                            <DropdownMenuItem key={m.id} onClick={() => complete(m)}>
                                                 <span className="size-3 rounded-full" style={{ background: m.color ?? 'var(--muted-foreground)' }} />
                                                 {m.name}
                                             </DropdownMenuItem>

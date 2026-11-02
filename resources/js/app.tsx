@@ -4,6 +4,7 @@ import { createInertiaApp, router } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
 import { route as routeFn } from 'ziggy-js';
+import { UndoToast } from './components/undo-toast';
 import { UpdateToast } from './components/update-toast';
 import { initializeTheme } from './hooks/use-appearance';
 
@@ -37,6 +38,7 @@ createInertiaApp({
         root.render(
             <>
                 <App {...props} />
+                <UndoToast />
                 <UpdateToast />
             </>,
         );

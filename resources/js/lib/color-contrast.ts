@@ -1,17 +1,16 @@
 /**
  * Curated preset palette for the user color picker — chosen to have decent,
  * unambiguous contrast with computed black/white text (avoids muddy
- * mid-luminance colors that would sit right on the threshold).
+ * mid-luminance colors that would sit right on the threshold). Red and green
+ * are left out on purpose: they mean "überfällig" and "erledigt" on the board.
  */
 export const USER_COLOR_PRESETS: string[] = [
-    '#ef4444', // red
     '#f97316', // orange
     '#f59e0b', // amber
-    '#84cc16', // lime
-    '#22c55e', // green
-    '#14b8a6', // teal
+    '#facc15', // yellow
+    '#06b6d4', // cyan
     '#3b82f6', // blue
-    '#6366f1', // indigo
+    '#4f46e5', // indigo
     '#a855f7', // purple
     '#ec4899', // pink
     '#64748b', // slate

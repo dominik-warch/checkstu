@@ -40,7 +40,7 @@ interface TaskCardProps {
 }
 
 export default function TaskCard({ occurrence, members, canCompleteOnBehalf, showDue = true }: TaskCardProps) {
-    const { processing, complete } = useCompleteOccurrence(occurrence.id, occurrence.assignee?.color);
+    const { processing, complete } = useCompleteOccurrence(occurrence, occurrence.assignee?.color);
 
     const remove = () => {
         if (!confirm(t('task.deleteConfirm'))) return false;
@@ -60,7 +60,7 @@ export default function TaskCard({ occurrence, members, canCompleteOnBehalf, sho
         <button
             type="button"
             disabled={processing}
-            aria-label={t('task.markDone')}
+            aria-label={`${occurrence.title}: ${t('task.markDone')}`}
             onClick={canCompleteOnBehalf ? undefined : () => complete()}
             className={cn(
                 'group/done grid size-11 shrink-0 place-items-center rounded-full border-2 border-current transition-transform duration-150 active:scale-90 disabled:opacity-50',
@@ -174,7 +174,7 @@ export default function TaskCard({ occurrence, members, canCompleteOnBehalf, sho
                                 <DropdownMenuLabel>{t('task.whoDidIt')}</DropdownMenuLabel>
                                 <DropdownMenuSeparator />
                                 {members.map((m) => (
-                                    <DropdownMenuItem key={m.id} onClick={() => complete(m.id)}>
+                                    <DropdownMenuItem key={m.id} onClick={() => complete(m)}>
                                         <span className="size-3 rounded-full" style={{ background: m.color ?? 'var(--muted-foreground)' }} />
                                         {m.name}
                                     </DropdownMenuItem>

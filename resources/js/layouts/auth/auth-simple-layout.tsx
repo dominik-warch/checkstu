@@ -16,7 +16,7 @@ export default function AuthSimpleLayout({ children, title, description }: AuthL
                         <Link href={route('home')} className="flex flex-col items-center gap-3">
                             {/* Four players, four colours: the board this app is built on. */}
                             <span className="flex gap-1.5" aria-hidden>
-                                {['#e11d48', '#f59e0b', '#16a34a', '#2563eb'].map((c) => (
+                                {['#f97316', '#facc15', '#06b6d4', '#4f46e5'].map((c) => (
                                     <span key={c} className="size-5 rounded-full" style={{ background: c }} />
                                 ))}
                             </span>

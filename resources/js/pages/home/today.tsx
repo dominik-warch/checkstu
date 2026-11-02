@@ -112,7 +112,7 @@ export default function Today({ occurrences, progress, filters, members, templat
 
 /** The one reversed plate on the screen: the task to do next, with a big round target to finish it. */
 function UpNextPlate({ occurrence, playerColor, remaining }: { occurrence: Occurrence; playerColor: string | null; remaining: number }) {
-    const { processing, complete } = useCompleteOccurrence(occurrence.id, occurrence.assignee?.color ?? playerColor);
+    const { processing, complete } = useCompleteOccurrence(occurrence, occurrence.assignee?.color ?? playerColor);
     const overdue = occurrence.status === 'overdue';
     const priority = occurrence.priority >= 2 ? t(occurrence.priority === 3 ? 'priority.urgent' : 'priority.high') : null;
 
@@ -140,10 +140,13 @@ function UpNextPlate({ occurrence, playerColor, remaining }: { occurrence: Occur
                 type="button"
                 onClick={() => complete()}
                 disabled={processing}
-                aria-label={`${occurrence.title}: ${t('task.markDone')}`}
-                className="group/go border-player grid size-16 shrink-0 place-items-center rounded-full border-4 transition-transform duration-150 active:scale-90 disabled:opacity-60"
+                className="group/go flex shrink-0 flex-col items-center gap-1 transition-transform duration-150 active:scale-90 disabled:opacity-60"
             >
-                <Pawn className="text-player size-8 transition-transform duration-300 ease-[var(--ease-pop)] group-hover/go:-translate-y-1 group-hover/go:scale-110" />
+                <span className="border-player grid size-16 place-items-center rounded-full border-4">
+                    <Pawn className="text-player size-8 transition-transform duration-300 ease-[var(--ease-pop)] group-hover/go:-translate-y-1 group-hover/go:scale-110" />
+                </span>
+                <span className="text-sm font-bold">Fertig!</span>
+                <span className="sr-only">{occurrence.title}</span>
             </button>
         </div>
     );
