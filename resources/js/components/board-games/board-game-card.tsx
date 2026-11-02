@@ -7,7 +7,6 @@ import ConfirmDeleteButton from '@/components/confirm-delete-button';
 import Pawn from '@/components/pawn';
 import { Input } from '@/components/ui/input';
 import { t } from '@/lib/i18n';
-import { cn } from '@/lib/utils';
 import type { BoardGame } from '@/types/board-games';
 
 interface BoardGameCardProps {
@@ -46,13 +45,26 @@ export default function BoardGameCard({ game }: BoardGameCardProps) {
 
     return (
         <div className="bg-card flex flex-col overflow-hidden rounded-2xl border-[1.5px]">
-            {game.thumbnail_url ? (
-                <img src={game.thumbnail_url} alt="" className="bg-muted aspect-square w-full object-cover" />
-            ) : (
-                <div className="bg-muted grid aspect-square w-full place-items-center">
-                    <Dices className="text-muted-foreground size-10" />
-                </div>
-            )}
+            <div className="relative">
+                {game.thumbnail_url ? (
+                    <img src={game.thumbnail_url} alt="" className="bg-muted aspect-square w-full object-cover" />
+                ) : (
+                    <div className="bg-muted grid aspect-square w-full place-items-center">
+                        <Dices className="text-muted-foreground size-10" />
+                    </div>
+                )}
+                {/* Removing sits on the box's corner, so the footer keeps room for the status at phone width. */}
+                {game.can.delete && (
+                    <div className="bg-card absolute top-2 right-2 rounded-full">
+                        <ConfirmDeleteButton
+                            icon
+                            label={t('boardGames.removeGame')}
+                            confirmLabel="Mit Partien?"
+                            onConfirm={() => router.delete(route('boardgames.destroy', game.id), { preserveScroll: true })}
+                        />
+                    </div>
+                )}
+            </div>
 
             <div className="flex flex-1 flex-col p-3">
                 {draft === null ? (
@@ -97,18 +109,10 @@ export default function BoardGameCard({ game }: BoardGameCardProps) {
                     )}
                 </p>
 
-                <div className="mt-auto flex flex-wrap items-center justify-between gap-1 pt-3">
-                    <button type="button" onClick={toggleStatus} className={cn(chipClass(game.status === 'owned'), 'px-3')}>
+                <div className="mt-auto pt-3">
+                    <button type="button" onClick={toggleStatus} className={chipClass(game.status === 'owned')}>
                         {game.status === 'owned' ? t('boardGames.owned') : t('boardGames.wishlist')}
                     </button>
-                    {game.can.delete && (
-                        <ConfirmDeleteButton
-                            icon
-                            label={t('boardGames.removeGame')}
-                            confirmLabel="Mit Partien?"
-                            onConfirm={() => router.delete(route('boardgames.destroy', game.id), { preserveScroll: true })}
-                        />
-                    )}
                 </div>
             </div>
         </div>

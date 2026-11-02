@@ -1,5 +1,5 @@
 import { router } from '@inertiajs/react';
-import { CheckCheck } from 'lucide-react';
+import { Check, CheckCheck } from 'lucide-react';
 import { MouseEvent, useEffect, useState } from 'react';
 
 import EpisodeRow from '@/components/media/episode-row';
@@ -114,26 +114,37 @@ export default function SeasonAccordion({ season }: SeasonAccordionProps) {
     }
 
     const watchedCount = episodes ? episodes.filter((ep) => ep.watches.length > 0).length : season.watched_count;
+    const complete = season.episode_count > 0 && watchedCount >= season.episode_count;
 
     return (
         <Collapsible open={open} onOpenChange={setOpen} className="bg-card rounded-2xl border-[1.5px]">
             <div className="flex items-center justify-between gap-2 pr-2">
                 <CollapsibleTrigger className="flex flex-1 items-center justify-between px-3 py-2 text-left">
                     <span className="font-medium">{season.name}</span>
-                    <span className="text-muted-foreground text-sm">
+                    <span className={complete ? 'text-sm font-bold' : 'text-muted-foreground text-sm'}>
                         {watchedCount}/{season.episode_count}
                     </span>
                 </CollapsibleTrigger>
-                <Button
-                    type="button"
-                    size="icon"
-                    variant="ghost"
-                    disabled={markingAll}
-                    onClick={markSeasonWatched}
-                    aria-label={t('media.markSeasonWatched')}
-                >
-                    <CheckCheck className="size-4" />
-                </Button>
+                {/* A finished season shows the same filled player circle as a watched episode; only an open one offers "mark all". */}
+                {complete ? (
+                    <span className="grid size-11 shrink-0 place-items-center">
+                        <span className="bg-player text-player-ink grid size-8 place-items-center rounded-full">
+                            <Check className="size-4" strokeWidth={3} />
+                            <span className="sr-only">Alle gesehen</span>
+                        </span>
+                    </span>
+                ) : (
+                    <Button
+                        type="button"
+                        size="icon"
+                        variant="ghost"
+                        disabled={markingAll}
+                        onClick={markSeasonWatched}
+                        aria-label={t('media.markSeasonWatched')}
+                    >
+                        <CheckCheck className="size-4" />
+                    </Button>
+                )}
             </div>
             <CollapsibleContent className="divide-y border-t">
                 {loading && <p className="text-muted-foreground p-3 text-sm">{t('common.loading')}</p>}

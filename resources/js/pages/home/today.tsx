@@ -92,7 +92,7 @@ export default function Today({ occurrences, progress, filters, members, templat
                     )}
                     {today.length > 0 && (
                         <section>
-                            <SectionHead count={today.length}>Heute</SectionHead>
+                            <SectionHead count={today.length}>Fällig heute</SectionHead>
                             <div className="flex flex-col gap-2">{today.map((o) => card(o, false))}</div>
                         </section>
                     )}

@@ -86,7 +86,7 @@ export default function Show({ item }: ShowProps) {
                 <MediaPoster path={item.poster_path} alt={item.title_de} size="w185" className="h-44 w-30" />
                 <div className="min-w-0 flex-1">
                     <h1 className="text-2xl font-bold tracking-tight">{item.title_de}</h1>
-                    <p className="text-muted-foreground text-sm">{item.title_en}</p>
+                    {item.title_en && item.title_en !== item.title_de && <p className="text-muted-foreground text-sm">{item.title_en}</p>}
                     {item.entry && (
                         <Badge variant="secondary" className="mt-2">
                             {statusLabel[item.entry.status]}

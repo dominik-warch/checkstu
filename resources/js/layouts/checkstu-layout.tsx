@@ -186,7 +186,7 @@ export default function CheckstuLayout({ children, navItems = tasksNavItems, con
                 {/* Bottom tabs on phone and tablet portrait. The extra 0.75rem clears iOS's
                     home-indicator gesture zone, which reaches past the safe-area inset. */}
                 <nav className="bg-card fixed inset-x-0 bottom-0 z-20 border-t pb-[calc(env(safe-area-inset-bottom)+0.5rem)] lg:hidden">
-                    <div className="mx-auto flex w-full max-w-3xl items-stretch">
+                    <div className="mx-auto flex w-full max-w-md items-stretch">
                         {navItems.map((item) => {
                             const active = isActive(item);
                             const Icon = item.icon;
