@@ -89,6 +89,17 @@ class BoardGameCatalogueTest extends TestCase
         $this->assertDatabaseHas('board_games', ['id' => $game->id, 'status' => 'owned']);
     }
 
+    public function test_game_can_be_renamed(): void
+    {
+        $user = User::factory()->create();
+        $game = BoardGame::factory()->create(['name' => 'Alter Name', 'status' => 'owned']);
+
+        $this->actingAs($user)->patch(route('boardgames.update', $game), ['name' => 'Neuer Name'])
+            ->assertRedirect();
+
+        $this->assertDatabaseHas('board_games', ['id' => $game->id, 'name' => 'Neuer Name', 'status' => 'owned']);
+    }
+
     public function test_catalogue_can_be_filtered_by_status(): void
     {
         $user = User::factory()->create();

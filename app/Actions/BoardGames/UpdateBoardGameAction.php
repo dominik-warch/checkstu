@@ -9,11 +9,11 @@ use App\Models\BoardGame;
 class UpdateBoardGameAction
 {
     /**
-     * @param  array{status: string}  $data
+     * @param  array{name?: string, status?: string}  $data
      */
     public function handle(BoardGame $game, array $data): BoardGame
     {
-        $game->update(['status' => $data['status']]);
+        $game->update($data);
 
         return $game;
     }

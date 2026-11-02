@@ -21,7 +21,8 @@ class UpdateBoardGameRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'status' => ['required', Rule::enum(BoardGameStatus::class)],
+            'name' => ['sometimes', 'required', 'string', 'max:255'],
+            'status' => ['sometimes', 'required', Rule::enum(BoardGameStatus::class)],
         ];
     }
 }
