@@ -9,6 +9,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { showUndo } from '@/components/undo-toast';
 import { useCompleteOccurrence } from '@/hooks/use-complete-occurrence';
 import { useSwipeToComplete } from '@/hooks/use-swipe-to-complete';
 import { contrastTextColor } from '@/lib/color-contrast';
@@ -32,6 +33,14 @@ export function formatDue(due: string | null): string {
     return new Intl.DateTimeFormat('de-DE', { day: 'numeric', month: 'short' }).format(date);
 }
 
+/** Deletes at once (tasks are only soft-deleted) and offers the undo toast; "Gelöscht" in the archive is the way back after that. */
+export function deleteTask(taskId: number, title: string) {
+    router.delete(route('tasks.destroy', taskId), {
+        preserveScroll: true,
+        onSuccess: () => showUndo({ title, note: 'Gelöscht', undo: () => router.post(route('tasks.restore', taskId), {}, { preserveScroll: true }) }),
+    });
+}
+
 interface TaskCardProps {
     occurrence: Occurrence;
     members: Member[];
@@ -42,12 +51,11 @@ interface TaskCardProps {
 export default function TaskCard({ occurrence, members, canCompleteOnBehalf, showDue = true }: TaskCardProps) {
     const { processing, complete } = useCompleteOccurrence(occurrence, occurrence.assignee?.color);
 
-    const remove = () => {
-        if (!confirm(t('task.deleteConfirm'))) return false;
-        router.delete(route('tasks.destroy', occurrence.task_id), { preserveScroll: true });
-    };
-
-    const swipe = useSwipeToComplete(() => complete(), !occurrence.is_blocked && !processing, occurrence.can_delete ? remove : undefined);
+    const swipe = useSwipeToComplete(
+        () => complete(),
+        !occurrence.is_blocked && !processing,
+        occurrence.can_delete ? () => deleteTask(occurrence.task_id, occurrence.title) : undefined,
+    );
     const reached = swipe.dx >= 96;
     const reachedDelete = swipe.dx <= -96;
     const overdue = occurrence.status === 'overdue';

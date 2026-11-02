@@ -1,5 +1,4 @@
-import { Link, router } from '@inertiajs/react';
-import { Trash2 } from 'lucide-react';
+import { Link } from '@inertiajs/react';
 
 import MediaPoster from '@/components/media/media-poster';
 import SharedByDots from '@/components/media/shared-by-dots';
@@ -17,19 +16,14 @@ interface BookEntryCardProps {
     entry: BookEntrySummary;
 }
 
-/** Marking read and its date live on the detail page (media/book-show.tsx) — this row is just an entry point + quick remove. */
+/** Marking read and its date live on the detail page (media/book-show.tsx) — this row is just an entry point (removing it lives there too). */
 export default function BookEntryCard({ entry }: BookEntryCardProps) {
     const item = entry.book_item;
-
-    function remove() {
-        if (!confirm(t('media.removeConfirm'))) return;
-        router.delete(route('books.entries.destroy', entry.id), { preserveScroll: true });
-    }
 
     const meta = item.authors;
 
     return (
-        <div className="bg-card flex items-center gap-1 rounded-2xl border-[1.5px] py-1.5 pr-1 pl-1.5">
+        <div className="bg-card flex items-center rounded-2xl border-[1.5px] p-1.5">
             <Link href={route('books.items.show', item.id)} className="hover:bg-muted/60 flex min-w-0 flex-1 items-center gap-3 rounded-xl p-1">
                 <MediaPoster path={item.thumbnail_url} alt={item.title} className="h-14 w-10 rounded-md" />
                 <div className="min-w-0 flex-1">
@@ -41,15 +35,6 @@ export default function BookEntryCard({ entry }: BookEntryCardProps) {
                     </p>
                 </div>
             </Link>
-
-            <button
-                type="button"
-                onClick={remove}
-                aria-label={t('media.remove')}
-                className="text-muted-foreground hover:text-foreground hover:bg-muted grid size-11 shrink-0 place-items-center rounded-full"
-            >
-                <Trash2 className="size-5" />
-            </button>
         </div>
     );
 }

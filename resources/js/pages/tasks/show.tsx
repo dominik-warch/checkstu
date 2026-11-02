@@ -1,7 +1,7 @@
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import { ArrowLeft, Check, Circle, Lock, Pencil, Repeat, Trash2 } from 'lucide-react';
 
-import { priorityClass, priorityLabel } from '@/components/tasks/task-card';
+import { deleteTask, priorityClass, priorityLabel } from '@/components/tasks/task-card';
 import TaskFormDialog from '@/components/tasks/task-form-dialog';
 import { Button } from '@/components/ui/button';
 import {
@@ -52,12 +52,6 @@ export default function Show({ task, occurrence, members, can }: ShowProps) {
 
     const color = occurrence?.assignee?.color ?? null;
     const ink = color ? contrastTextColor(color) : null;
-
-    const remove = () => {
-        if (confirm(t('task.deleteConfirm'))) {
-            router.delete(route('tasks.destroy', task.id));
-        }
-    };
 
     return (
         <CheckstuLayout>
@@ -233,7 +227,7 @@ export default function Show({ task, occurrence, members, can }: ShowProps) {
                                 />
                             )}
                             {can.delete && (
-                                <Button variant="ghost" className="text-destructive" onClick={remove}>
+                                <Button variant="ghost" className="text-destructive" onClick={() => deleteTask(task.id, task.title)}>
                                     <Trash2 />
                                     {t('common.delete')}
                                 </Button>

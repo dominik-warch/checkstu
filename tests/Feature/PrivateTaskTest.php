@@ -118,7 +118,7 @@ class PrivateTaskTest extends TestCase
 
         $this->actingAs($creator)
             ->delete(route('tasks.destroy', $occurrence->task_id))
-            ->assertRedirect(route('tasks.index'));
+            ->assertRedirect();
 
         $this->assertSoftDeleted('tasks', ['id' => $occurrence->task_id]);
     }

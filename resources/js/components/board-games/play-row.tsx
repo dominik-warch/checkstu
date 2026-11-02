@@ -1,7 +1,8 @@
 import { router } from '@inertiajs/react';
-import { Pencil, Trash2, Trophy } from 'lucide-react';
+import { Pencil, Trophy } from 'lucide-react';
 
 import LogPlayDialog from '@/components/board-games/log-play-dialog';
+import ConfirmDeleteButton from '@/components/confirm-delete-button';
 import { Button } from '@/components/ui/button';
 import { t } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
@@ -14,11 +15,6 @@ interface PlayRowProps {
 }
 
 export default function PlayRow({ play, games, members }: PlayRowProps) {
-    function remove() {
-        if (!confirm(t('boardGames.removePlayConfirm'))) return;
-        router.delete(route('boardgames.plays.destroy', play.id), { preserveScroll: true });
-    }
-
     return (
         <div className="bg-card rounded-2xl border-[1.5px] p-3">
             <div className="flex items-start justify-between gap-3">
@@ -42,9 +38,11 @@ export default function PlayRow({ play, games, members }: PlayRowProps) {
                             />
                         )}
                         {play.can.delete && (
-                            <Button size="icon" variant="ghost" aria-label={t('boardGames.removePlay')} onClick={remove}>
-                                <Trash2 className="size-4" />
-                            </Button>
+                            <ConfirmDeleteButton
+                                icon
+                                label={t('boardGames.removePlay')}
+                                onConfirm={() => router.delete(route('boardgames.plays.destroy', play.id), { preserveScroll: true })}
+                            />
                         )}
                     </div>
                 )}

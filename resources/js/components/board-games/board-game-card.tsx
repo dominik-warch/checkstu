@@ -1,7 +1,8 @@
 import { router } from '@inertiajs/react';
-import { Dices, Pencil, Trash2 } from 'lucide-react';
+import { Dices, Pencil } from 'lucide-react';
 import { useState } from 'react';
 
+import ConfirmDeleteButton from '@/components/confirm-delete-button';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -26,11 +27,6 @@ export default function BoardGameCard({ game }: BoardGameCardProps) {
     function toggleStatus() {
         const next = game.status === 'owned' ? 'wishlist' : 'owned';
         router.patch(route('boardgames.update', game.id), { status: next }, { preserveScroll: true });
-    }
-
-    function remove() {
-        if (!confirm(t('boardGames.removeGameConfirm'))) return;
-        router.delete(route('boardgames.destroy', game.id), { preserveScroll: true });
     }
 
     const meta = [
@@ -77,9 +73,12 @@ export default function BoardGameCard({ game }: BoardGameCardProps) {
                     <Pencil className="size-4" />
                 </Button>
                 {game.can.delete && (
-                    <Button size="icon" variant="ghost" aria-label={t('boardGames.removeGame')} onClick={remove}>
-                        <Trash2 className="size-4" />
-                    </Button>
+                    <ConfirmDeleteButton
+                        icon
+                        label={t('boardGames.removeGame')}
+                        confirmLabel="Mit Partien?"
+                        onConfirm={() => router.delete(route('boardgames.destroy', game.id), { preserveScroll: true })}
+                    />
                 )}
             </div>
         </div>

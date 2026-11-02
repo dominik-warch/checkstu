@@ -34,6 +34,14 @@ class ArchiveController extends Controller
         return Inertia::render('archive/index', [
             'occurrences' => $occurrences,
             'filters' => ['scope' => $scope],
+            // Deleted tasks you could bring back (same rule as deleting them).
+            'deleted' => Task::onlyTrashed()
+                ->latest('deleted_at')
+                ->limit(50)
+                ->get()
+                ->filter(fn (Task $task) => $request->user()->can('delete', $task))
+                ->map(fn (Task $task) => ['id' => $task->id, 'title' => $task->title])
+                ->values(),
             'can' => [
                 'completeOnBehalf' => $request->user()->can('completeOnBehalf', Task::class),
             ],

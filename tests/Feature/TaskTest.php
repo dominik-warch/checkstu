@@ -191,8 +191,46 @@ class TaskTest extends TestCase
         $task = Task::factory()->create();
 
         $this->actingAs($admin)
+            ->from(route('tasks.show', $task))
             ->delete(route('tasks.destroy', $task))
             ->assertRedirect(route('tasks.index'));
+
+        $this->assertSoftDeleted($task);
+    }
+
+    public function test_deleting_from_a_list_stays_on_it(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $task = Task::factory()->create();
+
+        $this->actingAs($admin)
+            ->from(route('home'))
+            ->delete(route('tasks.destroy', $task))
+            ->assertRedirect(route('home'));
+    }
+
+    public function test_admin_can_restore_a_deleted_task(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $task = Task::factory()->create();
+        $task->delete();
+
+        $this->actingAs($admin)
+            ->post(route('tasks.restore', $task))
+            ->assertRedirect();
+
+        $this->assertNotSoftDeleted($task);
+    }
+
+    public function test_member_cannot_restore_a_deleted_task(): void
+    {
+        $member = User::factory()->create();
+        $task = Task::factory()->create();
+        $task->delete();
+
+        $this->actingAs($member)
+            ->post(route('tasks.restore', $task))
+            ->assertForbidden();
 
         $this->assertSoftDeleted($task);
     }

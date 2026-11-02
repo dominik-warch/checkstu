@@ -38,6 +38,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('tasks/{task}', [TaskController::class, 'show'])->name('tasks.show');
     Route::patch('tasks/{task}', [TaskController::class, 'update'])->name('tasks.update');
     Route::delete('tasks/{task}', [TaskController::class, 'destroy'])->name('tasks.destroy');
+    Route::post('tasks/{task}/restore', [TaskController::class, 'restore'])->withTrashed()->name('tasks.restore');
 
     Route::get('upcoming', [UpcomingController::class, 'index'])->name('upcoming');
 

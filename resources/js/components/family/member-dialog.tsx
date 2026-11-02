@@ -1,6 +1,7 @@
-import { useForm } from '@inertiajs/react';
+import { router, useForm, usePage } from '@inertiajs/react';
 import { FormEventHandler, ReactNode, useState } from 'react';
 
+import ConfirmDeleteButton from '@/components/confirm-delete-button';
 import ColorPicker from '@/components/family/color-picker';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
@@ -9,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { t } from '@/lib/i18n';
+import type { SharedData } from '@/types';
 import type { FamilyMember } from '@/types/checkstu';
 
 interface MemberDialogProps {
@@ -19,6 +21,7 @@ interface MemberDialogProps {
 export default function MemberDialog({ trigger, member }: MemberDialogProps) {
     const isEdit = Boolean(member);
     const [open, setOpen] = useState(false);
+    const me = usePage<SharedData>().props.auth.user;
 
     const { data, setData, post, patch, processing, errors, reset } = useForm({
         name: member?.name ?? '',
@@ -106,6 +109,15 @@ export default function MemberDialog({ trigger, member }: MemberDialogProps) {
                     <Button type="submit" disabled={processing}>
                         {t('common.save')}
                     </Button>
+
+                    {member && member.id !== me.id && (
+                        <ConfirmDeleteButton
+                            label={t('family.deleteMember')}
+                            onConfirm={() =>
+                                router.delete(route('users.destroy', member.id), { preserveScroll: true, onSuccess: () => setOpen(false) })
+                            }
+                        />
+                    )}
                 </form>
             </DialogContent>
         </Dialog>

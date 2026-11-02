@@ -39,6 +39,26 @@ class ArchiveTest extends TestCase
             );
     }
 
+    public function test_archive_lists_deleted_tasks_only_to_those_who_could_delete_them(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $member = User::factory()->create();
+        $shared = Task::factory()->create(['title' => 'Hasen füttern']);
+        $shared->delete();
+        Task::factory()->create(); // not deleted, must not appear
+
+        $this->actingAs($admin)
+            ->get(route('archive'))
+            ->assertInertia(fn (Assert $page) => $page
+                ->has('deleted', 1)
+                ->where('deleted.0.title', 'Hasen füttern')
+            );
+
+        $this->actingAs($member)
+            ->get(route('archive'))
+            ->assertInertia(fn (Assert $page) => $page->has('deleted', 0));
+    }
+
     public function test_member_can_restore_their_own_completed_occurrence(): void
     {
         $member = User::factory()->create();

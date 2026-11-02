@@ -2,6 +2,7 @@ import { Head, Link, router } from '@inertiajs/react';
 import { ArrowLeft } from 'lucide-react';
 import { useState } from 'react';
 
+import ConfirmDeleteButton from '@/components/confirm-delete-button';
 import MediaPoster from '@/components/media/media-poster';
 import SharedByList from '@/components/media/shared-by-list';
 import { Badge } from '@/components/ui/badge';
@@ -81,6 +82,14 @@ export default function BookShow({ item }: BookShowProps) {
                         />
                     )}
                 </div>
+            )}
+
+            {item.entry && (
+                <ConfirmDeleteButton
+                    label={t('media.removeFromLibrary')}
+                    onConfirm={() => router.delete(route('books.entries.destroy', item.entry!.id), { preserveScroll: true })}
+                    className="mt-8"
+                />
             )}
         </CheckstuLayout>
     );

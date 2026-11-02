@@ -1,7 +1,7 @@
 import { router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 
-import { announceDone } from '@/components/undo-toast';
+import { showUndo } from '@/components/undo-toast';
 import { celebrateCompletion } from '@/lib/confetti';
 import type { SharedData } from '@/types';
 import type { Occurrence } from '@/types/checkstu';
@@ -20,7 +20,11 @@ export function useCompleteOccurrence(occurrence: Occurrence | null, assigneeCol
             preserveScroll: true,
             onSuccess: () => {
                 celebrateCompletion(assigneeColor);
-                announceDone({ occurrenceId: occurrence.id, title: occurrence.title, by: credited && credited.id !== me.id ? credited.name : null });
+                showUndo({
+                    title: occurrence.title,
+                    note: credited && credited.id !== me.id ? `Erledigt von ${credited.name}` : 'Von dir erledigt',
+                    undo: () => router.delete(route('occurrences.restore', occurrence.id), { preserveScroll: true }),
+                });
             },
             onFinish: () => setProcessing(false),
         });

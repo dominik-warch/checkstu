@@ -1,5 +1,5 @@
-import { Head, router } from '@inertiajs/react';
-import { Pencil, Plus, Trash2 } from 'lucide-react';
+import { Head } from '@inertiajs/react';
+import { Pencil, Plus } from 'lucide-react';
 
 import MemberDialog from '@/components/family/member-dialog';
 import { cardGrid } from '@/components/page-header';
@@ -17,12 +17,6 @@ interface FamilyProps {
 }
 
 export default function Family({ members, can }: FamilyProps) {
-    const remove = (member: FamilyMember) => {
-        if (confirm(t('family.deleteConfirm'))) {
-            router.delete(route('users.destroy', member.id), { preserveScroll: true });
-        }
-    };
-
     return (
         <CheckstuLayout>
             <Head title={t('family.title')} />
@@ -64,19 +58,14 @@ export default function Family({ members, can }: FamilyProps) {
                         </div>
 
                         {can.manageUsers && (
-                            <div className="flex shrink-0 items-center gap-1">
-                                <MemberDialog
-                                    member={member}
-                                    trigger={
-                                        <Button size="icon" variant="ghost" aria-label={t('common.edit')}>
-                                            <Pencil className="size-4" />
-                                        </Button>
-                                    }
-                                />
-                                <Button size="icon" variant="ghost" aria-label={t('common.delete')} onClick={() => remove(member)}>
-                                    <Trash2 className="size-4" />
-                                </Button>
-                            </div>
+                            <MemberDialog
+                                member={member}
+                                trigger={
+                                    <Button size="icon" variant="ghost" aria-label={`${member.name} ${t('common.edit').toLowerCase()}`}>
+                                        <Pencil className="size-4" />
+                                    </Button>
+                                }
+                            />
                         )}
                     </div>
                 ))}

@@ -115,7 +115,20 @@ class TaskController extends Controller
 
         $task->delete();
 
-        return redirect()->route('tasks.index');
+        // From a list, stay there (the undo toast is shown on it); the task's own page is gone now.
+        return url()->previous() === route('tasks.show', $task)
+            ? redirect()->route('tasks.index')
+            : back();
+    }
+
+    /** Undo a delete, from the toast or from "Gelöscht" in the archive. Whoever could delete it can bring it back. */
+    public function restore(Task $task): RedirectResponse
+    {
+        Gate::authorize('delete', $task);
+
+        $task->restore();
+
+        return back();
     }
 
     /**

@@ -2,6 +2,7 @@ import { Head, Link, router } from '@inertiajs/react';
 import { ArrowLeft, CheckCheck, ExternalLink } from 'lucide-react';
 import { useState } from 'react';
 
+import ConfirmDeleteButton from '@/components/confirm-delete-button';
 import MediaPoster from '@/components/media/media-poster';
 import SeasonAccordion from '@/components/media/season-accordion';
 import SharedByList from '@/components/media/shared-by-list';
@@ -147,6 +148,14 @@ export default function Show({ item }: ShowProps) {
                         ))}
                     </div>
                 </>
+            )}
+
+            {item.entry && (
+                <ConfirmDeleteButton
+                    label={t('media.removeFromLibrary')}
+                    onConfirm={() => router.delete(route('media.entries.destroy', item.entry!.id), { preserveScroll: true })}
+                    className="mt-8"
+                />
             )}
         </CheckstuLayout>
     );
