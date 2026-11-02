@@ -114,6 +114,9 @@ export default function Today({ occurrences, progress, filters, members, templat
 function UpNextPlate({ occurrence, playerColor, remaining }: { occurrence: Occurrence; playerColor: string | null; remaining: number }) {
     const { processing, complete } = useCompleteOccurrence(occurrence, occurrence.assignee?.color ?? playerColor);
     const overdue = occurrence.status === 'overdue';
+    // formatDue says "Gestern"/"7. Nov." on its own; inside this sentence it reads "seit gestern" / "am 7. Nov.".
+    const due = formatDue(occurrence.due_date);
+    const dueInSentence = ['Heute', 'Morgen', 'Gestern', 'Irgendwann'].includes(due) ? due.toLowerCase() : overdue ? due : `am ${due}`;
     const priority = occurrence.priority >= 2 ? t(occurrence.priority === 3 ? 'priority.urgent' : 'priority.high') : null;
 
     return (
@@ -128,7 +131,7 @@ function UpNextPlate({ occurrence, playerColor, remaining }: { occurrence: Occur
                 <p className="mt-1.5 text-sm text-white/75">
                     <span className={cn(overdue && 'font-bold text-[#ff8fa3]')}>
                         {overdue ? 'Überfällig seit ' : 'Fällig '}
-                        {formatDue(occurrence.due_date)}
+                        {dueInSentence}
                     </span>
                     {priority && <span className="font-bold text-white"> · {priority}</span>}
                     {!occurrence.assignee && ' · Für alle'}

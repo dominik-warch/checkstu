@@ -36,7 +36,9 @@ export default function TaskFormDialog({ members, task, templates, trigger }: Ta
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>{isEdit ? t('task.editTask') : t('task.newTask')}</DialogTitle>
-                    <DialogDescription>Erstelle oder bearbeite eine Aufgabe für den Haushalt.</DialogDescription>
+                    <DialogDescription>
+                        {isEdit ? 'Passe Titel, Fälligkeit oder Zuständigkeit an.' : 'Was steht an, und wer ist dran?'}
+                    </DialogDescription>
                 </DialogHeader>
 
                 <TaskFormBody members={members} task={task} templates={templates} onSaved={() => setOpen(false)} />

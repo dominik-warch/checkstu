@@ -20,7 +20,9 @@ export default function Plays({ plays, games, members }: PlaysProps) {
 
             <h1 className="mb-4 text-2xl font-bold tracking-tight">{t('boardGames.plays')}</h1>
 
-            {plays.length === 0 && <EmptyState>{t('boardGames.emptyPlays')}</EmptyState>}
+            {plays.length === 0 && (
+                <EmptyState>{games.length > 0 ? t('boardGames.emptyPlays') : 'Noch keine Partie. Leg zuerst ein Spiel im Katalog an.'}</EmptyState>
+            )}
 
             <div className={cardGrid}>
                 {plays.map((play) => (

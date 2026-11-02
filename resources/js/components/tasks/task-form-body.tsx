@@ -186,6 +186,7 @@ export default function TaskFormBody({ members, task, templates = [], onSaved }:
 
             <label className="flex items-center gap-3 rounded-lg border p-3">
                 <Checkbox
+                    aria-label={t('task.private')}
                     checked={data.is_private}
                     onClick={() => {
                         const next = !data.is_private;
@@ -345,7 +346,7 @@ export default function TaskFormBody({ members, task, templates = [], onSaved }:
 
             <DialogFooter>
                 <Button type="submit" disabled={processing}>
-                    {t('common.save')}
+                    {isEdit ? t('common.save') : 'Aufgabe anlegen'}
                 </Button>
             </DialogFooter>
         </form>

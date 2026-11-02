@@ -45,7 +45,9 @@ export default function TasksIndex({ occurrences, filters, members, templates, c
                 <ScopeFilter routeName="tasks.index" scope={filters.scope} className="w-44" />
             </PageHeader>
 
-            {occurrences.length === 0 && <EmptyState>Keine offenen Aufgaben.</EmptyState>}
+            {occurrences.length === 0 && (
+                <EmptyState>{can.createTask ? 'Nichts offen. Mit + legst du eine neue Aufgabe an.' : 'Nichts offen.'}</EmptyState>
+            )}
 
             {[...groups.entries()].map(([key, list]) => (
                 <section key={key} className="mb-2">

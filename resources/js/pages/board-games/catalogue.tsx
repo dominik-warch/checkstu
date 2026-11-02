@@ -32,7 +32,9 @@ export default function Catalogue({ games, filters }: CatalogueProps) {
 
             <ChipRow label="Status" options={options} value={filters.status} onChange={setStatus} className="mb-4" />
 
-            {games.length === 0 && <EmptyState>{t('boardGames.emptyCatalogue')}</EmptyState>}
+            {games.length === 0 && (
+                <EmptyState>{filters.status === 'all' ? t('boardGames.emptyCatalogue') : 'Kein Spiel mit diesem Status.'}</EmptyState>
+            )}
 
             {/* The shelf: box covers side by side, more of them as the screen widens. */}
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4 lg:gap-3 xl:grid-cols-5">

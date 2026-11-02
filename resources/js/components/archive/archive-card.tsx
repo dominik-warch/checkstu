@@ -20,7 +20,7 @@ function formatCompletedAt(iso: string | null): string {
     const time = new Intl.DateTimeFormat('de-DE', { hour: '2-digit', minute: '2-digit' }).format(date);
     if (diff === 0) return `Heute, ${time}`;
     if (diff === -1) return `Gestern, ${time}`;
-    return new Intl.DateTimeFormat('de-DE', { day: '2-digit', month: 'short' }).format(date);
+    return new Intl.DateTimeFormat('de-DE', { day: 'numeric', month: 'short' }).format(date);
 }
 
 interface ArchiveCardProps {

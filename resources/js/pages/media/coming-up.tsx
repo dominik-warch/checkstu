@@ -17,7 +17,7 @@ function dayLabel(date: string): string {
     const diff = Math.round((d.getTime() - today.getTime()) / 86_400_000);
     if (diff === 0) return 'Heute';
     if (diff === 1) return 'Morgen';
-    return new Intl.DateTimeFormat('de-DE', { weekday: 'long', day: '2-digit', month: 'long' }).format(d);
+    return new Intl.DateTimeFormat('de-DE', { weekday: 'long', day: 'numeric', month: 'long' }).format(d);
 }
 
 function ComingUpRow({ item }: { item: ComingUpItem }) {

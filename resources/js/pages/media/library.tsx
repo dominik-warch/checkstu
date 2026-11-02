@@ -23,7 +23,11 @@ export default function Library({ entries, filters }: LibraryProps) {
 
             <LibraryFilters filters={filters} />
 
-            {entries.length === 0 && <EmptyState>{t('media.emptyLibrary')}</EmptyState>}
+            {entries.length === 0 && (
+                <EmptyState>
+                    {filters.status === 'all' && filters.type === 'all' ? t('media.emptyLibrary') : 'Nichts passt zu diesen Filtern.'}
+                </EmptyState>
+            )}
 
             <div className={cardGrid}>
                 {entries.map((entry) =>
