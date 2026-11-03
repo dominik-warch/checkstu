@@ -15,10 +15,8 @@ class FamilyController extends Controller
     {
         abort_if($request->user()->isGuest(), 403);
 
+        // No per-member counts here: side by side they'd compare siblings, and they'd reveal private tasks.
         $members = User::query()
-            ->withCount(['assignedOccurrences as open_count' => fn ($q) => $q
-                ->whereNull('completed_at')
-                ->where('is_skipped', false)])
             ->orderBy('name')
             ->get()
             ->map(fn (User $u) => [
@@ -28,7 +26,6 @@ class FamilyController extends Controller
                 'email' => $u->email,
                 'role' => $u->role->value,
                 'color' => $u->color,
-                'open_count' => $u->open_count,
             ]);
 
         return Inertia::render('family/index', [

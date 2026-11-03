@@ -198,4 +198,12 @@ class UserManagementTest extends TestCase
             ->get(route('family'))
             ->assertOk();
     }
+
+    public function test_family_page_shows_no_per_member_task_counts(): void
+    {
+        // Side by side they'd compare siblings, and a private task would show up in its owner's number.
+        $this->actingAs(User::factory()->create())
+            ->get(route('family'))
+            ->assertInertia(fn ($page) => $page->missing('members.0.open_count'));
+    }
 }

@@ -51,5 +51,4 @@ export interface FamilyMember {
     email: string | null;
     role: 'admin' | 'member' | 'guest';
     color: string | null;
-    open_count: number;
 }

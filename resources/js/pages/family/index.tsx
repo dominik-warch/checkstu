@@ -53,9 +53,7 @@ export default function Family({ members, can }: FamilyProps) {
                                 <span className="truncate text-base font-bold">{member.name}</span>
                                 <Badge variant="secondary">{t(`role.${member.role}`)}</Badge>
                             </div>
-                            <div className="text-muted-foreground text-sm">
-                                @{member.username} · {member.open_count} {t('family.openTasks')}
-                            </div>
+                            <div className="text-muted-foreground text-sm">@{member.username}</div>
                         </div>
 
                         {can.manageUsers && (

@@ -96,7 +96,6 @@ const de = {
     },
     family: {
         title: 'Familie',
-        openTasks: 'offene Aufgaben',
         addMember: 'Mitglied hinzufügen',
         editMember: 'Mitglied bearbeiten',
         name: 'Name',

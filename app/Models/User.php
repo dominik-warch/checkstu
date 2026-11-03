@@ -72,12 +72,6 @@ class User extends Authenticatable implements FilamentUser
         return $this->role === Role::Guest;
     }
 
-    /** Occurrences currently assigned to this user. */
-    public function assignedOccurrences(): HasMany
-    {
-        return $this->hasMany(TaskOccurrence::class, 'assignee_id');
-    }
-
     /** Occurrences attributed as completed by this user. */
     public function completedOccurrences(): HasMany
     {
