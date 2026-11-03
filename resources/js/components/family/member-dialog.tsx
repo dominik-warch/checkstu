@@ -16,9 +16,11 @@ import type { FamilyMember } from '@/types/checkstu';
 interface MemberDialogProps {
     trigger: ReactNode;
     member?: FamilyMember; // present => edit mode
+    /** Everyone in the family, so the colour picker can cross out colours already taken. */
+    members: FamilyMember[];
 }
 
-export default function MemberDialog({ trigger, member }: MemberDialogProps) {
+export default function MemberDialog({ trigger, member, members }: MemberDialogProps) {
     const isEdit = Boolean(member);
     const [open, setOpen] = useState(false);
     const me = usePage<SharedData>().props.auth.user;
@@ -102,7 +104,11 @@ export default function MemberDialog({ trigger, member }: MemberDialogProps) {
 
                     <div className="grid gap-2">
                         <Label>{t('family.color')}</Label>
-                        <ColorPicker value={data.color} onChange={(color) => setData('color', color)} />
+                        <ColorPicker
+                            value={data.color}
+                            onChange={(color) => setData('color', color)}
+                            taken={members.flatMap((m) => (m.id !== member?.id && m.color ? [m.color] : []))}
+                        />
                         <InputError message={errors.color} />
                     </div>
 

@@ -25,6 +25,7 @@ export default function Family({ members, can }: FamilyProps) {
                 <h1 className="text-2xl font-bold tracking-tight">{t('family.title')}</h1>
                 {can.manageUsers && (
                     <MemberDialog
+                        members={members}
                         trigger={
                             <Button size="sm">
                                 <Plus className="size-4" />
@@ -59,6 +60,7 @@ export default function Family({ members, can }: FamilyProps) {
 
                         {can.manageUsers && (
                             <MemberDialog
+                                members={members}
                                 member={member}
                                 trigger={
                                     <Button size="icon" variant="ghost" aria-label={`${member.name} ${t('common.edit').toLowerCase()}`}>

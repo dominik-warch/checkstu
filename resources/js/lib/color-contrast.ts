@@ -1,19 +1,20 @@
 /**
  * Curated preset palette for the user color picker — chosen to have decent,
  * unambiguous contrast with computed black/white text (avoids muddy
- * mid-luminance colors that would sit right on the threshold). Red and green
- * are left out on purpose: they mean "überfällig" and "erledigt" on the board.
+ * mid-luminance colors that would sit right on the threshold) and hues far enough
+ * apart to tell players apart (no amber next to orange). Red and green are left
+ * out on purpose: they mean "überfällig" and "erledigt" on the board.
  */
-export const USER_COLOR_PRESETS: string[] = [
-    '#f97316', // orange
-    '#f59e0b', // amber
-    '#facc15', // yellow
-    '#06b6d4', // cyan
-    '#3b82f6', // blue
-    '#4f46e5', // indigo
-    '#a855f7', // purple
-    '#ec4899', // pink
-    '#64748b', // slate
+export const USER_COLOR_PRESETS: { hex: string; name: string }[] = [
+    { hex: '#f97316', name: 'Orange' },
+    { hex: '#8b5a2b', name: 'Braun' },
+    { hex: '#facc15', name: 'Gelb' },
+    { hex: '#06b6d4', name: 'Türkis' },
+    { hex: '#3b82f6', name: 'Blau' },
+    { hex: '#4f46e5', name: 'Indigo' },
+    { hex: '#a855f7', name: 'Lila' },
+    { hex: '#ec4899', name: 'Pink' },
+    { hex: '#64748b', name: 'Grau' },
 ];
 
 function relativeLuminance(hex: string): number {
