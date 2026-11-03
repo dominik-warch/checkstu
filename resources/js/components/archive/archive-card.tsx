@@ -109,7 +109,7 @@ export default function ArchiveCard({ occurrence }: ArchiveCardProps) {
                     aria-label={`${occurrence.title}: ${t('archive.restore')}`}
                     className={cn(
                         'grid size-11 shrink-0 place-items-center rounded-full transition-transform active:scale-90 disabled:opacity-50',
-                        ink ? 'hover:bg-current/15' : 'hover:bg-muted text-muted-foreground',
+                        ink ? 'hover:ring-[1.5px] hover:ring-current hover:ring-inset' : 'hover:bg-muted text-muted-foreground',
                     )}
                 >
                     <RotateCcw className="size-5" />

@@ -190,7 +190,7 @@ The UI speaks German and says "du". Progress is personal: the board only ever sh
 A cool, near-neutral board carrying ink and exactly one saturated voice per screen: the player's colour, with member colours on cards and red/green reserved for urgency and completion.
 
 ### Primary
-- **Player Colour** (per user, fallback Board Indigo `player-fallback`): the logged-in player's own colour, injected inline as `--player` with `--player-ink` (near-black ink or white, whichever wins on WCAG contrast). Paints the phone header band, the whole desktop rail, the Today corner behind the plate, the active bottom-tab pill, the add button, ticked episode circles, text selection and the input caret. Users pick from a closed set of nine named presets (no free colour input), chosen to sit clearly on one side of the black/white threshold and far enough apart to tell players apart. Red and green are not among them: those hues mean overdue and done. A colour another member already wears is crossed out in the picker.
+- **Player Colour** (per user, fallback Board Indigo `player-fallback`): the logged-in player's own colour, injected inline as `--player` with `--player-ink` (near-black ink or white, whichever wins on WCAG contrast). Paints the phone header band, the whole desktop rail, the Today corner behind the plate, the active bottom-tab pill, the add button, ticked episode circles, text selection and the input caret. Parents set each member's colour from a closed set of nine named presets (no free colour input; there is no self-service picker), chosen to sit clearly on one side of the black/white threshold and far enough apart to tell players apart. Red and green are not among them: those hues mean overdue and done. A colour another member already wears is crossed out in the picker.
 - **Ink** (`ink`): text, the primary button, selected chips and segmented options, focus rings. Primary action is ink, not a brand hue.
 
 ### Secondary
@@ -308,7 +308,7 @@ Field-grey pill track with 4px inset; options are 36px pills, active option in i
 
 ### Undo Toast
 - **Style:** ink bar (`foreground` fill, `background` text), 24px radius, 56px tall, task title (13px/700, truncated) over what happened ("Von dir erledigt", "Erledigt von Leo", "Gelöscht"), and a white "Rückgängig" pill. Sits above the tabs, left of the add button; bottom right at 384px wide on `lg`.
-- **Behaviour:** after every completion, skip, task delete, archive restore, episode tick and "Alle Folgen abhaken"; 5 seconds, held open on hover or focus; slides up 1rem on ease-out-expo over 300ms. Transient, so it is not a second reversed plate.
+- **Behaviour:** after every completion, skip, task delete, archive restore, reassignment, episode tick, "Alle Folgen abhaken" and a show's "Serie ist durch / abbrechen"; 5 seconds, held open on hover or focus; after a keyboard action it takes focus itself (the card that had focus is gone), so undo is one Enter away; slides up 1rem on ease-out-expo over 300ms. Transient, so it is not a second reversed plate.
 
 ### Two-Tap Delete
 - **Style:** a ghost trash circle (or trash + label as a full-width row in sheets and detail pages). The first tap arms it into a red `destructive` pill naming the action ("Mitglied löschen?", "Mit Partien?"); the second tap deletes; blur disarms.
@@ -319,6 +319,9 @@ Field-grey pill track with 4px inset; options are 36px pills, active option in i
 
 ### Lost Taps
 - **Behaviour:** a request that fails for lack of a connection keeps you on the page; the toast says "Nicht angekommen" (a change) or "Seite nicht geladen" (a visit) and its button reads "Nochmal", repeating that exact request. Only full page loads fall back to `offline.html`, which wears the board (ground, ink, Lexend, the pawn) and retries the page you asked for.
+
+### Handing Out
+- **Behaviour:** for parents, the assignee name in a card's meta line ("Leo ⌄", "Für alle ⌄") opens "Wer ist dran?": "Für alle" and every member with their colour dot, the current one ticked; one tap reassigns, with the undo toast ("Jetzt bei Leo"). Its tap area is stretched to 44px with an `::after`. Never on private tasks, and children see the plain name.
 
 ### Assignee and Recurrence Chips
 - **Style:** in the task sheet, "Zuständig" is a chip row: "Für alle" first, then each member with a colour dot; the selected member chip fills with their colour (computed ink). "Wiederholung" (Einmalig · Regelmäßig · Unregelmäßig · Alle X Tage) sits right under the date it changes. Beschreibung lives under "Mehr Optionen".

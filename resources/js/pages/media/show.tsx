@@ -108,7 +108,10 @@ export default function Show({ item }: ShowProps) {
         <CheckstuLayout navItems={mediaNavItems} context="media">
             <Head title={item.title_de} />
 
-            <Link href={route('media.library')} className="text-muted-foreground mb-4 inline-flex items-center gap-1 text-sm hover:underline">
+            <Link
+                href={route('media.library')}
+                className="text-muted-foreground hover:text-foreground mb-3 -ml-2 inline-flex min-h-11 items-center gap-1.5 rounded-full px-2 text-sm font-medium"
+            >
                 <ArrowLeft className="size-4" />
                 {t('common.back')}
             </Link>
