@@ -291,7 +291,7 @@ Field-grey pill track with 4px inset; options are 36px pills, active option in i
 - **Background:** the assignee's member colour as a solid fill with computed text; unassigned cards are card white with a 1.5px outline.
 - **Shadow Strategy:** none (Flat Board Rule).
 - **Internal Padding:** 10px top/right/bottom, 16px left; minimum height 64px.
-- **Layout:** title (16px/500, two lines max, hyphenated) over a 13px meta line; a 64px right-aligned due column; a 44px round complete ring at the far right. Overdue dates go bold (urgent red on uncoloured cards).
+- **Layout:** title (16px/500, two lines max, hyphenated) over a 13px meta line; a 64px right-aligned due column; a 44px round complete ring at the far right, with a check at 25% at rest (60% on hover/focus, solid on press) so touch users see what it does. The same ring ticks the next episode in Medien. Overdue dates go bold (urgent red on uncoloured cards).
 - **Swipe:** dragging right reveals done green (deepening at the 96px threshold), left reveals urgent red for delete; the card springs back on ease-pop over 260ms. Blocked cards keep full colour and contrast; in place of the complete ring they show a dashed ring with a lock.
 - **Liegen geblieben:** overdue cards older than three days fold into one dashed row ("Liegen geblieben n · älter als 3 Tage", a native `<details>`) above the overdue section, so today's work stays on top. A single occurrence can be skipped from the task page ("Überspringen", parents only), with the undo toast.
 
@@ -308,7 +308,7 @@ Field-grey pill track with 4px inset; options are 36px pills, active option in i
 
 ### Undo Toast
 - **Style:** ink bar (`foreground` fill, `background` text), 24px radius, 56px tall, task title (13px/700, truncated) over what happened ("Von dir erledigt", "Erledigt von Leo", "Gelöscht"), and a white "Rückgängig" pill. Sits above the tabs, left of the add button; bottom right at 384px wide on `lg`.
-- **Behaviour:** after every completion, skip, task delete and archive restore; 5 seconds, held open on hover or focus; slides up 1rem on ease-out-expo over 300ms. Transient, so it is not a second reversed plate.
+- **Behaviour:** after every completion, skip, task delete, archive restore, episode tick and "Alle Folgen abhaken"; 5 seconds, held open on hover or focus; slides up 1rem on ease-out-expo over 300ms. Transient, so it is not a second reversed plate.
 
 ### Two-Tap Delete
 - **Style:** a ghost trash circle (or trash + label as a full-width row in sheets and detail pages). The first tap arms it into a red `destructive` pill naming the action ("Mitglied löschen?", "Mit Partien?"); the second tap deletes; blur disarms.
@@ -316,6 +316,12 @@ Field-grey pill track with 4px inset; options are 36px pills, active option in i
 
 ### Game Shelf Tile
 - **Style:** card with the square box cover on top (dice on field grey without a cover), name 16px/700 (tap to rename), players and play time, then the last play: short date and the winner's pawn in their member colour. Status chip ("Haben wir" / "Wollen wir") at the foot; the trash circle sits on the cover's top-right corner. Grid: 2 columns on phone, up to 5 on wide screens.
+
+### Lost Taps
+- **Behaviour:** a request that fails for lack of a connection keeps you on the page; the toast says "Nicht angekommen" (a change) or "Seite nicht geladen" (a visit) and its button reads "Nochmal", repeating that exact request. Only full page loads fall back to `offline.html`, which wears the board (ground, ink, Lexend, the pawn) and retries the page you asked for.
+
+### Assignee and Recurrence Chips
+- **Style:** in the task sheet, "Zuständig" is a chip row: "Für alle" first, then each member with a colour dot; the selected member chip fills with their colour (computed ink). "Wiederholung" (Einmalig · Regelmäßig · Unregelmäßig · Alle X Tage) sits right under the date it changes. Beschreibung lives under "Mehr Optionen".
 
 ### Date Quick Picks
 - **Style:** a row of four chips under "Fällig am": Heute · Morgen · Irgendwann · Datum… (chip look, 10px side padding so all four fit at 375px). Only "Datum…" opens the native date input, and then shows the chosen date. Opened from Heute, a new task starts on "Heute".

@@ -53,6 +53,38 @@ class TaskTitleCatalogueTest extends TestCase
         $this->assertSame(0, TaskTemplate::count());
     }
 
+    public function test_making_a_task_private_takes_its_title_out_of_the_suggestions(): void
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user)->post(route('tasks.store'), ['title' => 'Geschenk für Mama']);
+        $task = Task::firstWhere('title', 'Geschenk für Mama');
+        $this->assertSame(1, TaskTemplate::count());
+
+        $this->actingAs($user)->patch(route('tasks.update', $task), [
+            'title' => 'Geschenk für Mama',
+            'is_private' => true,
+            'default_assignee_id' => $user->id,
+        ])->assertRedirect();
+
+        $this->assertSame(0, TaskTemplate::count());
+    }
+
+    public function test_making_a_task_private_keeps_a_title_another_shared_task_uses(): void
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user)->post(route('tasks.store'), ['title' => 'Müll']);
+        $this->actingAs($user)->post(route('tasks.store'), ['title' => 'Müll']);
+        $task = Task::firstWhere('title', 'Müll');
+
+        $this->actingAs($user)->patch(route('tasks.update', $task), [
+            'title' => 'Müll',
+            'is_private' => true,
+            'default_assignee_id' => $user->id,
+        ]);
+
+        $this->assertSame(1, TaskTemplate::where('name', 'Müll')->count());
+    }
+
     public function test_cleanup_migration_removes_titles_only_private_tasks_used(): void
     {
         $user = User::factory()->create();

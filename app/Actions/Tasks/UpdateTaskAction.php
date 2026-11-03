@@ -11,6 +11,7 @@ class UpdateTaskAction
 {
     public function __construct(
         private readonly NotifyTaskAssignmentAction $notifyAssignment,
+        private readonly RecordTaskTitleUsageAction $titles,
     ) {}
 
     /**
@@ -38,6 +39,10 @@ class UpdateTaskAction
                 'is_private' => $data['is_private'] ?? false,
                 'default_assignee_id' => $data['default_assignee_id'] ?? null,
             ]);
+
+            if ($task->is_private) {
+                $this->titles->forgetIfOnlyPrivate($task->title);
+            }
 
             if (array_key_exists('category_ids', $data)) {
                 $task->categories()->sync($data['category_ids'] ?? []);

@@ -122,11 +122,13 @@ export default function SeasonAccordion({ season }: SeasonAccordionProps) {
                 <CollapsibleTrigger className="flex flex-1 items-center justify-between px-3 py-2 text-left">
                     <span className="font-medium">{season.name}</span>
                     <span className={complete ? 'text-sm font-bold' : 'text-muted-foreground text-sm'}>
-                        {watchedCount}/{season.episode_count}
+                        {season.episode_count === 0 ? 'Noch keine Folgen' : `${watchedCount}/${season.episode_count}`}
                     </span>
                 </CollapsibleTrigger>
                 {/* A finished season shows the same filled player circle as a watched episode; only an open one offers "mark all". */}
-                {complete ? (
+                {season.episode_count === 0 ? (
+                    <span className="size-11 shrink-0" aria-hidden />
+                ) : complete ? (
                     <span className="grid size-11 shrink-0 place-items-center">
                         <span className="bg-player text-player-ink grid size-8 place-items-center rounded-full">
                             <Check className="size-4" strokeWidth={3} />

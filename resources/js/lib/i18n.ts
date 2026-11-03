@@ -102,7 +102,7 @@ const de = {
         username: 'Benutzername',
         email: 'E-Mail (optional)',
         password: 'Passwort',
-        passwordKeepHint: 'Leer lassen, um das Passwort nicht zu ändern',
+        passwordKeepHint: 'Leer lassen = bleibt gleich',
         roleParent: 'Elternteil (Admin)',
         roleChild: 'Kind (Mitglied)',
         roleGuest: 'Gast (nur eigene Aufgaben)',
