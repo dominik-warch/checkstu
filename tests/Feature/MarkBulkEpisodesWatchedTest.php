@@ -184,4 +184,43 @@ class MarkBulkEpisodesWatchedTest extends TestCase
         $this->assertSame(2, MediaEpisodeWatch::where('user_id', $user->id)->count());
         $this->assertSame(WatchStatus::Completed, MediaEntry::where('user_id', $user->id)->first()->status);
     }
+
+    public function test_undoing_mark_all_removes_only_the_watches_that_tap_created(): void
+    {
+        $user = User::factory()->create();
+        $item = MediaItem::factory()->tv()->create();
+        $season = $this->makeCachedSeason($item, 1, 3);
+        MediaEntry::factory()->for($user)->for($item, 'mediaItem')->create(['status' => WatchStatus::Watching]);
+        $alreadyWatched = MediaEpisodeWatch::create([
+            'user_id' => $user->id,
+            'media_episode_id' => $season->episodes()->orderBy('episode_number')->first()->id,
+            'watched_at' => '2026-10-01',
+        ]);
+
+        $response = $this->actingAs($user)->post(route('media.items.watchAll', $item));
+        $created = $response->getSession()->get('undo')['watch_ids'];
+        $this->assertCount(2, $created);
+        $this->assertNotContains($alreadyWatched->id, $created);
+
+        $this->actingAs($user)
+            ->delete(route('media.items.unwatchAll', $item), ['watch_ids' => $created])
+            ->assertRedirect();
+
+        $this->assertSame([$alreadyWatched->id], MediaEpisodeWatch::where('user_id', $user->id)->pluck('id')->all());
+        $this->assertSame(WatchStatus::Watching, MediaEntry::where('user_id', $user->id)->first()->status);
+    }
+
+    public function test_undo_cannot_remove_someone_elses_watches(): void
+    {
+        $user = User::factory()->create();
+        $other = User::factory()->create();
+        $item = MediaItem::factory()->tv()->create();
+        $season = $this->makeCachedSeason($item, 1, 1);
+        MediaEntry::factory()->for($user)->for($item, 'mediaItem')->create();
+        $theirs = MediaEpisodeWatch::create(['user_id' => $other->id, 'media_episode_id' => $season->episodes()->first()->id, 'watched_at' => null]);
+
+        $this->actingAs($user)->delete(route('media.items.unwatchAll', $item), ['watch_ids' => [$theirs->id]]);
+
+        $this->assertModelExists($theirs);
+    }
 }

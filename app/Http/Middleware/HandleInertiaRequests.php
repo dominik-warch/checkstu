@@ -45,6 +45,8 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
+            // One-shot data for the undo toast after a bulk change (see MediaItemController::markAllWatched).
+            'flash' => ['undo' => fn () => $request->session()->get('undo')],
             'vapidPublicKey' => config('webpush.vapid.public_key'),
             'tmdbImageBaseUrl' => config('services.tmdb.image_base_url'),
         ]);

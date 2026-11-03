@@ -9,6 +9,7 @@ import SharedByList from '@/components/media/shared-by-list';
 import WatchHistory from '@/components/media/watch-history';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { showUndo } from '@/components/undo-toast';
 import CheckstuLayout, { mediaNavItems } from '@/layouts/checkstu-layout';
 import { t } from '@/lib/i18n';
 import type { MediaItemDetail, WatchStatus } from '@/types/media';
@@ -38,7 +39,22 @@ export default function Show({ item }: ShowProps) {
             {},
             {
                 preserveScroll: true,
-                onSuccess: () => setRefreshKey((k) => k + 1),
+                onSuccess: (page) => {
+                    setRefreshKey((k) => k + 1);
+                    // The server hands back exactly the watches this tap created, so undo removes only those.
+                    const ids = (page.props.flash as { undo?: { watch_ids?: number[] } } | undefined)?.undo?.watch_ids ?? [];
+                    if (ids.length === 0) return;
+                    showUndo({
+                        title: item.title_de,
+                        note: ids.length === 1 ? '1 Folge abgehakt' : `${ids.length} Folgen abgehakt`,
+                        undo: () =>
+                            router.delete(route('media.items.unwatchAll', item.id), {
+                                data: { watch_ids: ids },
+                                preserveScroll: true,
+                                onSuccess: () => setRefreshKey((k) => k + 1),
+                            }),
+                    });
+                },
                 onFinish: () => setProcessing(false),
             },
         );

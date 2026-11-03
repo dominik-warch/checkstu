@@ -74,6 +74,7 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('entry-watches/{watch}', [MediaEntryWatchController::class, 'destroy'])->name('entryWatches.destroy');
         Route::get('items/{mediaItem}', [MediaItemController::class, 'show'])->name('items.show');
         Route::post('items/{mediaItem}/watch-all', [MediaItemController::class, 'markAllWatched'])->name('items.watchAll');
+        Route::delete('items/{mediaItem}/watch-all', [MediaItemController::class, 'unmarkWatched'])->name('items.unwatchAll');
         Route::get('seasons/{season}/episodes', [MediaSeasonController::class, 'episodes'])->name('seasons.episodes');
         Route::post('seasons/{season}/watch-all', [MediaSeasonController::class, 'markWatched'])->name('seasons.watchAll');
         Route::post('episodes/{episode}/watch', [MediaEpisodeWatchController::class, 'store'])->name('episodes.watch.store');

@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Actions\Media\MarkAllEpisodesWatchedAction;
+use App\Actions\Media\RecomputeMediaEntryStatusAction;
 use App\Http\Requests\Media\MarkShowWatchedRequest;
 use App\Models\MediaEntry;
+use App\Models\MediaEpisodeWatch;
 use App\Models\MediaItem;
 use App\Support\MediaItemPresenter;
 use Illuminate\Http\RedirectResponse;
@@ -40,7 +42,24 @@ class MediaItemController extends Controller
     public function markAllWatched(MarkShowWatchedRequest $request, MediaItem $mediaItem, MarkAllEpisodesWatchedAction $action): RedirectResponse
     {
         $mediaItem->load('seasons');
-        $action->handle($request->user(), $mediaItem);
+        $created = $action->handle($request->user(), $mediaItem);
+
+        // One-shot, for the undo toast: exactly the watches this tap created.
+        return back()->with('undo', ['watch_ids' => $created]);
+    }
+
+    /** Undo "Alle Folgen abhaken": remove only the watches that tap created, then recompute the status. */
+    public function unmarkWatched(MarkShowWatchedRequest $request, MediaItem $mediaItem, RecomputeMediaEntryStatusAction $recompute): RedirectResponse
+    {
+        $ids = array_map('intval', (array) $request->input('watch_ids', []));
+
+        MediaEpisodeWatch::query()
+            ->whereIn('id', $ids)
+            ->where('user_id', $request->user()->id)
+            ->whereHas('episode.season', fn ($q) => $q->where('media_item_id', $mediaItem->id))
+            ->delete();
+
+        $recompute->handle($request->user(), $mediaItem);
 
         return back();
     }
