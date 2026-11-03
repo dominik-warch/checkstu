@@ -1,6 +1,6 @@
 import { Link, router, usePage } from '@inertiajs/react';
-import { Check, ChevronDown, Lock, Repeat, Trash2 } from 'lucide-react';
-import type { ReactNode } from 'react';
+import { Check, ChevronDown, Lock, Repeat, SkipForward, Trash2 } from 'lucide-react';
+import { useState, type ReactNode } from 'react';
 
 import {
     DropdownMenu,
@@ -36,10 +36,17 @@ export function formatDue(due: string | null): string {
 }
 
 /** Deletes at once (tasks are only soft-deleted) and offers the undo toast; "Gelöscht" in the archive is the way back after that. */
-export function deleteTask(taskId: number, title: string) {
+export function deleteTask(taskId: number, title: string, onFailed?: () => void) {
+    let succeeded = false;
     router.delete(route('tasks.destroy', taskId), {
         preserveScroll: true,
-        onSuccess: () => showUndo({ title, note: 'Gelöscht', undo: () => router.post(route('tasks.restore', taskId), {}, { preserveScroll: true }) }),
+        onSuccess: () => {
+            succeeded = true;
+            showUndo({ title, note: 'Gelöscht', undo: () => router.post(route('tasks.restore', taskId), {}, { preserveScroll: true }) });
+        },
+        onFinish: () => {
+            if (!succeeded) onFailed?.();
+        },
     });
 }
 
@@ -56,6 +63,8 @@ export function WhoDidItMenu({
     onPick,
     align = 'end',
     className,
+    open,
+    onOpenChange,
 }: {
     trigger: ReactNode;
     members: Member[];
@@ -63,10 +72,13 @@ export function WhoDidItMenu({
     onPick: (member: Member) => void;
     align?: 'start' | 'end';
     className?: string;
+    /** Controlled open state, so a swipe can open the menu too. */
+    open?: boolean;
+    onOpenChange?: (open: boolean) => void;
 }) {
     const sorted = [...members].sort((a, b) => Number(b.id === assigneeId) - Number(a.id === assigneeId));
     return (
-        <DropdownMenu>
+        <DropdownMenu open={open} onOpenChange={onOpenChange}>
             <DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger>
             <DropdownMenuContent align={align} className={className}>
                 <DropdownMenuLabel>{t('task.whoDidIt')}</DropdownMenuLabel>
@@ -84,18 +96,24 @@ export function WhoDidItMenu({
 }
 
 /** Lets one occurrence go (the series carries on), with the undo toast. Parents only, like deleting. */
-export function skipOccurrence(occurrenceId: number, title: string) {
+export function skipOccurrence(occurrenceId: number, title: string, onFailed?: () => void) {
+    let succeeded = false;
     router.post(
         route('occurrences.skip', occurrenceId),
         {},
         {
             preserveScroll: true,
-            onSuccess: () =>
+            onSuccess: () => {
+                succeeded = true;
                 showUndo({
                     title,
                     note: 'Übersprungen',
                     undo: () => router.delete(route('occurrences.restore', occurrenceId), { preserveScroll: true }),
-                }),
+                });
+            },
+            onFinish: () => {
+                if (!succeeded) onFailed?.();
+            },
         },
     );
 }
@@ -189,13 +207,30 @@ export default function TaskCard({ occurrence, members, canCompleteOnBehalf, sho
     const { processing, complete } = useCompleteOccurrence(occurrence, occurrence.assignee?.color);
     const asksWho = asksWhoDidIt(canCompleteOnBehalf, occurrence, usePage<SharedData>().props.auth.user.id);
 
+    const [whoOpen, setWhoOpen] = useState(false);
+
+    // Swipe right completes, or for a parent on someone else's task opens "Wer hat es erledigt?" like the ring does.
+    // Swipe left on a recurring task skips this time (the series stays); on a one-off it deletes. Either way the
+    // card springs back if the request fails, so the list never shows a change the server didn't get.
     const swipe = useSwipeToComplete(
-        () => complete(),
+        () => {
+            if (asksWho) {
+                setWhoOpen(true);
+                return false;
+            }
+            complete(undefined, () => swipe.reset());
+        },
         !occurrence.is_blocked && !processing,
-        occurrence.can_delete ? () => deleteTask(occurrence.task_id, occurrence.title) : undefined,
+        occurrence.can_delete
+            ? () =>
+                  occurrence.is_recurring
+                      ? skipOccurrence(occurrence.id, occurrence.title, () => swipe.reset())
+                      : deleteTask(occurrence.task_id, occurrence.title, () => swipe.reset())
+            : undefined,
     );
     const reached = swipe.dx >= 96;
     const reachedDelete = swipe.dx <= -96;
+    const leftIsSkip = occurrence.is_recurring;
     const overdue = occurrence.status === 'overdue';
     const priority = priorityClass[occurrence.priority];
 
@@ -221,15 +256,18 @@ export default function TaskCard({ occurrence, members, canCompleteOnBehalf, sho
                 className={cn(
                     'absolute inset-0 flex items-center text-white transition-colors',
                     swipe.dx < 0
-                        ? cn('justify-end gap-2 pr-5', reachedDelete ? 'bg-swipe-delete-deep' : 'bg-swipe-delete')
+                        ? cn(
+                              'justify-end gap-2 pr-5',
+                              leftIsSkip ? 'bg-plate text-plate-foreground' : reachedDelete ? 'bg-swipe-delete-deep' : 'bg-swipe-delete',
+                          )
                         : cn('gap-2 pl-5', reached ? 'bg-swipe-done-deep' : 'bg-swipe-done'),
                 )}
                 aria-hidden
             >
                 {swipe.dx < 0 ? (
                     <>
-                        {reachedDelete && <span className="text-sm font-bold">{t('common.delete')}</span>}
-                        <Trash2 className="size-5" />
+                        {reachedDelete && <span className="text-sm font-bold">{leftIsSkip ? 'Diesmal überspringen' : t('common.delete')}</span>}
+                        {leftIsSkip ? <SkipForward className="size-5" /> : <Trash2 className="size-5" />}
                     </>
                 ) : (
                     <>
@@ -311,7 +349,14 @@ export default function TaskCard({ occurrence, members, canCompleteOnBehalf, sho
 
                 {!occurrence.is_blocked &&
                     (asksWho ? (
-                        <WhoDidItMenu trigger={completeButton} members={members} assigneeId={occurrence.assignee?.id ?? null} onPick={complete} />
+                        <WhoDidItMenu
+                            trigger={completeButton}
+                            members={members}
+                            assigneeId={occurrence.assignee?.id ?? null}
+                            onPick={(m) => complete(m)}
+                            open={whoOpen}
+                            onOpenChange={setWhoOpen}
+                        />
                     ) : (
                         completeButton
                     ))}

@@ -35,11 +35,13 @@ export default function ArchiveCard({ occurrence }: ArchiveCardProps) {
     const meId = usePage<SharedData>().props.auth.user.id;
     const restore = () => {
         setProcessing(true);
+        let succeeded = false;
         router.delete(route('occurrences.restore', occurrence.id), {
             preserveScroll: true,
             // Undo marks it done again. Credit goes back to whoever had it, when that's you; otherwise the
             // server's default (the assignee) applies, since only parents may credit someone else.
-            onSuccess: () =>
+            onSuccess: () => {
+                succeeded = true;
                 showUndo({
                     title: occurrence.title,
                     note: 'Wieder offen',
@@ -49,8 +51,13 @@ export default function ArchiveCard({ occurrence }: ArchiveCardProps) {
                             occurrence.completed_by?.id === meId ? { completed_by_user_id: meId } : {},
                             { preserveScroll: true },
                         ),
-                }),
-            onFinish: () => setProcessing(false),
+                });
+            },
+            onFinish: () => {
+                setProcessing(false);
+                // The swiped card already slid off; bring it back if the restore didn't go through.
+                if (!succeeded) swipe.reset();
+            },
         });
     };
 

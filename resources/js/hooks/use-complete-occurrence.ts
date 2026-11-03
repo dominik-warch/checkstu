@@ -12,13 +12,16 @@ export function useCompleteOccurrence(occurrence: Occurrence | null, assigneeCol
     const [processing, setProcessing] = useState(false);
 
     // `by` is the member an admin picked in "Wer hat es erledigt?"; without it the server credits the assignee, else you.
-    const complete = (by?: { id: number; name: string }) => {
+    // `onFailed` runs when the request didn't go through (offline, server error), e.g. to bring a swiped card back.
+    const complete = (by?: { id: number; name: string }, onFailed?: () => void) => {
         if (!occurrence) return;
         const credited = by ?? occurrence.assignee;
+        let succeeded = false;
         setProcessing(true);
         router.post(route('occurrences.complete', occurrence.id), by ? { completed_by_user_id: by.id } : {}, {
             preserveScroll: true,
             onSuccess: () => {
+                succeeded = true;
                 celebrateCompletion(assigneeColor);
                 showUndo({
                     title: occurrence.title,
@@ -26,7 +29,10 @@ export function useCompleteOccurrence(occurrence: Occurrence | null, assigneeCol
                     undo: () => router.delete(route('occurrences.restore', occurrence.id), { preserveScroll: true }),
                 });
             },
-            onFinish: () => setProcessing(false),
+            onFinish: () => {
+                setProcessing(false);
+                if (!succeeded) onFailed?.();
+            },
         });
     };
 

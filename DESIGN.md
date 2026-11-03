@@ -292,7 +292,7 @@ Field-grey pill track with 4px inset; options are 36px pills, active option in i
 - **Shadow Strategy:** none (Flat Board Rule).
 - **Internal Padding:** 10px top/right/bottom, 16px left; minimum height 64px.
 - **Layout:** title (16px/500, two lines max, hyphenated) over a 13px meta line; a 64px right-aligned due column; a 44px round complete ring at the far right, with a check at 25% at rest (60% on hover/focus, solid on press) so touch users see what it does. The same ring ticks the next episode in Medien. Overdue dates go bold (urgent red on uncoloured cards).
-- **Swipe:** dragging right reveals done green (deepening at the 96px threshold), left reveals urgent red for delete; the card springs back on ease-pop over 260ms. Blocked cards keep full colour and contrast; in place of the complete ring they show a dashed ring with a lock.
+- **Swipe:** dragging right reveals done green (deepening at the 96px threshold); for a parent on someone else's task it opens "Wer hat es erledigt?" instead of completing. Dragging left reveals urgent red for delete on a one-off task, and an ink "Diesmal überspringen" on a recurring one (the series stays). The card springs back on ease-pop over 260ms, including when the request behind the swipe fails. Blocked cards keep full colour and contrast; in place of the complete ring they show a dashed ring with a lock.
 - **Liegen geblieben:** overdue cards older than three days fold into one dashed row ("Liegen geblieben n · älter als 3 Tage", a native `<details>`) above the overdue section, so today's work stays on top. A single occurrence can be skipped from the task page ("Überspringen", parents only), with the undo toast.
 
 ### Inputs / Fields

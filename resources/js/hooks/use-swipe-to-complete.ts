@@ -6,11 +6,13 @@ const MAX = 140; // max drag distance (rubber-banded)
 /**
  * Lightweight swipe gesture using native pointer events: swipe right to complete,
  * and (if `onSwipeLeft` is given) swipe left for a second action, e.g. delete.
- * Return `false` from `onSwipeLeft` to cancel (e.g. the user declined a confirm
- * dialog) and snap the card back instead of sliding it off.
+ * Return `false` from either action to cancel (e.g. it opened a menu instead) and snap
+ * the card back instead of sliding it off. The card slides off before the request
+ * settles, so callers call `reset()` when it fails: otherwise the list would show a
+ * task as done (or gone) that the server never heard about.
  * No dependency; `touch-action: pan-y` lets vertical scrolling pass through.
  */
-export function useSwipeToComplete(onComplete: () => void, enabled: boolean, onSwipeLeft?: () => boolean | void) {
+export function useSwipeToComplete(onComplete: () => boolean | void, enabled: boolean, onSwipeLeft?: () => boolean | void) {
     const [dx, setDx] = useState(0);
     const [animating, setAnimating] = useState(false);
 
@@ -58,8 +60,8 @@ export function useSwipeToComplete(onComplete: () => void, enabled: boolean, onS
         setAnimating(true);
 
         if (axis.current === 'h' && dxRef.current >= THRESHOLD) {
-            set(MAX * 3); // slide off, then complete
-            onComplete();
+            const proceed = onComplete();
+            set(proceed === false ? 0 : MAX * 3); // slide off unless the action was cancelled
         } else if (axis.current === 'h' && onSwipeLeft && dxRef.current <= -THRESHOLD) {
             const proceed = onSwipeLeft();
             set(proceed === false ? 0 : -MAX * 3); // slide off unless the action was cancelled
@@ -69,7 +71,14 @@ export function useSwipeToComplete(onComplete: () => void, enabled: boolean, onS
         axis.current = null;
     };
 
+    /** Bring a slid-off card back, e.g. when the request behind the swipe failed. */
+    const reset = () => {
+        setAnimating(true);
+        set(0);
+    };
+
     return {
+        reset,
         dx,
         animating,
         swiped, // ref: true if the last interaction was a horizontal swipe (suppress click)
