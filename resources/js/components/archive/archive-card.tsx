@@ -1,12 +1,14 @@
-import { router } from '@inertiajs/react';
+import { router, usePage } from '@inertiajs/react';
 import { Lock, Repeat, RotateCcw } from 'lucide-react';
 import { useState } from 'react';
 
 import { priorityClass, priorityLabel } from '@/components/tasks/task-card';
+import { showUndo } from '@/components/undo-toast';
 import { useSwipeToComplete } from '@/hooks/use-swipe-to-complete';
 import { contrastTextColor, memberFill } from '@/lib/color-contrast';
 import { t } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
+import type { SharedData } from '@/types';
 import type { Occurrence } from '@/types/checkstu';
 
 function formatCompletedAt(iso: string | null): string {
@@ -30,10 +32,24 @@ interface ArchiveCardProps {
 export default function ArchiveCard({ occurrence }: ArchiveCardProps) {
     const [processing, setProcessing] = useState(false);
 
+    const meId = usePage<SharedData>().props.auth.user.id;
     const restore = () => {
         setProcessing(true);
         router.delete(route('occurrences.restore', occurrence.id), {
             preserveScroll: true,
+            // Undo marks it done again. Credit goes back to whoever had it, when that's you; otherwise the
+            // server's default (the assignee) applies, since only parents may credit someone else.
+            onSuccess: () =>
+                showUndo({
+                    title: occurrence.title,
+                    note: 'Wieder offen',
+                    undo: () =>
+                        router.post(
+                            route('occurrences.complete', occurrence.id),
+                            occurrence.completed_by?.id === meId ? { completed_by_user_id: meId } : {},
+                            { preserveScroll: true },
+                        ),
+                }),
             onFinish: () => setProcessing(false),
         });
     };

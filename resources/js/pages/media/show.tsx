@@ -111,16 +111,16 @@ export default function Show({ item }: ShowProps) {
 
             {item.type === 'tv' && item.entry && (
                 <div className="mt-4 flex flex-wrap items-center gap-2">
-                    <Button type="button" variant="outline" size="sm" disabled={processing} onClick={markAllWatched}>
+                    <Button type="button" variant="outline" disabled={processing} onClick={markAllWatched}>
                         <CheckCheck className="size-4" />
                         {t('media.markAllWatched')}
                     </Button>
                     {item.entry.status !== 'completed' && item.entry.status !== 'dropped' && (
                         <>
-                            <Button type="button" variant="outline" size="sm" disabled={processing} onClick={() => setTvStatus('completed')}>
+                            <Button type="button" variant="outline" disabled={processing} onClick={() => setTvStatus('completed')}>
                                 {t('media.markCompletedTv')}
                             </Button>
-                            <Button type="button" variant="outline" size="sm" disabled={processing} onClick={() => setTvStatus('dropped')}>
+                            <Button type="button" variant="outline" disabled={processing} onClick={() => setTvStatus('dropped')}>
                                 {t('media.markDropped')}
                             </Button>
                         </>
@@ -130,7 +130,7 @@ export default function Show({ item }: ShowProps) {
 
             {item.type === 'movie' && item.entry && (
                 <div className="mt-4 flex items-center gap-2">
-                    <Button type="button" variant="outline" size="sm" disabled={processing} onClick={toggleWatched}>
+                    <Button type="button" variant="outline" disabled={processing} onClick={toggleWatched}>
                         {item.entry.status === 'completed' ? t('media.addToWatchlist') : t('media.markWatched')}
                     </Button>
                     {item.entry.status === 'completed' && (

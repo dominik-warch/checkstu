@@ -69,7 +69,7 @@ export default function BookShow({ item }: BookShowProps) {
 
             {item.entry && (
                 <div className="mt-4 flex items-center gap-2">
-                    <Button type="button" variant="outline" size="sm" disabled={processing} onClick={toggleRead}>
+                    <Button type="button" variant="outline" disabled={processing} onClick={toggleRead}>
                         {item.entry.status === 'completed' ? t('media.addToWatchlist') : t('media.markRead')}
                     </Button>
                     {item.entry.status === 'completed' && (
