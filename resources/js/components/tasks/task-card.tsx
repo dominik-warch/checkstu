@@ -1,5 +1,6 @@
-import { Link, router } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 import { Check, Lock, Repeat, Trash2 } from 'lucide-react';
+import type { ReactNode } from 'react';
 
 import {
     DropdownMenu,
@@ -15,6 +16,7 @@ import { useSwipeToComplete } from '@/hooks/use-swipe-to-complete';
 import { contrastTextColor } from '@/lib/color-contrast';
 import { t } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
+import type { SharedData } from '@/types';
 import type { Member, Occurrence } from '@/types/checkstu';
 
 export const priorityLabel = ['priority.low', 'priority.normal', 'priority.high', 'priority.urgent'] as const;
@@ -41,6 +43,46 @@ export function deleteTask(taskId: number, title: string) {
     });
 }
 
+/** Only a parent finishing someone else's task is asked who did it; your own and "Für alle" tasks complete in one tap. */
+export function asksWhoDidIt(canCompleteOnBehalf: boolean, occurrence: Occurrence, meId: number): boolean {
+    return canCompleteOnBehalf && occurrence.assignee !== null && occurrence.assignee.id !== meId;
+}
+
+/** "Wer hat es erledigt?" with the assignee first and marked, so the likely answer is the first tap. */
+export function WhoDidItMenu({
+    trigger,
+    members,
+    assigneeId,
+    onPick,
+    align = 'end',
+    className,
+}: {
+    trigger: ReactNode;
+    members: Member[];
+    assigneeId: number | null;
+    onPick: (member: Member) => void;
+    align?: 'start' | 'end';
+    className?: string;
+}) {
+    const sorted = [...members].sort((a, b) => Number(b.id === assigneeId) - Number(a.id === assigneeId));
+    return (
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger>
+            <DropdownMenuContent align={align} className={className}>
+                <DropdownMenuLabel>{t('task.whoDidIt')}</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {sorted.map((m) => (
+                    <DropdownMenuItem key={m.id} onClick={() => onPick(m)}>
+                        <span className="size-3 rounded-full" style={{ background: m.color ?? 'var(--muted-foreground)' }} />
+                        {m.name}
+                        {m.id === assigneeId && <span className="text-muted-foreground ml-auto pl-3 text-sm">zuständig</span>}
+                    </DropdownMenuItem>
+                ))}
+            </DropdownMenuContent>
+        </DropdownMenu>
+    );
+}
+
 interface TaskCardProps {
     occurrence: Occurrence;
     members: Member[];
@@ -50,6 +92,7 @@ interface TaskCardProps {
 
 export default function TaskCard({ occurrence, members, canCompleteOnBehalf, showDue = true }: TaskCardProps) {
     const { processing, complete } = useCompleteOccurrence(occurrence, occurrence.assignee?.color);
+    const asksWho = asksWhoDidIt(canCompleteOnBehalf, occurrence, usePage<SharedData>().props.auth.user.id);
 
     const swipe = useSwipeToComplete(
         () => complete(),
@@ -69,7 +112,7 @@ export default function TaskCard({ occurrence, members, canCompleteOnBehalf, sho
             type="button"
             disabled={processing}
             aria-label={`${occurrence.title}: ${t('task.markDone')}`}
-            onClick={canCompleteOnBehalf ? undefined : () => complete()}
+            onClick={asksWho ? undefined : () => complete()}
             className={cn(
                 'group/done grid size-11 shrink-0 place-items-center rounded-full border-2 border-current transition-transform duration-150 active:scale-90 disabled:opacity-50',
                 !ink && 'border-muted-foreground hover:border-foreground',
@@ -175,20 +218,8 @@ export default function TaskCard({ occurrence, members, canCompleteOnBehalf, sho
                 )}
 
                 {!occurrence.is_blocked &&
-                    (canCompleteOnBehalf ? (
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>{completeButton}</DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>{t('task.whoDidIt')}</DropdownMenuLabel>
-                                <DropdownMenuSeparator />
-                                {members.map((m) => (
-                                    <DropdownMenuItem key={m.id} onClick={() => complete(m)}>
-                                        <span className="size-3 rounded-full" style={{ background: m.color ?? 'var(--muted-foreground)' }} />
-                                        {m.name}
-                                    </DropdownMenuItem>
-                                ))}
-                            </DropdownMenuContent>
-                        </DropdownMenu>
+                    (asksWho ? (
+                        <WhoDidItMenu trigger={completeButton} members={members} assigneeId={occurrence.assignee?.id ?? null} onPick={complete} />
                     ) : (
                         completeButton
                     ))}

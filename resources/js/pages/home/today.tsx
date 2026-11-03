@@ -28,8 +28,9 @@ export default function Today({ occurrences, progress, filters, members, templat
     const user = usePage<SharedData>().props.auth.user;
     const firstName = user.name.split(' ')[0];
 
-    const actionable = occurrences.filter((o) => !o.is_blocked);
-    // Up next: your own most pressing task, else the first one up for grabs.
+    // Up next: your own most pressing task, else the first one up for grabs. Pressing means priority first
+    // (Dringend before Hoch before the rest), then the server's due-date order (sort is stable).
+    const actionable = occurrences.filter((o) => !o.is_blocked).sort((a, b) => b.priority - a.priority);
     const upNext = actionable.find((o) => o.assignee?.id === user.id) ?? actionable.find((o) => o.assignee === null) ?? null;
 
     const rest = occurrences.filter((o) => o !== upNext);

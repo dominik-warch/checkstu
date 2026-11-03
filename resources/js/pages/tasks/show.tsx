@@ -1,22 +1,15 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import { ArrowLeft, Check, Circle, Lock, Pencil, Repeat, Trash2 } from 'lucide-react';
 
-import { deleteTask, priorityClass, priorityLabel } from '@/components/tasks/task-card';
+import { asksWhoDidIt, deleteTask, priorityClass, priorityLabel, WhoDidItMenu } from '@/components/tasks/task-card';
 import TaskFormDialog from '@/components/tasks/task-form-dialog';
 import { Button } from '@/components/ui/button';
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { useCompleteOccurrence } from '@/hooks/use-complete-occurrence';
 import CheckstuLayout from '@/layouts/checkstu-layout';
 import { contrastTextColor } from '@/lib/color-contrast';
 import { t } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
+import type { SharedData } from '@/types';
 import type { CategoryTag, Member, Occurrence } from '@/types/checkstu';
 
 interface TaskDetail {
@@ -49,6 +42,7 @@ function formatLongDate(due: string | null): string {
 
 export default function Show({ task, occurrence, members, can }: ShowProps) {
     const { processing, complete } = useCompleteOccurrence(occurrence, occurrence?.assignee?.color);
+    const me = usePage<SharedData>().props.auth.user;
 
     const color = occurrence?.assignee?.color ?? null;
     const ink = color ? contrastTextColor(color) : null;
@@ -126,25 +120,20 @@ export default function Show({ task, occurrence, members, can }: ShowProps) {
                     {occurrence && can.complete && (
                         // Pinned above the tab bar on phones, so "done" is always under the thumb.
                         <div className="bg-background sticky bottom-[calc(env(safe-area-inset-bottom)+4.75rem)] z-10 -mx-4 mt-3 px-4 py-2 lg:static lg:m-0 lg:mt-4 lg:bg-transparent lg:p-0">
-                            {can.completeOnBehalf ? (
-                                <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
+                            {asksWhoDidIt(can.completeOnBehalf, occurrence, me.id) ? (
+                                <WhoDidItMenu
+                                    trigger={
                                         <Button size="lg" className="w-full" disabled={processing || occurrence.is_blocked}>
                                             <Check strokeWidth={3} />
                                             {t('task.markDone')}
                                         </Button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent align="start" className="w-(--radix-dropdown-menu-trigger-width)">
-                                        <DropdownMenuLabel>{t('task.whoDidIt')}</DropdownMenuLabel>
-                                        <DropdownMenuSeparator />
-                                        {members.map((m) => (
-                                            <DropdownMenuItem key={m.id} onClick={() => complete(m)}>
-                                                <span className="size-3 rounded-full" style={{ background: m.color ?? 'var(--muted-foreground)' }} />
-                                                {m.name}
-                                            </DropdownMenuItem>
-                                        ))}
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
+                                    }
+                                    members={members}
+                                    assigneeId={occurrence.assignee?.id ?? null}
+                                    onPick={complete}
+                                    align="start"
+                                    className="w-(--radix-dropdown-menu-trigger-width)"
+                                />
                             ) : (
                                 <Button size="lg" className="w-full" disabled={processing || occurrence.is_blocked} onClick={() => complete()}>
                                     <Check strokeWidth={3} />
