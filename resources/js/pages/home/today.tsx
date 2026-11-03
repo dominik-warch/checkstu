@@ -142,9 +142,15 @@ function UpNextPlate({ occurrence, playerColor, remaining }: { occurrence: Occur
                         {overdue ? 'Überfällig seit ' : 'Fällig '}
                         {dueInSentence}
                     </span>
-                    {priority && <span className="font-bold text-white"> · {priority}</span>}
-                    {!occurrence.assignee && ' · Für alle'}
-                    {' · '}
+                    {/* The dot is glued to the part before it (no-break space), so a wrapped line never starts with "·". */}
+                    {priority && (
+                        <span className="font-bold text-white">
+                            {'\u00a0· '}
+                            {priority}
+                        </span>
+                    )}
+                    {!occurrence.assignee && '\u00a0· Für alle'}
+                    {'\u00a0· '}
                     {/* Counts only tasks assigned to you (like the home fields), not the "Für alle" ones in the list below. */}
                     {remaining === 0 ? 'danach hast du frei.' : `danach noch ${remaining} von deinen.`}
                 </p>
