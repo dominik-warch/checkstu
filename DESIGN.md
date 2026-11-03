@@ -245,7 +245,7 @@ Header below `lg` (1024px) is a slim 56px band in the player colour, sticky, wit
 
 Content widths: 768px on phones, 1024px from `md`, 1152px from `lg` with a 40px gutter. From `lg` the header and bottom tabs disappear and a 256px left rail in the player colour takes over, with the add button docked in its top corner.
 
-Today goes two-column from `md` (768px): a player-colour column of 352px (368px on `lg`) holding the greeting, the plate and the home fields, sticky on the left; the lists on the right. Card lists elsewhere use one column on phones and two from `md` (8px gap, 12px on `lg`). Chip rows scroll sideways on phones and wrap on desktop.
+Today goes two-column from `md` (768px): a player-colour column of 352px (368px on `lg`) holding the greeting, the plate and the home fields, sticky on the left; the lists on the right. Task lists stay one column at every width (Aufgaben is held to 48rem), so due dates run down a single right-aligned column; other card lists (media, archive, family, plays) use one column on phones and two from `md` (8px gap, 12px on `lg`). A task page's back link returns to where you came from (Heute, Aufgaben or Archiv). Chip rows scroll sideways on phones and wrap on desktop.
 
 Touch targets are 44px minimum: complete rings, round icon buttons, nav rows, the menu button.
 

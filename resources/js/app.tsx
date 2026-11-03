@@ -7,6 +7,7 @@ import { route as routeFn } from 'ziggy-js';
 import { showUndo, UndoToast } from './components/undo-toast';
 import { UpdateToast } from './components/update-toast';
 import { initializeTheme } from './hooks/use-appearance';
+import './lib/previous-page';
 
 declare global {
     const route: typeof routeFn;

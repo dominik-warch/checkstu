@@ -8,6 +8,7 @@ import { useCompleteOccurrence } from '@/hooks/use-complete-occurrence';
 import CheckstuLayout from '@/layouts/checkstu-layout';
 import { contrastTextColor, memberFill } from '@/lib/color-contrast';
 import { t } from '@/lib/i18n';
+import { previousPage } from '@/lib/previous-page';
 import { cn } from '@/lib/utils';
 import type { SharedData } from '@/types';
 import type { CategoryTag, Member, Occurrence } from '@/types/checkstu';
@@ -44,6 +45,17 @@ export default function Show({ task, occurrence, members, can }: ShowProps) {
     const { processing, complete } = useCompleteOccurrence(occurrence, occurrence?.assignee?.color);
     const me = usePage<SharedData>().props.auth.user;
 
+    // Back goes where you came from (Heute, Aufgaben or Archiv); on a fresh load, to Aufgaben.
+    const from = previousPage();
+    const back =
+        from !== null && /^\/(\?|$)/.test(from)
+            ? { href: from, label: t('nav.today'), isHistory: true }
+            : from !== null && /^\/archive(\?|$)/.test(from)
+              ? { href: from, label: t('archive.title'), isHistory: true }
+              : from !== null && /^\/tasks(\?|$)/.test(from)
+                ? { href: from, label: t('nav.tasks'), isHistory: true }
+                : { href: route('tasks.index'), label: t('nav.tasks'), isHistory: false };
+
     const color = occurrence?.assignee?.color ?? null;
     const ink = color ? contrastTextColor(color) : null;
 
@@ -52,11 +64,18 @@ export default function Show({ task, occurrence, members, can }: ShowProps) {
             <Head title={task.title} />
 
             <Link
-                href={route('tasks.index')}
+                href={back.href}
+                onClick={(e) => {
+                    // Going back through history restores the list's scroll position and its Meine/Alle scope.
+                    if (back.isHistory) {
+                        e.preventDefault();
+                        window.history.back();
+                    }
+                }}
                 className="text-muted-foreground hover:text-foreground mb-3 -ml-2 inline-flex min-h-11 items-center gap-1.5 rounded-full px-2 text-sm font-medium"
             >
                 <ArrowLeft className="size-5" />
-                {t('nav.tasks')}
+                {back.label}
             </Link>
 
             <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,20rem)] lg:items-start lg:gap-10">
