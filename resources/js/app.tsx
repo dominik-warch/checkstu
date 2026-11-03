@@ -4,7 +4,7 @@ import { createInertiaApp, router } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
 import { route as routeFn } from 'ziggy-js';
-import { UndoToast } from './components/undo-toast';
+import { showUndo, UndoToast } from './components/undo-toast';
 import { UpdateToast } from './components/update-toast';
 import { initializeTheme } from './hooks/use-appearance';
 
@@ -14,19 +14,31 @@ declare global {
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
-// Inertia's client-side navigation (every <Link>/router.visit — i.e. almost
-// all in-app navigation) goes through fetch(), which the service worker
-// deliberately never intercepts (task data must stay live). So a failed
-// visit while offline never hits the SW's /offline.html fallback — that
-// fallback only fires for full browser navigations (typing a URL, reloading,
-// opening the installed PWA fresh). Without this, a dropped connection while
-// using the app just silently swallows the click. Force the same offline
-// page for both paths.
+// Inertia's in-app visits go through fetch(), which the service worker never
+// intercepts (task data must stay live), so a dropped connection would just
+// swallow the tap. Instead of leaving the app for /offline.html (which only
+// serves full page loads now), stay where you are and say the tap didn't
+// arrive, with "Nochmal" repeating exactly that visit.
+let lastVisit: { url: URL; method: string; data: unknown } | null = null;
+router.on('start', (event) => {
+    lastVisit = event.detail.visit;
+});
 router.on('exception', (event) => {
-    if (!navigator.onLine) {
-        event.preventDefault();
-        window.location.href = '/offline.html';
-    }
+    const error = event.detail.exception as { code?: string } | undefined;
+    if (navigator.onLine && error?.code !== 'ERR_NETWORK') return;
+    event.preventDefault();
+
+    const visit = lastVisit;
+    const isChange = visit !== null && visit.method !== 'get';
+    showUndo({
+        title: isChange ? 'Nicht angekommen' : 'Seite nicht geladen',
+        note: isChange ? 'Keine Verbindung, nichts gespeichert.' : 'Keine Verbindung.',
+        actionLabel: 'Nochmal',
+        undo: () => {
+            if (visit)
+                router.visit(visit.url.href, { method: visit.method as 'get', data: visit.data as Record<string, never>, preserveScroll: true });
+        },
+    });
 });
 
 createInertiaApp({

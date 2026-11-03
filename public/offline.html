@@ -2,70 +2,84 @@
 <html lang="de">
     <head>
         <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>checkstu – offline</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+        <meta name="theme-color" content="#f4f5f8" media="(prefers-color-scheme: light)" />
+        <meta name="theme-color" content="#0f1115" media="(prefers-color-scheme: dark)" />
+        <title>checkstu – kein Netz</title>
         <style>
+            /* The board's own ground, ink and type (DESIGN.md), inline because nothing else loads offline.
+               Lexend comes from the browser cache when it's there; otherwise the system sans stands in. */
             :root {
                 color-scheme: light dark;
+                --ground: #f4f5f8;
+                --ink: #14161c;
+                --muted: #565b68;
+            }
+
+            @media (prefers-color-scheme: dark) {
+                :root {
+                    --ground: #0f1115;
+                    --ink: #f1f2f5;
+                    --muted: #a0a6b2;
+                }
             }
 
             body {
                 margin: 0;
-                min-height: 100vh;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-family:
-                    system-ui,
-                    -apple-system,
-                    'Segoe UI',
-                    sans-serif;
-                background: #ffffff;
-                color: #1f2937;
-                text-align: center;
+                min-height: 100dvh;
+                display: grid;
+                place-items: center;
                 padding: 1.5rem;
+                box-sizing: border-box;
+                background: var(--ground);
+                color: var(--ink);
+                font-family: 'Lexend', ui-sans-serif, system-ui, sans-serif;
+                text-align: center;
             }
 
-            @media (prefers-color-scheme: dark) {
-                body {
-                    background: #0b0b0f;
-                    color: #f3f4f6;
-                }
+            main {
+                max-width: 22rem;
             }
 
-            .card {
-                max-width: 24rem;
-            }
-
-            .dot {
-                width: 3rem;
-                height: 3rem;
-                border-radius: 9999px;
-                background: #4f46e5;
+            svg {
+                width: 3.5rem;
+                height: 3.5rem;
                 margin: 0 auto 1rem;
+                display: block;
             }
 
             h1 {
-                font-size: 1.25rem;
+                font-size: 1.625rem;
+                line-height: 1.15;
+                font-weight: 700;
+                letter-spacing: -0.025em;
                 margin: 0 0 0.5rem;
             }
 
             p {
                 margin: 0;
-                opacity: 0.75;
+                color: var(--muted);
+                font-size: 1rem;
                 line-height: 1.5;
+                text-wrap: pretty;
             }
 
             button {
                 margin-top: 1.5rem;
-                padding: 0.625rem 1.5rem;
+                min-height: 2.75rem;
+                padding: 0 1.5rem;
                 border: none;
                 border-radius: 9999px;
-                background: #4f46e5;
-                color: #ffffff;
+                background: var(--ink);
+                color: var(--ground);
                 font: inherit;
                 font-weight: 500;
                 cursor: pointer;
+            }
+
+            button:focus-visible {
+                outline: 2px solid var(--ink);
+                outline-offset: 2px;
             }
 
             button:disabled {
@@ -75,29 +89,32 @@
         </style>
     </head>
     <body>
-        <div class="card">
-            <div class="dot"></div>
-            <h1>Keine Verbindung</h1>
-            <p>checkstu kann gerade nicht geladen werden. Bitte prüfe deine Internetverbindung und versuche es erneut.</p>
-            <button id="retry" type="button">Erneut versuchen</button>
-        </div>
+        <main>
+            <!-- The board's pawn, waiting on its field. -->
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <circle cx="12" cy="6.25" r="3.75" />
+                <path d="M9.4 10.75h5.2l2.1 7.25H7.3z" />
+                <rect x="5.25" y="18.25" width="13.5" height="3.25" rx="1.6" />
+            </svg>
+            <h1>Kein Netz</h1>
+            <p>checkstu braucht kurz Internet. Sobald du wieder online bist, geht es genau hier weiter.</p>
+            <button id="retry" type="button">Nochmal versuchen</button>
+        </main>
         <script>
-            // Retry just re-navigates to the app; if still offline, the service
-            // worker's navigate fallback re-serves this same page (see sw.js).
-            var goHome = function () {
-                window.location.href = '/';
+            // The service worker serves this page in place of the one you asked for (see sw.js),
+            // so reloading retries exactly that page instead of sending you back to the start.
+            var retry = function () {
+                window.location.reload();
             };
 
             document.getElementById('retry').addEventListener('click', function () {
                 this.disabled = true;
                 this.textContent = 'Wird geprüft …';
-                goHome();
+                retry();
             });
 
-            // No-tap recovery: the moment the browser regains connectivity,
-            // head straight back to the app instead of waiting to be killed
-            // and relaunched from the app drawer.
-            window.addEventListener('online', goHome);
+            // No tap needed: as soon as the connection is back, carry on.
+            window.addEventListener('online', retry);
         </script>
     </body>
 </html>

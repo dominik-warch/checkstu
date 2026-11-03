@@ -5,6 +5,8 @@ interface Undoable {
     /** "Von dir erledigt", "Erledigt von Leo", "Gelöscht", … */
     note: string;
     undo: () => void;
+    /** The button's word when it isn't an undo, e.g. "Nochmal" after a lost tap. */
+    actionLabel?: string;
 }
 
 const EVENT = 'checkstu:undo';
@@ -63,7 +65,7 @@ export function UndoToast() {
                         onClick={undo}
                         className="bg-background text-foreground min-h-11 shrink-0 rounded-full px-4 text-sm font-bold"
                     >
-                        Rückgängig
+                        {shown.actionLabel ?? 'Rückgängig'}
                     </button>
                 </div>
             )}
