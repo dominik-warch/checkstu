@@ -114,7 +114,7 @@ export default function CheckstuLayout({ children, navItems = tasksNavItems, con
             className="group/shell bg-background text-foreground min-h-dvh lg:flex"
         >
             {/* Rail: tablet landscape and up. The whole rail is the player's colour. */}
-            <aside className="bg-player text-player-ink sticky top-0 hidden h-dvh w-64 shrink-0 flex-col gap-6 overflow-y-auto px-4 py-6 lg:flex">
+            <aside className="bg-player text-player-ink sticky top-0 hidden h-dvh w-64 shrink-0 flex-col gap-6 overflow-y-auto px-4 py-6 [--color-ring:var(--player-ink)] [--ring:var(--player-ink)] lg:flex">
                 <Link href="/" className="px-3 text-xl font-bold tracking-tight">
                     {t('common.appName')}
                 </Link>
@@ -147,7 +147,7 @@ export default function CheckstuLayout({ children, navItems = tasksNavItems, con
 
             <div className="flex min-w-0 flex-1 flex-col">
                 {/* Phone/tablet header: a slim band in the player's colour. */}
-                <header className="bg-player text-player-ink sticky top-0 z-20 pt-[env(safe-area-inset-top)] lg:hidden">
+                <header className="bg-player text-player-ink sticky top-0 z-20 pt-[env(safe-area-inset-top)] [--color-ring:var(--player-ink)] [--ring:var(--player-ink)] lg:hidden">
                     <div className="mx-auto flex h-14 w-full max-w-3xl items-center justify-between gap-3 px-4 md:max-w-5xl">
                         <Link href="/" className="text-lg font-bold tracking-tight">
                             {t('common.appName')}

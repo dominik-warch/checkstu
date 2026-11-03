@@ -1,5 +1,5 @@
 import { router } from '@inertiajs/react';
-import { Dices } from 'lucide-react';
+import { ArrowLeftRight, Dices } from 'lucide-react';
 import { useState } from 'react';
 
 import { chipClass } from '@/components/chip-row';
@@ -7,6 +7,7 @@ import ConfirmDeleteButton from '@/components/confirm-delete-button';
 import Pawn from '@/components/pawn';
 import { Input } from '@/components/ui/input';
 import { t } from '@/lib/i18n';
+import { cn } from '@/lib/utils';
 import type { BoardGame } from '@/types/board-games';
 
 interface BoardGameCardProps {
@@ -110,8 +111,15 @@ export default function BoardGameCard({ game }: BoardGameCardProps) {
                 </p>
 
                 <div className="mt-auto pt-3">
-                    <button type="button" onClick={toggleStatus} className={chipClass(game.status === 'owned')}>
+                    {/* A switch between two states, not a filter: the swap icon says so, and so does its name. */}
+                    <button
+                        type="button"
+                        onClick={toggleStatus}
+                        aria-label={`${game.status === 'owned' ? t('boardGames.owned') : t('boardGames.wishlist')}, ändern zu ${game.status === 'owned' ? t('boardGames.wishlist') : t('boardGames.owned')}`}
+                        className={cn(chipClass(game.status === 'owned'), 'gap-1.5')}
+                    >
                         {game.status === 'owned' ? t('boardGames.owned') : t('boardGames.wishlist')}
+                        <ArrowLeftRight className="size-3.5" aria-hidden />
                     </button>
                 </div>
             </div>

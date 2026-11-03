@@ -13,7 +13,7 @@ import {
 import { showUndo } from '@/components/undo-toast';
 import { useCompleteOccurrence } from '@/hooks/use-complete-occurrence';
 import { useSwipeToComplete } from '@/hooks/use-swipe-to-complete';
-import { contrastTextColor } from '@/lib/color-contrast';
+import { contrastTextColor, memberFill } from '@/lib/color-contrast';
 import { t } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import type { SharedData } from '@/types';
@@ -149,16 +149,12 @@ export default function TaskCard({ occurrence, members, canCompleteOnBehalf, sho
 
             {/* Foreground card (draggable) */}
             <div
-                className={cn(
-                    'relative flex min-h-16 items-center gap-3 rounded-2xl py-2.5 pr-2.5 pl-4',
-                    !assigneeColor && 'bg-card border-[1.5px]',
-                    occurrence.is_blocked && 'opacity-55',
-                )}
+                className={cn('relative flex min-h-16 items-center gap-3 rounded-2xl py-2.5 pr-2.5 pl-4', !assigneeColor && 'bg-card border-[1.5px]')}
                 style={{
                     transform: `translateX(${swipe.dx}px)`,
                     transition: swipe.animating ? 'transform 260ms var(--ease-pop)' : undefined,
                     touchAction: 'pan-y',
-                    ...(assigneeColor ? { backgroundColor: assigneeColor, color: ink ?? undefined } : {}),
+                    ...(assigneeColor ? memberFill(assigneeColor) : {}),
                 }}
                 {...swipe.handlers}
             >
@@ -223,7 +219,17 @@ export default function TaskCard({ occurrence, members, canCompleteOnBehalf, sho
                     ) : (
                         completeButton
                     ))}
-                {occurrence.is_blocked && <span className="size-11 shrink-0" aria-hidden />}
+                {/* Blocked: a dashed ring with a lock where the complete ring would be, instead of dimming the card (and its text contrast). */}
+                {occurrence.is_blocked && (
+                    <span
+                        className={cn(
+                            'grid size-11 shrink-0 place-items-center rounded-full border-2 border-dashed border-current',
+                            !ink && 'border-muted-foreground text-muted-foreground',
+                        )}
+                    >
+                        <Lock className="size-5" aria-label={t('task.blocked')} />
+                    </span>
+                )}
             </div>
         </div>
     );

@@ -51,7 +51,7 @@ export default function Today({ occurrences, progress, filters, members, templat
                 {/* The player's own corner of the board: what's next, and how far home today. */}
                 <section
                     aria-label="Als Nächstes"
-                    className="bg-player text-player-ink -mx-4 -mt-4 px-4 pt-2 pb-5 md:sticky md:top-[calc(env(safe-area-inset-top)+4.5rem)] md:m-0 md:rounded-3xl md:p-5 lg:top-10"
+                    className="bg-player text-player-ink -mx-4 -mt-4 px-4 pt-2 pb-5 [--color-ring:var(--player-ink)] [--ring:var(--player-ink)] md:sticky md:top-[calc(env(safe-area-inset-top)+4.5rem)] md:m-0 md:rounded-3xl md:p-5 lg:top-10"
                 >
                     <p className="text-base font-medium">
                         Hallo {firstName}
@@ -121,7 +121,7 @@ function UpNextPlate({ occurrence, playerColor, remaining }: { occurrence: Occur
     const priority = occurrence.priority >= 2 ? t(occurrence.priority === 3 ? 'priority.urgent' : 'priority.high') : null;
 
     return (
-        <div className="bg-plate text-plate-foreground mt-2 flex items-center gap-4 rounded-3xl p-4 pl-5">
+        <div className="bg-plate text-plate-foreground mt-2 flex items-center gap-4 rounded-3xl p-4 pl-5 [--color-ring:var(--plate-foreground)] [--ring:var(--plate-foreground)]">
             <div className="min-w-0 flex-1">
                 <Link
                     href={route('tasks.show', occurrence.task_id)}
@@ -144,7 +144,7 @@ function UpNextPlate({ occurrence, playerColor, remaining }: { occurrence: Occur
                 type="button"
                 onClick={() => complete()}
                 disabled={processing}
-                className="group/go flex shrink-0 flex-col items-center gap-1 transition-transform duration-150 active:scale-90 disabled:opacity-60"
+                className="group/go flex shrink-0 flex-col items-center gap-1 rounded-2xl transition-transform duration-150 active:scale-90 disabled:opacity-60"
             >
                 <span className="border-player grid size-16 place-items-center rounded-full border-4">
                     <Pawn className="text-player size-8 transition-transform duration-300 ease-[var(--ease-pop)] group-hover/go:-translate-y-1 group-hover/go:scale-110" />
@@ -158,7 +158,7 @@ function UpNextPlate({ occurrence, playerColor, remaining }: { occurrence: Occur
 
 function AllClear() {
     return (
-        <div className="bg-plate text-plate-foreground mt-2 flex items-center gap-4 rounded-3xl p-5">
+        <div className="bg-plate text-plate-foreground mt-2 flex items-center gap-4 rounded-3xl p-5 [--color-ring:var(--plate-foreground)] [--ring:var(--plate-foreground)]">
             <div className="min-w-0 flex-1">
                 <p className="text-2xl font-bold tracking-tight">Alles geschafft.</p>
                 <p className="mt-1.5 text-sm text-white/70">Für dich steht heute nichts mehr an.</p>

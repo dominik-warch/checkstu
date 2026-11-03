@@ -4,7 +4,7 @@ import { useState } from 'react';
 
 import { priorityClass, priorityLabel } from '@/components/tasks/task-card';
 import { useSwipeToComplete } from '@/hooks/use-swipe-to-complete';
-import { contrastTextColor } from '@/lib/color-contrast';
+import { contrastTextColor, memberFill } from '@/lib/color-contrast';
 import { t } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import type { Occurrence } from '@/types/checkstu';
@@ -64,7 +64,7 @@ export default function ArchiveCard({ occurrence }: ArchiveCardProps) {
                     transform: `translateX(${swipe.dx}px)`,
                     transition: swipe.animating ? 'transform 260ms var(--ease-pop)' : undefined,
                     touchAction: 'pan-y',
-                    ...(color ? { backgroundColor: color, color: ink ?? undefined } : {}),
+                    ...(color ? memberFill(color) : {}),
                 }}
                 {...swipe.handlers}
             >

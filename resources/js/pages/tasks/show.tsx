@@ -6,7 +6,7 @@ import TaskFormDialog from '@/components/tasks/task-form-dialog';
 import { Button } from '@/components/ui/button';
 import { useCompleteOccurrence } from '@/hooks/use-complete-occurrence';
 import CheckstuLayout from '@/layouts/checkstu-layout';
-import { contrastTextColor } from '@/lib/color-contrast';
+import { contrastTextColor, memberFill } from '@/lib/color-contrast';
 import { t } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import type { SharedData } from '@/types';
@@ -62,10 +62,7 @@ export default function Show({ task, occurrence, members, can }: ShowProps) {
             <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,20rem)] lg:items-start lg:gap-10">
                 <div className="min-w-0">
                     {/* The task as one big field, in its assignee's colour. */}
-                    <section
-                        className={cn('rounded-3xl p-5', !color && 'bg-card border-[1.5px]')}
-                        style={color ? { backgroundColor: color, color: ink ?? undefined } : undefined}
-                    >
+                    <section className={cn('rounded-3xl p-5', !color && 'bg-card border-[1.5px]')} style={color ? memberFill(color) : undefined}>
                         <div className={cn('flex flex-wrap items-center gap-2 text-sm font-bold', !ink && 'text-muted-foreground')}>
                             {task.priority >= 2 && (
                                 <span className={cn('rounded-full px-2.5 leading-6', priorityClass[task.priority])}>

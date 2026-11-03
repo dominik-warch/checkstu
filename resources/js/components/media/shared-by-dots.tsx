@@ -11,8 +11,9 @@ export default function SharedByDots({ members }: SharedByDotsProps) {
     return (
         <span className="inline-flex items-center gap-0.5" title={members.map((member) => member.name).join(', ')}>
             {members.map((member) => (
-                <span key={member.id} className="size-2 rounded-full" style={{ background: member.color ?? '#999' }} />
+                <span key={member.id} className="size-2 rounded-full" style={{ background: member.color ?? '#999' }} aria-hidden />
             ))}
+            <span className="sr-only">Auch bei {members.map((member) => member.name).join(', ')}</span>
         </span>
     );
 }

@@ -48,7 +48,7 @@ export function UndoToast() {
             {shown && (
                 <div
                     key={`${shown.title}${shown.note}`}
-                    className="bg-foreground text-background animate-toast-in pointer-events-auto flex min-h-14 items-center gap-3 rounded-2xl py-1.5 pr-1.5 pl-4"
+                    className="bg-foreground text-background animate-toast-in pointer-events-auto flex min-h-14 items-center gap-3 rounded-2xl py-1.5 pr-1.5 pl-4 [--color-ring:var(--background)] [--ring:var(--background)]"
                     onPointerEnter={() => setHeld(true)}
                     onPointerLeave={() => setHeld(false)}
                     onFocus={() => setHeld(true)}

@@ -1,3 +1,5 @@
+import type { CSSProperties } from 'react';
+
 /**
  * Curated preset palette for the user color picker — chosen to have decent,
  * unambiguous contrast with computed black/white text (avoids muddy
@@ -41,4 +43,13 @@ export function contrastTextColor(hex: string): '#14161c' | '#ffffff' {
     const onInk = (bg + 0.05) / (ink + 0.05);
 
     return onInk >= onWhite ? '#14161c' : '#ffffff';
+}
+
+/**
+ * Inline style for a surface filled with a member colour: the computed ink for its text and for its
+ * focus ring too (the board's ink ring would vanish on a dark colour).
+ */
+export function memberFill(hex: string): CSSProperties {
+    const ink = contrastTextColor(hex);
+    return { backgroundColor: hex, color: ink, '--ring': ink, '--color-ring': ink } as CSSProperties;
 }
