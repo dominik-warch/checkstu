@@ -335,6 +335,7 @@ export default function TaskFormBody({ members, task, templates = [], defaultDue
                                 <div key={i} className="flex gap-2">
                                     <Input
                                         type="date"
+                                        aria-label={`${t('recurrence.specificDates')} ${i + 1}`}
                                         value={date}
                                         onChange={(e) => {
                                             const next = [...data.explicit_dates];

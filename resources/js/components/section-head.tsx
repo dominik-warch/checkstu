@@ -12,6 +12,7 @@ export default function SectionHead({ children, count, className }: { children: 
             )}
         >
             {children}
+            {/* The space keeps screen readers from reading "Überfällig7"; flex layout ignores it visually. */}{' '}
             {count !== undefined && <span className="text-muted-foreground font-medium tabular-nums">{count}</span>}
         </h2>
     );

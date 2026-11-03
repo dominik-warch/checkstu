@@ -100,6 +100,24 @@ export function skipOccurrence(occurrenceId: number, title: string) {
     );
 }
 
+/** The round "done" target used on cards and for media episodes: one idiom wherever something gets ticked. */
+export const completeRingClass = (onColour: boolean) =>
+    cn(
+        'group/done grid size-11 shrink-0 place-items-center rounded-full border-2 border-current transition-transform duration-150 active:scale-90 disabled:opacity-50',
+        !onColour && 'border-muted-foreground hover:border-foreground',
+    );
+
+/** A faint check at rest says what the ring does on touch (no hover there); it firms up on hover, focus and press. */
+export function RingCheck() {
+    return (
+        <Check
+            className="size-5 opacity-25 transition-opacity group-hover/done:opacity-60 group-focus-visible/done:opacity-60 group-active/done:opacity-100"
+            strokeWidth={3}
+            aria-hidden
+        />
+    );
+}
+
 interface TaskCardProps {
     occurrence: Occurrence;
     members: Member[];
@@ -130,12 +148,9 @@ export default function TaskCard({ occurrence, members, canCompleteOnBehalf, sho
             disabled={processing}
             aria-label={`${occurrence.title}: ${t('task.markDone')}`}
             onClick={asksWho ? undefined : () => complete()}
-            className={cn(
-                'group/done grid size-11 shrink-0 place-items-center rounded-full border-2 border-current transition-transform duration-150 active:scale-90 disabled:opacity-50',
-                !ink && 'border-muted-foreground hover:border-foreground',
-            )}
+            className={completeRingClass(Boolean(ink))}
         >
-            <Check className="size-5 opacity-0 transition-opacity group-hover/done:opacity-60 group-focus-visible/done:opacity-60" strokeWidth={3} />
+            <RingCheck />
         </button>
     );
 

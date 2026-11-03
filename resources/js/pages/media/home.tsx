@@ -1,11 +1,11 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { Check } from 'lucide-react';
 import { useState } from 'react';
 
 import ChipRow from '@/components/chip-row';
 import MediaPoster from '@/components/media/media-poster';
 import { cardGrid, EmptyState } from '@/components/page-header';
-import { Button } from '@/components/ui/button';
+import { completeRingClass, RingCheck } from '@/components/tasks/task-card';
+import { showUndo } from '@/components/undo-toast';
 import CheckstuLayout, { mediaNavItems } from '@/layouts/checkstu-layout';
 import { t } from '@/lib/i18n';
 import type { MediaHomeFilters, MediaHomeSort, MediaNextEpisodeEntry } from '@/types/media';
@@ -32,9 +32,22 @@ export default function Home({ nextEpisodes, filters }: HomeProps) {
     // deliberate here: marking the shown episode watched can advance which episode is "next"
     // or drop the show off this list entirely (now completed) — both require the server's
     // recomputed state, not a client-side guess.
-    function markWatched(episodeId: number) {
+    function markWatched(episodeId: number, title: string, label: string) {
         setMarkingId(episodeId);
-        router.post(route('media.episodes.watch.store', episodeId), {}, { preserveScroll: true, onFinish: () => setMarkingId(null) });
+        router.post(
+            route('media.episodes.watch.store', episodeId),
+            {},
+            {
+                preserveScroll: true,
+                onSuccess: () =>
+                    showUndo({
+                        title,
+                        note: `${label} gesehen`,
+                        undo: () => router.delete(route('media.episodes.watch.destroy', episodeId), { preserveScroll: true }),
+                    }),
+                onFinish: () => setMarkingId(null),
+            },
+        );
     }
 
     return (
@@ -64,15 +77,21 @@ export default function Home({ nextEpisodes, filters }: HomeProps) {
                             </div>
                         </Link>
 
-                        <Button
-                            size="icon"
-                            variant="outline"
+                        <button
+                            type="button"
                             disabled={markingId === entry.next_episode.id}
-                            onClick={() => markWatched(entry.next_episode.id)}
-                            aria-label={t('media.markEpisodeWatched')}
+                            onClick={() =>
+                                markWatched(
+                                    entry.next_episode.id,
+                                    entry.media_item.title_de,
+                                    `S${entry.next_episode.season_number} F${entry.next_episode.episode_number}`,
+                                )
+                            }
+                            aria-label={`${entry.media_item.title_de}, ${t('media.season', { number: entry.next_episode.season_number })} ${t('media.episode', { number: entry.next_episode.episode_number })}: ${t('media.markEpisodeWatched')}`}
+                            className={completeRingClass(false)}
                         >
-                            <Check className="size-4" />
-                        </Button>
+                            <RingCheck />
+                        </button>
                     </div>
                 ))}
             </div>
