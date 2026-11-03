@@ -38,7 +38,15 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
                 {sidebarNavItems.map((item) => {
                     const active = currentPath === item.url;
                     return (
-                        <Link key={item.url} href={item.url} prefetch aria-current={active ? 'page' : undefined} className={chipClass(active)}>
+                        <Link
+                            key={item.url}
+                            href={item.url}
+                            prefetch
+                            aria-current={active ? 'page' : undefined}
+                            // The menu opens on the last chip; bring the active one into view on narrow screens.
+                            ref={active ? (el: HTMLAnchorElement | null) => el?.scrollIntoView({ inline: 'center', block: 'nearest' }) : undefined}
+                            className={chipClass(active)}
+                        >
                             {item.title}
                         </Link>
                     );

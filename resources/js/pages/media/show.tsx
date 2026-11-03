@@ -139,7 +139,7 @@ export default function Show({ item }: ShowProps) {
                 </div>
             )}
 
-            {item.type === 'tv' && (
+            {item.type === 'tv' && item.seasons.length > 0 && (
                 <>
                     <h2 className="mt-6 mb-2 font-bold">{t('media.seasons')}</h2>
                     <div className="flex flex-col gap-2">

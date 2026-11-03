@@ -50,7 +50,7 @@ export default function ArchiveCard({ occurrence }: ArchiveCardProps) {
             <div
                 className={cn(
                     'absolute inset-0 flex items-center gap-2 pl-5 text-white transition-colors',
-                    reached ? 'bg-[#b45309]' : 'bg-[#d97706]',
+                    reached ? 'bg-swipe-restore-deep' : 'bg-swipe-restore',
                 )}
                 aria-hidden
             >

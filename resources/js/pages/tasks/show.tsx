@@ -86,7 +86,10 @@ export default function Show({ task, occurrence, members, can }: ShowProps) {
 
                         <dl className="mt-5 grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-base">
                             <dt className={cn(!ink && 'text-muted-foreground')}>{t('task.dueDate')}</dt>
-                            <dd className="font-bold">{formatLongDate(task.due_date)}</dd>
+                            <dd className="font-bold">
+                                {formatLongDate(task.due_date)}
+                                {occurrence?.status === 'overdue' && ' · überfällig'}
+                            </dd>
                             <dt className={cn(!ink && 'text-muted-foreground')}>{t('task.assignee')}</dt>
                             <dd className="font-bold">{task.assignee?.name ?? t('task.unassigned')}</dd>
                             {task.categories.length > 0 && (

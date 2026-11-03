@@ -204,7 +204,8 @@ const de = {
         disable: 'Push-Benachrichtigungen deaktivieren',
         enabled: 'Aktiviert auf diesem Gerät',
         unsupported: 'Push-Benachrichtigungen werden auf diesem Gerät/Browser nicht unterstützt.',
-        permissionDenied: 'Benachrichtigungen wurden blockiert. Bitte in den Browser-Einstellungen erlauben.',
+        permissionDenied:
+            'Benachrichtigungen sind für checkstu gerade aus. Erlaube sie in den Website-Einstellungen deines Browsers (meist über das Symbol neben der Adresse) und lade die Seite neu. Auf dem iPhone klappt das nur, wenn checkstu auf dem Home-Bildschirm liegt.',
     },
     settings: {
         backToApp: 'Zurück zur App',

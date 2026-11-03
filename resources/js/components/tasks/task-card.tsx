@@ -129,8 +129,8 @@ export default function TaskCard({ occurrence, members, canCompleteOnBehalf, sho
                 className={cn(
                     'absolute inset-0 flex items-center text-white transition-colors',
                     swipe.dx < 0
-                        ? cn('justify-end gap-2 pr-5', reachedDelete ? 'bg-[#be123c]' : 'bg-[#e11d48]')
-                        : cn('gap-2 pl-5', reached ? 'bg-[#047857]' : 'bg-[#059669]'),
+                        ? cn('justify-end gap-2 pr-5', reachedDelete ? 'bg-swipe-delete-deep' : 'bg-swipe-delete')
+                        : cn('gap-2 pl-5', reached ? 'bg-swipe-done-deep' : 'bg-swipe-done'),
                 )}
                 aria-hidden
             >

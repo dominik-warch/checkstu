@@ -14,6 +14,17 @@
 }
 
 @theme {
+    /* Fixed in both themes: these sit on their own surfaces (swipe reveals under a card, the
+       always-ink plate), never on the board, so they don't follow light/dark. The label on a
+       reveal only appears at the deep shade, which carries white text at 5:1 or more. */
+    --color-swipe-done: #059669;
+    --color-swipe-done-deep: #047857;
+    --color-swipe-delete: #e11d48;
+    --color-swipe-delete-deep: #be123c;
+    --color-swipe-restore: #d97706;
+    --color-swipe-restore-deep: #b45309;
+    --color-plate-urgent: #ff8fa3;
+
     --font-sans: 'Lexend', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 
     /* Das Spielbrett type: three sizes app-wide. Rank comes from weight and

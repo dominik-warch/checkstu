@@ -130,7 +130,7 @@ function UpNextPlate({ occurrence, playerColor, remaining }: { occurrence: Occur
                     {occurrence.title}
                 </Link>
                 <p className="mt-1.5 text-sm text-white/75">
-                    <span className={cn(overdue && 'font-bold text-[#ff8fa3]')}>
+                    <span className={cn(overdue && 'text-plate-urgent font-bold')}>
                         {overdue ? 'Überfällig seit ' : 'Fällig '}
                         {dueInSentence}
                     </span>

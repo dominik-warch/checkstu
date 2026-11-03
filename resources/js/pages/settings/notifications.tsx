@@ -20,7 +20,7 @@ export default function Notifications() {
 
                 {!supported && <p className="text-muted-foreground text-sm">{t('notifications.unsupported')}</p>}
 
-                {supported && permission === 'denied' && <p className="text-destructive text-sm">{t('notifications.permissionDenied')}</p>}
+                {supported && permission === 'denied' && <p className="text-muted-foreground text-sm">{t('notifications.permissionDenied')}</p>}
 
                 {supported && permission !== 'denied' && (
                     <div className="flex items-center gap-4">
