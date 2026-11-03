@@ -52,7 +52,6 @@ const de = {
         recurring: 'Wiederkehrende Aufgabe',
         blockedBy: 'Blockiert durch',
         blocks: 'Blockiert',
-        noDescription: 'Keine Beschreibung',
         moreOptions: 'Mehr Optionen',
         alreadyDone: 'Diese Aufgabe ist bereits erledigt.',
     },

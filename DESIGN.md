@@ -318,7 +318,7 @@ Field-grey pill track with 4px inset; options are 36px pills, active option in i
 - **Style:** card with the square box cover on top (dice on field grey without a cover), name 16px/700 (tap to rename), players and play time, then the last play: short date and the winner's pawn in their member colour. Status chip ("Haben wir" / "Wollen wir") at the foot; the trash circle sits on the cover's top-right corner. Grid: 2 columns on phone, up to 5 on wide screens.
 
 ### Lost Taps
-- **Behaviour:** a request that fails for lack of a connection keeps you on the page; the toast says "Nicht angekommen" (a change) or "Seite nicht geladen" (a visit) and its button reads "Nochmal", repeating that exact request. Only full page loads fall back to `offline.html`, which wears the board (ground, ink, Lexend, the pawn) and retries the page you asked for.
+- **Behaviour:** a request that fails for lack of a connection keeps you on the page; the toast says "Nicht angekommen" (a change) or "Seite nicht geladen" (a visit) and its button reads "Nochmal", repeating that exact request. Only full page loads fall back to `offline.html`, which wears the board (ground, ink, Lexend from the cached app stylesheet, the pawn), follows the app's own appearance setting (not just the system's), and retries the page you asked for.
 
 ### Handing Out
 - **Behaviour:** for parents, the assignee name in a card's meta line ("Leo ⌄", "Für alle ⌄") opens "Wer ist dran?": "Für alle" and every member with their colour dot, the current one ticked; one tap reassigns, with the undo toast ("Jetzt bei Leo"). Its tap area is stretched to 44px with an `::after`. Never on private tasks, and children see the plain name.

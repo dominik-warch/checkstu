@@ -101,7 +101,14 @@ export default function ArchiveCard({ occurrence }: ArchiveCardProps) {
                                 {t(priorityLabel[occurrence.priority])}
                             </span>
                         )}
-                        {occurrence.completed_by && <span>{t('archive.completedBy', { name: occurrence.completed_by.name })}</span>}
+                        {occurrence.completed_by && (
+                            // Same words as the undo toast: your own completions read "Von dir erledigt".
+                            <span>
+                                {occurrence.completed_by.id === meId
+                                    ? 'Von dir erledigt'
+                                    : t('archive.completedBy', { name: occurrence.completed_by.name })}
+                            </span>
+                        )}
                         <time className="tabular-nums">{formatCompletedAt(occurrence.completed_at)}</time>
                         {occurrence.is_private && <Lock className="size-3.5" aria-label={t('task.private')} />}
                         {occurrence.is_recurring && <Repeat className="size-3.5" aria-label={t('task.recurring')} />}

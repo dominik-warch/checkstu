@@ -6,9 +6,18 @@
         <meta name="theme-color" content="#f4f5f8" media="(prefers-color-scheme: light)" />
         <meta name="theme-color" content="#0f1115" media="(prefers-color-scheme: dark)" />
         <title>checkstu – kein Netz</title>
+        <!-- The app's own font stylesheet: served from the browser's cache when it has it (always the case when only the server is down). -->
+        <link href="https://fonts.bunny.net/css?family=lexend:400,500,700" rel="stylesheet" />
+        <script>
+            // Follow the app's appearance setting (Einstellungen → Darstellung), not just the system's.
+            try {
+                var appearance = localStorage.getItem('appearance') || 'system';
+                if (appearance !== 'system') document.documentElement.dataset.theme = appearance;
+            } catch (e) {}
+        </script>
         <style>
             /* The board's own ground, ink and type (DESIGN.md), inline because nothing else loads offline.
-               Lexend comes from the browser cache when it's there; otherwise the system sans stands in. */
+               Lexend comes from the stylesheet above when the browser has it cached; otherwise the system sans stands in. */
             :root {
                 color-scheme: light dark;
                 --ground: #f4f5f8;
@@ -17,11 +26,17 @@
             }
 
             @media (prefers-color-scheme: dark) {
-                :root {
+                :root:not([data-theme='light']) {
                     --ground: #0f1115;
                     --ink: #f1f2f5;
                     --muted: #a0a6b2;
                 }
+            }
+
+            :root[data-theme='dark'] {
+                --ground: #0f1115;
+                --ink: #f1f2f5;
+                --muted: #a0a6b2;
             }
 
             body {

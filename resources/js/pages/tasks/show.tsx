@@ -1,7 +1,7 @@
 import { Head, Link, usePage } from '@inertiajs/react';
 import { ArrowLeft, Check, Circle, Lock, Pencil, Repeat, SkipForward, Trash2 } from 'lucide-react';
 
-import { asksWhoDidIt, deleteTask, priorityClass, priorityLabel, skipOccurrence, WhoDidItMenu } from '@/components/tasks/task-card';
+import { asksWhoDidIt, deleteTask, formatDue, priorityClass, priorityLabel, skipOccurrence, WhoDidItMenu } from '@/components/tasks/task-card';
 import TaskFormDialog from '@/components/tasks/task-form-dialog';
 import { Button } from '@/components/ui/button';
 import { useCompleteOccurrence } from '@/hooks/use-complete-occurrence';
@@ -38,7 +38,11 @@ interface ShowProps {
 
 function formatLongDate(due: string | null): string {
     if (!due) return 'Irgendwann';
-    return new Intl.DateTimeFormat('de-DE', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date(due.slice(0, 10) + 'T00:00:00'));
+    const date = new Date(due.slice(0, 10) + 'T00:00:00');
+    const long = new Intl.DateTimeFormat('de-DE', { weekday: 'long', day: 'numeric', month: 'long' }).format(date);
+    // Today and tomorrow say so first, like the lists do; the weekday stays for the full picture.
+    const relative = formatDue(due.slice(0, 10));
+    return relative === 'Heute' || relative === 'Morgen' || relative === 'Gestern' ? `${relative}, ${long}` : long;
 }
 
 export default function Show({ task, occurrence, members, can }: ShowProps) {
@@ -129,11 +133,7 @@ export default function Show({ task, occurrence, members, can }: ShowProps) {
                             )}
                         </dl>
 
-                        {task.description ? (
-                            <p className="mt-4 max-w-[65ch] text-base whitespace-pre-line">{task.description}</p>
-                        ) : (
-                            <p className={cn('mt-4 text-sm', !ink && 'text-muted-foreground')}>{t('task.noDescription')}</p>
-                        )}
+                        {task.description && <p className="mt-4 max-w-[65ch] text-base whitespace-pre-line">{task.description}</p>}
                     </section>
 
                     {occurrence && can.complete && (
