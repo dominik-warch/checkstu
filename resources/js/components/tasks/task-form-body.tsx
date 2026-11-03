@@ -148,9 +148,9 @@ export default function TaskFormBody({ members, task, templates = [], defaultDue
 
             <div className="grid gap-4">
                 <div className="grid gap-2">
-                    <Label>{t('task.priority')}</Label>
+                    <Label htmlFor="priority">{t('task.priority')}</Label>
                     <Select value={String(data.priority)} onValueChange={(v) => setData('priority', Number(v))}>
-                        <SelectTrigger>
+                        <SelectTrigger id="priority">
                             <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -221,12 +221,12 @@ export default function TaskFormBody({ members, task, templates = [], defaultDue
             </div>
 
             <div className="grid gap-2">
-                <Label>{t('task.assignee')}</Label>
+                <Label htmlFor="assignee">{t('task.assignee')}</Label>
                 <Select
                     value={data.default_assignee_id ? String(data.default_assignee_id) : NONE}
                     onValueChange={(v) => setData('default_assignee_id', v === NONE ? null : Number(v))}
                 >
-                    <SelectTrigger>
+                    <SelectTrigger id="assignee">
                         <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -273,9 +273,9 @@ export default function TaskFormBody({ members, task, templates = [], defaultDue
                     </CollapsibleTrigger>
                     <CollapsibleContent className="grid gap-4 pt-2">
                         <div className="grid gap-2">
-                            <Label>{t('recurrence.title')}</Label>
+                            <Label htmlFor="recurrence">{t('recurrence.title')}</Label>
                             <Select value={data.recurrence_type} onValueChange={(v) => setData('recurrence_type', v as RecurrenceMode)}>
-                                <SelectTrigger>
+                                <SelectTrigger id="recurrence">
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -291,9 +291,9 @@ export default function TaskFormBody({ members, task, templates = [], defaultDue
                             <div className="grid gap-4 rounded-lg border p-3">
                                 <div className="grid grid-cols-[1fr_auto_1fr] items-end gap-2">
                                     <div className="grid gap-2">
-                                        <Label>{t('recurrence.frequency')}</Label>
+                                        <Label htmlFor="rrule_freq">{t('recurrence.frequency')}</Label>
                                         <Select value={data.rrule_freq} onValueChange={(v) => setData('rrule_freq', v as RruleFreq)}>
-                                            <SelectTrigger>
+                                            <SelectTrigger id="rrule_freq">
                                                 <SelectValue />
                                             </SelectTrigger>
                                             <SelectContent>
@@ -323,8 +323,13 @@ export default function TaskFormBody({ members, task, templates = [], defaultDue
 
                                 {data.rrule_freq === 'WEEKLY' && (
                                     <div className="grid gap-2">
-                                        <Label>{t('recurrence.weekdays')}</Label>
-                                        <ToggleGroup type="multiple" value={data.rrule_byday} onValueChange={(v) => setData('rrule_byday', v)}>
+                                        <Label id="weekdays_label">{t('recurrence.weekdays')}</Label>
+                                        <ToggleGroup
+                                            type="multiple"
+                                            aria-labelledby="weekdays_label"
+                                            value={data.rrule_byday}
+                                            onValueChange={(v) => setData('rrule_byday', v)}
+                                        >
                                             {WEEKDAYS.map((d) => (
                                                 <ToggleGroupItem key={d.value} value={d.value} aria-label={d.label}>
                                                     {d.label}

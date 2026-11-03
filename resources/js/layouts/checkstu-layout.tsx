@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { Archive, CalendarDays, Dices, Film, House, Library, ListChecks, LogOut, Menu, Settings, Trophy, Users } from 'lucide-react';
+import { Archive, CalendarDays, Dices, Film, House, Library, ListChecks, LogOut, Menu, Settings, Sun, Trophy, Users } from 'lucide-react';
 import { CSSProperties, PropsWithChildren, useEffect, useState } from 'react';
 
 import PullToRefresh from '@/components/pull-to-refresh';
@@ -17,7 +17,7 @@ export interface NavItem {
 }
 
 export const tasksNavItems: NavItem[] = [
-    { label: t('nav.today'), icon: House, routeName: 'home', href: '/' },
+    { label: t('nav.today'), icon: Sun, routeName: 'home', href: '/' },
     { label: t('nav.tasks'), icon: ListChecks, routeName: 'tasks.index', href: '/tasks' },
 ];
 
@@ -36,7 +36,7 @@ export const boardGamesNavItems: NavItem[] = [
 type Context = 'tasks' | 'media' | 'boardgames';
 
 const contexts: { id: Context; href: string; icon: typeof House; label: string }[] = [
-    { id: 'tasks', href: '/', icon: ListChecks, label: t('nav.switchToTasks') },
+    { id: 'tasks', href: '/', icon: House, label: t('nav.switchToTasks') },
     { id: 'media', href: '/media', icon: Film, label: t('nav.switchToMedia') },
     { id: 'boardgames', href: '/boardgames', icon: Dices, label: t('nav.switchToBoardGames') },
 ];

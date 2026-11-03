@@ -88,9 +88,9 @@ export default function MemberDialog({ trigger, member, members }: MemberDialogP
                     </div>
 
                     <div className="grid gap-2">
-                        <Label>Rolle</Label>
+                        <Label htmlFor="m-role">Rolle</Label>
                         <Select value={data.role} onValueChange={(v) => setData('role', v as 'admin' | 'member' | 'guest')}>
-                            <SelectTrigger>
+                            <SelectTrigger id="m-role">
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>

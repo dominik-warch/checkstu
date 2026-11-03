@@ -30,7 +30,7 @@ const de = {
         settings: 'Einstellungen',
         menu: 'Menü',
         media: 'Medien',
-        switchToTasks: 'Aufgaben',
+        switchToTasks: 'Haushalt',
         switchToMedia: 'Medien',
         switchToBoardGames: 'Brettspiele',
     },
@@ -167,7 +167,7 @@ const de = {
     },
     boardGames: {
         catalogue: 'Katalog',
-        plays: 'Spiele',
+        plays: 'Partien',
         owned: 'Haben wir',
         wishlist: 'Wollen wir',
         addGame: 'Spiel hinzufügen',

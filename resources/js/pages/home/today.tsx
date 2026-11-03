@@ -145,7 +145,8 @@ function UpNextPlate({ occurrence, playerColor, remaining }: { occurrence: Occur
                     {priority && <span className="font-bold text-white"> · {priority}</span>}
                     {!occurrence.assignee && ' · Für alle'}
                     {' · '}
-                    {remaining === 0 ? 'danach hast du frei.' : remaining === 1 ? 'danach noch 1 Aufgabe.' : `danach noch ${remaining} Aufgaben.`}
+                    {/* Counts only tasks assigned to you (like the home fields), not the "Für alle" ones in the list below. */}
+                    {remaining === 0 ? 'danach hast du frei.' : `danach noch ${remaining} von deinen.`}
                 </p>
             </div>
             <button
