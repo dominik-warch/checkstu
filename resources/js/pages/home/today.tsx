@@ -8,6 +8,7 @@ import SectionHead from '@/components/section-head';
 import LeftBehind, { isLeftBehind } from '@/components/tasks/left-behind';
 import ScopeFilter from '@/components/tasks/scope-filter';
 import TaskCard, { formatDue } from '@/components/tasks/task-card';
+import { isoDay } from '@/components/tasks/task-form-body';
 import TaskFormDialog from '@/components/tasks/task-form-dialog';
 import { useCompleteOccurrence } from '@/hooks/use-complete-occurrence';
 import CheckstuLayout from '@/layouts/checkstu-layout';
@@ -113,7 +114,7 @@ export default function Today({ occurrences, progress, filters, members, templat
                 </div>
             </div>
 
-            {can.createTask && <TaskFormDialog members={members} templates={templates} />}
+            {can.createTask && <TaskFormDialog members={members} templates={templates} defaultDue={isoDay()} />}
         </CheckstuLayout>
     );
 }

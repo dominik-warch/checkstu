@@ -2,6 +2,7 @@ import { useForm, usePage } from '@inertiajs/react';
 import { ChevronDown, Plus, X } from 'lucide-react';
 import { FormEventHandler, useState } from 'react';
 
+import { chipClass } from '@/components/chip-row';
 import InputError from '@/components/input-error';
 import TitleAutocomplete from '@/components/tasks/title-autocomplete';
 import { Button } from '@/components/ui/button';
@@ -14,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { t } from '@/lib/i18n';
 import { buildRrule, RruleFreq, WEEKDAYS } from '@/lib/rrule';
+import { cn } from '@/lib/utils';
 import type { SharedData } from '@/types';
 import type { Member, TaskTemplateSummary } from '@/types/checkstu';
 
@@ -35,7 +37,16 @@ interface TaskFormBodyProps {
     members: Member[];
     task?: EditableTask; // present => edit mode
     templates?: TaskTemplateSummary[]; // name catalogue for the title autocomplete (create mode only)
+    /** Due date a new task starts with (Y-m-d); Heute passes today so what you add there shows up there. */
+    defaultDue?: string;
     onSaved: () => void;
+}
+
+/** Local Y-m-d for today plus `offset` days (not toISOString, which is UTC and can be a day off). */
+export function isoDay(offset = 0): string {
+    const d = new Date();
+    d.setDate(d.getDate() + offset);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
 /**
@@ -48,7 +59,7 @@ interface TaskFormBodyProps {
  * creating a new task; the backend (UpdateTaskAction) never reads these
  * fields on edit.
  */
-export default function TaskFormBody({ members, task, templates = [], onSaved }: TaskFormBodyProps) {
+export default function TaskFormBody({ members, task, templates = [], defaultDue = '', onSaved }: TaskFormBodyProps) {
     const isEdit = Boolean(task);
     const [showMore, setShowMore] = useState(false);
     const { auth } = usePage<SharedData>().props;
@@ -59,7 +70,7 @@ export default function TaskFormBody({ members, task, templates = [], onSaved }:
         priority: task?.priority ?? 1,
         is_private: task?.is_private ?? false,
         default_assignee_id: task?.assignee_id ?? (null as number | null),
-        due_date: task?.due_date ?? '',
+        due_date: task?.due_date?.slice(0, 10) ?? defaultDue,
 
         recurrence_type: 'one_off' as RecurrenceMode,
         rrule_freq: 'WEEKLY' as RruleFreq,
@@ -70,6 +81,8 @@ export default function TaskFormBody({ members, task, templates = [], onSaved }:
         explicit_dates: [] as string[],
     });
     const { data, setData, processing, errors, reset } = form;
+    // "Datum…" opens the native picker for anything beyond today/tomorrow/someday.
+    const [pickDate, setPickDate] = useState(() => data.due_date !== '' && data.due_date !== isoDay() && data.due_date !== isoDay(1));
     // `errors` is typed from the form's client-side data shape, but the server
     // validates transformed field names too (e.g. `rrule`, computed at submit
     // time — see the transform() call below), so index it loosely for those.
@@ -103,7 +116,10 @@ export default function TaskFormBody({ members, task, templates = [], onSaved }:
         }));
 
         const onSuccess = () => {
-            if (!isEdit) reset();
+            if (!isEdit) {
+                reset();
+                setPickDate(false);
+            }
             onSaved();
         };
         if (isEdit && task) {
@@ -130,8 +146,7 @@ export default function TaskFormBody({ members, task, templates = [], onSaved }:
                 <InputError message={errors.description} />
             </div>
 
-            {/* minmax(0, …): a native date input has an intrinsic minimum width that would push past the sheet at 375px. */}
-            <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-4">
+            <div className="grid gap-4">
                 <div className="grid gap-2">
                     <Label>{t('task.priority')}</Label>
                     <Select value={String(data.priority)} onValueChange={(v) => setData('priority', Number(v))}>
@@ -147,18 +162,60 @@ export default function TaskFormBody({ members, task, templates = [], onSaved }:
                     </Select>
                 </div>
 
-                {data.recurrence_type !== 'explicit_dates' && (
+                {data.recurrence_type === 'rrule' && (
                     <div className="grid gap-2">
-                        <Label htmlFor="due_date">{data.recurrence_type === 'rrule' ? t('recurrence.startsOn') : t('task.dueDate')}</Label>
-                        <Input
-                            id="due_date"
-                            type="date"
-                            value={data.recurrence_type === 'rrule' ? data.anchor_date : data.due_date}
-                            onChange={(e) =>
-                                data.recurrence_type === 'rrule' ? setData('anchor_date', e.target.value) : setData('due_date', e.target.value)
-                            }
-                        />
-                        <InputError message={errors.due_date ?? errors.anchor_date} />
+                        <Label htmlFor="due_date">{t('recurrence.startsOn')}</Label>
+                        <Input id="due_date" type="date" value={data.anchor_date} onChange={(e) => setData('anchor_date', e.target.value)} />
+                        <InputError message={errors.anchor_date} />
+                    </div>
+                )}
+
+                {/* The common answers are one tap; only "Datum…" needs the native picker. */}
+                {(data.recurrence_type === 'one_off' || data.recurrence_type === 'relative') && (
+                    <div className="grid gap-2">
+                        <Label id="due_label">{t('task.dueDate')}</Label>
+                        <div className="flex flex-wrap gap-1" role="group" aria-labelledby="due_label">
+                            {[
+                                { label: 'Heute', value: isoDay() },
+                                { label: 'Morgen', value: isoDay(1) },
+                                { label: 'Irgendwann', value: '' },
+                            ].map((option) => (
+                                <button
+                                    key={option.label}
+                                    type="button"
+                                    aria-pressed={!pickDate && data.due_date === option.value}
+                                    onClick={() => {
+                                        setPickDate(false);
+                                        setData('due_date', option.value);
+                                    }}
+                                    className={cn(chipClass(!pickDate && data.due_date === option.value), 'px-2.5')}
+                                >
+                                    {option.label}
+                                </button>
+                            ))}
+                            <button
+                                type="button"
+                                aria-pressed={pickDate}
+                                onClick={() => setPickDate(true)}
+                                className={cn(chipClass(pickDate), 'px-2.5')}
+                            >
+                                {pickDate && data.due_date
+                                    ? new Intl.DateTimeFormat('de-DE', { day: 'numeric', month: 'short' }).format(
+                                          new Date(data.due_date + 'T00:00:00'),
+                                      )
+                                    : 'Datum…'}
+                            </button>
+                        </div>
+                        {pickDate && (
+                            <Input
+                                id="due_date"
+                                type="date"
+                                aria-labelledby="due_label"
+                                value={data.due_date}
+                                onChange={(e) => setData('due_date', e.target.value)}
+                            />
+                        )}
+                        <InputError message={errors.due_date} />
                     </div>
                 )}
             </div>

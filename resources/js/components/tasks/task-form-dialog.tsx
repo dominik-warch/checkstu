@@ -14,9 +14,10 @@ interface TaskFormDialogProps {
     task?: EditableTask; // present => edit mode
     templates?: TaskTemplateSummary[]; // name catalogue for the title autocomplete (create mode)
     trigger?: ReactNode; // custom trigger; defaults to a FAB (create mode)
+    defaultDue?: string; // Y-m-d a new task starts with
 }
 
-export default function TaskFormDialog({ members, task, templates, trigger }: TaskFormDialogProps) {
+export default function TaskFormDialog({ members, task, templates, trigger, defaultDue }: TaskFormDialogProps) {
     const isEdit = Boolean(task);
     const [open, setOpen] = useState(false);
 
@@ -41,7 +42,7 @@ export default function TaskFormDialog({ members, task, templates, trigger }: Ta
                     </DialogDescription>
                 </DialogHeader>
 
-                <TaskFormBody members={members} task={task} templates={templates} onSaved={() => setOpen(false)} />
+                <TaskFormBody members={members} task={task} templates={templates} defaultDue={defaultDue} onSaved={() => setOpen(false)} />
             </DialogContent>
         </Dialog>
     );
