@@ -277,7 +277,7 @@ Pills, quick to press.
 - **Primary:** ink fill, white text, Lexend 500 16px. Hover drops to 90%.
 - **Hover / Focus:** colour transitions at 150ms; press scales to 0.97; focus is a 2px ink ring offset 2px.
 - **Outline / Secondary / Ghost:** card fill with 1.5px input outline; field-grey fill; transparent with field-grey hover.
-- **Add button:** 56px player-colour circle with a 4px board-white ring, bottom right above the tabs; on `lg` a 44px ink-on-player circle in the rail. Moves with ease-out-expo over 300ms.
+- **Add button:** in Haushalt (Heute, Aufgaben) a 56px player-colour circle docked in the middle of the phone tab bar (Heute · + · Aufgaben), with a 4px card-white ring, so it never covers a card's complete ring. In Medien and Brettspiele it floats bottom right above the tabs and slides away on scroll-down (ease-out-expo, 300ms). On `lg` it is a 44px ink-on-player circle in the rail everywhere.
 
 ### Chips
 - **Style:** 36px pill, card fill, 1.5px outline, 13px Lexend 500, 16px side padding.

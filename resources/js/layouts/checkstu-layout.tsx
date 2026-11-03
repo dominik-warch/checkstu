@@ -53,9 +53,16 @@ export function playerStyle(color: string | null | undefined): CSSProperties {
 interface CheckstuLayoutProps {
     navItems?: NavItem[];
     context?: Context;
+    /** Leave the middle of the phone tab bar free for the page's docked "+" (Heute, Aufgaben). */
+    dockedAdd?: boolean;
 }
 
-export default function CheckstuLayout({ children, navItems = tasksNavItems, context = 'tasks' }: PropsWithChildren<CheckstuLayoutProps>) {
+export default function CheckstuLayout({
+    children,
+    navItems = tasksNavItems,
+    context = 'tasks',
+    dockedAdd = false,
+}: PropsWithChildren<CheckstuLayoutProps>) {
     const page = usePage<SharedData>();
     const current = page.url;
     const user = page.props.auth.user;
@@ -187,10 +194,14 @@ export default function CheckstuLayout({ children, navItems = tasksNavItems, con
                     home-indicator gesture zone, which reaches past the safe-area inset. */}
                 <nav className="bg-card fixed inset-x-0 bottom-0 z-20 border-t pb-[calc(env(safe-area-inset-bottom)+0.5rem)] lg:hidden">
                     <div className="mx-auto flex w-full max-w-md items-stretch">
-                        {navItems.map((item) => {
+                        {navItems.map((item, index) => {
                             const active = isActive(item);
                             const Icon = item.icon;
-                            return (
+                            return [
+                                // The docked "+" sits in this gap, between the two Haushalt tabs.
+                                dockedAdd && index === Math.ceil(navItems.length / 2) && (
+                                    <span key="docked-add" className="w-20 shrink-0" aria-hidden />
+                                ),
                                 <Link
                                     key={item.routeName}
                                     href={item.href}
@@ -209,8 +220,8 @@ export default function CheckstuLayout({ children, navItems = tasksNavItems, con
                                         <Icon className="size-5" />
                                     </span>
                                     {item.label}
-                                </Link>
-                            );
+                                </Link>,
+                            ];
                         })}
                     </div>
                 </nav>

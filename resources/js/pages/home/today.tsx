@@ -48,7 +48,7 @@ export default function Today({ occurrences, progress, filters, members, templat
     );
 
     return (
-        <CheckstuLayout>
+        <CheckstuLayout dockedAdd={can.createTask}>
             <Head title={t('nav.today')} />
 
             <div className="md:grid md:grid-cols-[minmax(0,22rem)_minmax(0,1fr)] md:items-start md:gap-6 lg:grid-cols-[minmax(0,23rem)_minmax(0,1fr)] lg:gap-10">

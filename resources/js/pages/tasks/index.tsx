@@ -39,7 +39,7 @@ export default function TasksIndex({ occurrences, filters, members, templates, c
     }
 
     return (
-        <CheckstuLayout>
+        <CheckstuLayout dockedAdd={can.createTask}>
             <Head title={t('nav.tasks')} />
 
             {/* One column at every width, held to a readable measure, so the due dates run down a single column. */}
