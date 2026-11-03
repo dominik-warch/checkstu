@@ -23,8 +23,9 @@ function dayLabel(due: string): string {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const diff = Math.round((date.getTime() - today.getTime()) / 86_400_000);
-    if (diff === 0) return 'Heute';
-    if (diff === 1) return 'Morgen';
+    // Same words as on Heute ("Fällig heute"), so the group reads the same in both lists.
+    if (diff === 0) return 'Fällig heute';
+    if (diff === 1) return 'Fällig morgen';
     return new Intl.DateTimeFormat('de-DE', { weekday: 'long', day: 'numeric', month: 'long' }).format(date);
 }
 

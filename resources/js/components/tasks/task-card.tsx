@@ -36,9 +36,11 @@ export function formatDue(due: string | null): string {
 }
 
 /** Deletes at once (tasks are only soft-deleted) and offers the undo toast; "Gelöscht" in the archive is the way back after that. */
-export function deleteTask(taskId: number, title: string, onFailed?: () => void) {
+export function deleteTask(taskId: number, title: string, onFailed?: () => void, returnTo?: string) {
     let succeeded = false;
     router.delete(route('tasks.destroy', taskId), {
+        // From the task's own page, the server sends you back to returnTo (the list you came from).
+        data: returnTo ? { return_to: returnTo } : {},
         preserveScroll: true,
         onSuccess: () => {
             succeeded = true;
@@ -96,26 +98,22 @@ export function WhoDidItMenu({
 }
 
 /** Lets one occurrence go (the series carries on), with the undo toast. Parents only, like deleting. */
-export function skipOccurrence(occurrenceId: number, title: string, onFailed?: () => void) {
+export function skipOccurrence(occurrenceId: number, title: string, onFailed?: () => void, returnTo?: string) {
     let succeeded = false;
-    router.post(
-        route('occurrences.skip', occurrenceId),
-        {},
-        {
-            preserveScroll: true,
-            onSuccess: () => {
-                succeeded = true;
-                showUndo({
-                    title,
-                    note: 'Übersprungen',
-                    undo: () => router.delete(route('occurrences.restore', occurrenceId), { preserveScroll: true }),
-                });
-            },
-            onFinish: () => {
-                if (!succeeded) onFailed?.();
-            },
+    router.post(route('occurrences.skip', occurrenceId), returnTo ? { return_to: returnTo } : {}, {
+        preserveScroll: true,
+        onSuccess: () => {
+            succeeded = true;
+            showUndo({
+                title,
+                note: 'Übersprungen',
+                undo: () => router.delete(route('occurrences.restore', occurrenceId), { preserveScroll: true }),
+            });
         },
-    );
+        onFinish: () => {
+            if (!succeeded) onFailed?.();
+        },
+    });
 }
 
 /** The round "done" target used on cards and for media episodes: one idiom wherever something gets ticked. */

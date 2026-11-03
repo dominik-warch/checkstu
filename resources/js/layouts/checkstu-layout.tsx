@@ -6,6 +6,7 @@ import PullToRefresh from '@/components/pull-to-refresh';
 import { Sheet, SheetClose, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { contrastTextColor } from '@/lib/color-contrast';
 import { t } from '@/lib/i18n';
+import { previousPage } from '@/lib/previous-page';
 import { cn } from '@/lib/utils';
 import type { SharedData } from '@/types';
 
@@ -89,10 +90,14 @@ export default function CheckstuLayout({
         document.querySelector('meta[name="theme-color"]')?.setAttribute('content', player);
     }, [player]);
 
+    // A task's page belongs to the tab you opened it from, so the tab bar and its back link agree.
+    const from = previousPage();
+    const here = /^\/tasks\/\d+/.test(current) && from !== null && /^\/(\?|$)/.test(from) ? '/' : current;
+
     const isActive = (item: NavItem) => {
         // Section roots are exact-match only, otherwise they'd light up on every sub-page.
         const isSectionRoot = item.href === '/' || item.href === '/media' || item.href === '/boardgames';
-        return isSectionRoot ? current === item.href || current.startsWith(item.href + '?') : current.startsWith(item.href);
+        return isSectionRoot ? here === item.href || here.startsWith(item.href + '?') : here.startsWith(item.href);
     };
 
     const secondaryLinks = (

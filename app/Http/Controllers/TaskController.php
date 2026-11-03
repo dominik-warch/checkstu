@@ -15,6 +15,7 @@ use App\Models\Category;
 use App\Models\Task;
 use App\Models\TaskOccurrence;
 use App\Models\User;
+use App\Support\LeaveTaskPage;
 use App\Support\OccurrencePresenter;
 use App\Support\TaskTemplatePresenter;
 use Illuminate\Http\RedirectResponse;
@@ -110,16 +111,13 @@ class TaskController extends Controller
         return redirect()->route('tasks.show', $task);
     }
 
-    public function destroy(Task $task): RedirectResponse
+    public function destroy(Request $request, Task $task): RedirectResponse
     {
         Gate::authorize('delete', $task);
 
         $task->delete();
 
-        // From a list, stay there (the undo toast is shown on it); the task's own page is gone now.
-        return url()->previous() === route('tasks.show', $task)
-            ? redirect()->route('tasks.index')
-            : back();
+        return LeaveTaskPage::redirect($request, $task->id);
     }
 
     /**

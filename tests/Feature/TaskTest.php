@@ -198,6 +198,30 @@ class TaskTest extends TestCase
         $this->assertSoftDeleted($task);
     }
 
+    public function test_deleting_from_the_task_page_returns_to_the_list_it_was_opened_from(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $task = Task::factory()->create();
+
+        $this->actingAs($admin)
+            ->from(route('tasks.show', $task))
+            ->delete(route('tasks.destroy', $task), ['return_to' => '/?scope=all'])
+            ->assertRedirect('/?scope=all');
+    }
+
+    public function test_the_return_target_cannot_point_outside_the_task_lists(): void
+    {
+        $admin = User::factory()->admin()->create();
+
+        foreach (['https://evil.example', '//evil.example', '/settings/profile', '/tasks/5'] as $to) {
+            $task = Task::factory()->create();
+            $this->actingAs($admin)
+                ->from(route('tasks.show', $task))
+                ->delete(route('tasks.destroy', $task), ['return_to' => $to])
+                ->assertRedirect(route('tasks.index'));
+        }
+    }
+
     public function test_deleting_from_a_list_stays_on_it(): void
     {
         $admin = User::factory()->admin()->create();

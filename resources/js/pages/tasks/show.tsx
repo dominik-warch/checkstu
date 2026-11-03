@@ -235,13 +235,17 @@ export default function Show({ task, occurrence, members, can }: ShowProps) {
                                 />
                             )}
                             {can.delete && occurrence && (
-                                <Button variant="outline" onClick={() => skipOccurrence(occurrence.id, task.title)}>
+                                <Button variant="outline" onClick={() => skipOccurrence(occurrence.id, task.title, undefined, back.href)}>
                                     <SkipForward />
                                     Überspringen
                                 </Button>
                             )}
                             {can.delete && (
-                                <Button variant="ghost" className="text-destructive" onClick={() => deleteTask(task.id, task.title)}>
+                                <Button
+                                    variant="ghost"
+                                    className="text-destructive"
+                                    onClick={() => deleteTask(task.id, task.title, undefined, back.href)}
+                                >
                                     <Trash2 />
                                     {t('common.delete')}
                                 </Button>

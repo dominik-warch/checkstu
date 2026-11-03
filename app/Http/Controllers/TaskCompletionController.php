@@ -10,6 +10,7 @@ use App\Actions\Tasks\SkipOccurrenceAction;
 use App\Http\Requests\Tasks\CompleteTaskRequest;
 use App\Models\TaskOccurrence;
 use App\Models\User;
+use App\Support\LeaveTaskPage;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -37,10 +38,7 @@ class TaskCompletionController extends Controller
 
         $action->handle($occurrence, $request->user());
 
-        // Like a delete: from the task's own page (which would now read "schon erledigt") go to the list.
-        return url()->previous() === route('tasks.show', $occurrence->task_id)
-            ? redirect()->route('tasks.index')
-            : back();
+        return LeaveTaskPage::redirect($request, $occurrence->task_id);
     }
 
     /** Undo an accidental completion or skip. Anyone who could complete the task can restore it. */
