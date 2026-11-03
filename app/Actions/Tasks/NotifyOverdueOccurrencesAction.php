@@ -29,6 +29,8 @@ class NotifyOverdueOccurrencesAction
             ->whereNull('completed_at')
             ->where('is_skipped', false)
             ->whereDate('due_date', '<', Carbon::today())
+            // Soft-deleting a task keeps its occurrences (the FK cascade only fires on hard delete).
+            ->whereHas('task')
             ->with('task')
             ->get();
 

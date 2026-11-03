@@ -214,6 +214,25 @@ class TaskPushNotificationTest extends TestCase
         Notification::assertNothingSent();
     }
 
+    public function test_overdue_action_skips_occurrences_of_soft_deleted_tasks(): void
+    {
+        Notification::fake();
+
+        $assignee = User::factory()->create();
+        foreach ([$assignee->id, null] as $assigneeId) {
+            $task = Task::factory()->create();
+            TaskOccurrence::factory()->for($task)->create([
+                'assignee_id' => $assigneeId,
+                'due_date' => now()->subDays(2)->toDateString(),
+            ]);
+            $task->delete();
+        }
+
+        app(NotifyOverdueOccurrencesAction::class)->handle();
+
+        Notification::assertNothingSent();
+    }
+
     public function test_overdue_action_notifies_all_non_guests_for_unassigned_occurrences(): void
     {
         Notification::fake();
