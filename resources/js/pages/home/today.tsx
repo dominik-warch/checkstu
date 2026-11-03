@@ -5,6 +5,7 @@ import { useEffect, useRef } from 'react';
 import { EmptyState } from '@/components/page-header';
 import Pawn from '@/components/pawn';
 import SectionHead from '@/components/section-head';
+import LeftBehind, { isLeftBehind } from '@/components/tasks/left-behind';
 import ScopeFilter from '@/components/tasks/scope-filter';
 import TaskCard, { formatDue } from '@/components/tasks/task-card';
 import TaskFormDialog from '@/components/tasks/task-form-dialog';
@@ -35,7 +36,9 @@ export default function Today({ occurrences, progress, filters, members, templat
 
     const rest = occurrences.filter((o) => o !== upNext);
     const blocked = rest.filter((o) => o.is_blocked);
-    const overdue = rest.filter((o) => !o.is_blocked && o.status === 'overdue');
+    const overdueAll = rest.filter((o) => !o.is_blocked && o.status === 'overdue');
+    const leftBehind = overdueAll.filter(isLeftBehind);
+    const overdue = overdueAll.filter((o) => !isLeftBehind(o));
     const today = rest.filter((o) => !o.is_blocked && o.status !== 'overdue');
 
     // Under the "Heute" head every due label would just repeat "Heute", so that group drops it.
@@ -82,6 +85,10 @@ export default function Today({ occurrences, progress, filters, members, templat
                             {filters.scope === 'mine' ? 'Sonst steht heute nichts an.' : 'Heute steht nichts mehr an.'}
                         </EmptyState>
                     )}
+
+                    <LeftBehind count={leftBehind.length}>
+                        <div className="flex flex-col gap-2">{leftBehind.map((o) => card(o))}</div>
+                    </LeftBehind>
 
                     {overdue.length > 0 && (
                         <section>

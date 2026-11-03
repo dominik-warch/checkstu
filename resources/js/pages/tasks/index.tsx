@@ -2,6 +2,7 @@ import { Head } from '@inertiajs/react';
 
 import PageHeader, { cardGrid, EmptyState } from '@/components/page-header';
 import SectionHead from '@/components/section-head';
+import LeftBehind, { isLeftBehind } from '@/components/tasks/left-behind';
 import ScopeFilter from '@/components/tasks/scope-filter';
 import TaskCard from '@/components/tasks/task-card';
 import TaskFormDialog from '@/components/tasks/task-form-dialog';
@@ -33,7 +34,7 @@ export default function TasksIndex({ occurrences, filters, members, templates, c
     const today = new Date(new Date().setHours(0, 0, 0, 0));
     const groups = new Map<string, Occurrence[]>();
     for (const o of occurrences) {
-        const key = !o.due_date ? 'someday' : new Date(o.due_date + 'T00:00:00') < today ? 'overdue' : o.due_date;
+        const key = isLeftBehind(o) ? 'left' : !o.due_date ? 'someday' : new Date(o.due_date + 'T00:00:00') < today ? 'overdue' : o.due_date;
         groups.set(key, [...(groups.get(key) ?? []), o]);
     }
 
@@ -49,25 +50,35 @@ export default function TasksIndex({ occurrences, filters, members, templates, c
                 <EmptyState>{can.createTask ? 'Nichts offen. Mit + legst du eine neue Aufgabe an.' : 'Nichts offen.'}</EmptyState>
             )}
 
-            {[...groups.entries()].map(([key, list]) => (
-                <section key={key} className="mb-2">
-                    <SectionHead count={list.length}>
-                        {key === 'overdue' ? <span className="text-urgent">Überfällig</span> : key === 'someday' ? 'Irgendwann' : dayLabel(key)}
-                    </SectionHead>
-                    <div className={cardGrid}>
-                        {list.map((o) => (
-                            // Under a day's head the due label would only repeat it; overdue cards keep their date.
-                            <TaskCard
-                                key={o.id}
-                                occurrence={o}
-                                members={members}
-                                canCompleteOnBehalf={can.completeOnBehalf}
-                                showDue={key === 'overdue'}
-                            />
-                        ))}
-                    </div>
-                </section>
-            ))}
+            <LeftBehind count={groups.get('left')?.length ?? 0}>
+                <div className={cardGrid}>
+                    {groups
+                        .get('left')
+                        ?.map((o) => <TaskCard key={o.id} occurrence={o} members={members} canCompleteOnBehalf={can.completeOnBehalf} />)}
+                </div>
+            </LeftBehind>
+
+            {[...groups.entries()]
+                .filter(([key]) => key !== 'left')
+                .map(([key, list]) => (
+                    <section key={key} className="mb-2">
+                        <SectionHead count={list.length}>
+                            {key === 'overdue' ? <span className="text-urgent">Überfällig</span> : key === 'someday' ? 'Irgendwann' : dayLabel(key)}
+                        </SectionHead>
+                        <div className={cardGrid}>
+                            {list.map((o) => (
+                                // Under a day's head the due label would only repeat it; overdue cards keep their date.
+                                <TaskCard
+                                    key={o.id}
+                                    occurrence={o}
+                                    members={members}
+                                    canCompleteOnBehalf={can.completeOnBehalf}
+                                    showDue={key === 'overdue'}
+                                />
+                            ))}
+                        </div>
+                    </section>
+                ))}
 
             {can.createTask && <TaskFormDialog members={members} templates={templates} />}
         </CheckstuLayout>

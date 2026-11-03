@@ -28,11 +28,13 @@ class ReopenTaskAction
     {
         return DB::transaction(function () use ($occurrence, $actor) {
             $attributed = $occurrence->completedBy ?? $actor;
-            $completedAt = $occurrence->completed_at;
+            // A skip has no completed_at; the moment it was skipped is when the record last changed.
+            $completedAt = $occurrence->completed_at ?? ($occurrence->is_skipped ? $occurrence->updated_at : null);
 
             $occurrence->forceFill([
                 'completed_at' => null,
                 'completed_by' => null,
+                'is_skipped' => false,
             ])->save();
 
             TaskCompletionLog::create([

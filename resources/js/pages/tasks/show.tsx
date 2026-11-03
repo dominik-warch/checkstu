@@ -1,7 +1,7 @@
 import { Head, Link, usePage } from '@inertiajs/react';
-import { ArrowLeft, Check, Circle, Lock, Pencil, Repeat, Trash2 } from 'lucide-react';
+import { ArrowLeft, Check, Circle, Lock, Pencil, Repeat, SkipForward, Trash2 } from 'lucide-react';
 
-import { asksWhoDidIt, deleteTask, priorityClass, priorityLabel, WhoDidItMenu } from '@/components/tasks/task-card';
+import { asksWhoDidIt, deleteTask, priorityClass, priorityLabel, skipOccurrence, WhoDidItMenu } from '@/components/tasks/task-card';
 import TaskFormDialog from '@/components/tasks/task-form-dialog';
 import { Button } from '@/components/ui/button';
 import { useCompleteOccurrence } from '@/hooks/use-complete-occurrence';
@@ -194,7 +194,7 @@ export default function Show({ task, occurrence, members, can }: ShowProps) {
                     )}
 
                     {(can.update || can.delete) && (
-                        <div className="mt-2 flex gap-2">
+                        <div className="mt-2 flex flex-wrap gap-2">
                             {can.update && (
                                 <TaskFormDialog
                                     members={members}
@@ -214,6 +214,12 @@ export default function Show({ task, occurrence, members, can }: ShowProps) {
                                         </Button>
                                     }
                                 />
+                            )}
+                            {can.delete && occurrence && (
+                                <Button variant="outline" onClick={() => skipOccurrence(occurrence.id, task.title)}>
+                                    <SkipForward />
+                                    Überspringen
+                                </Button>
                             )}
                             {can.delete && (
                                 <Button variant="ghost" className="text-destructive" onClick={() => deleteTask(task.id, task.title)}>

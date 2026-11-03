@@ -44,13 +44,14 @@ class CompleteTaskAction
                 'created_at' => now(),
             ]);
 
-            $this->spawnNextIfRelative($occurrence);
+            $this->spawnNextIfRelative($occurrence, Carbon::parse($occurrence->completed_at));
 
             return $occurrence;
         });
     }
 
-    private function spawnNextIfRelative(TaskOccurrence $occurrence): void
+    /** Relative series ("alle X Tage") continue from when an occurrence was dealt with: completed, or skipped. */
+    public function spawnNextIfRelative(TaskOccurrence $occurrence, Carbon $from): void
     {
         $task = $occurrence->task;
 
@@ -63,7 +64,7 @@ class CompleteTaskAction
             return;
         }
 
-        $next = Carbon::parse($occurrence->completed_at)->addDays($interval);
+        $next = $from->copy()->addDays($interval);
 
         if ($task->recurrence_ends_on !== null && $next->gt($task->recurrence_ends_on)) {
             return;

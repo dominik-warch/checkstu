@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Actions\Tasks\CompleteTaskAction;
 use App\Actions\Tasks\ReopenTaskAction;
+use App\Actions\Tasks\SkipOccurrenceAction;
 use App\Http\Requests\Tasks\CompleteTaskRequest;
 use App\Models\TaskOccurrence;
 use App\Models\User;
@@ -29,7 +30,20 @@ class TaskCompletionController extends Controller
         return back();
     }
 
-    /** Undo an accidental completion. Anyone who could complete the task can restore it. */
+    /** Let a missed occurrence go. Same people who may delete the task: parents, or the owner of a private one. */
+    public function skip(Request $request, TaskOccurrence $occurrence, SkipOccurrenceAction $action): RedirectResponse
+    {
+        Gate::authorize('delete', $occurrence->task);
+
+        $action->handle($occurrence, $request->user());
+
+        // Like a delete: from the task's own page (which would now read "schon erledigt") go to the list.
+        return url()->previous() === route('tasks.show', $occurrence->task_id)
+            ? redirect()->route('tasks.index')
+            : back();
+    }
+
+    /** Undo an accidental completion or skip. Anyone who could complete the task can restore it. */
     public function destroy(Request $request, TaskOccurrence $occurrence, ReopenTaskAction $action): RedirectResponse
     {
         Gate::authorize('complete', $occurrence->task);

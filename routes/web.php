@@ -46,6 +46,8 @@ Route::middleware(['auth'])->group(function () {
         ->name('occurrences.complete');
     Route::delete('occurrences/{occurrence}/complete', [TaskCompletionController::class, 'destroy'])
         ->name('occurrences.restore');
+    Route::post('occurrences/{occurrence}/skip', [TaskCompletionController::class, 'skip'])
+        ->name('occurrences.skip');
 
     Route::get('archive', [ArchiveController::class, 'index'])->name('archive');
 

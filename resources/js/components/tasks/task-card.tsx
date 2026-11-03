@@ -83,6 +83,23 @@ export function WhoDidItMenu({
     );
 }
 
+/** Lets one occurrence go (the series carries on), with the undo toast. Parents only, like deleting. */
+export function skipOccurrence(occurrenceId: number, title: string) {
+    router.post(
+        route('occurrences.skip', occurrenceId),
+        {},
+        {
+            preserveScroll: true,
+            onSuccess: () =>
+                showUndo({
+                    title,
+                    note: 'Übersprungen',
+                    undo: () => router.delete(route('occurrences.restore', occurrenceId), { preserveScroll: true }),
+                }),
+        },
+    );
+}
+
 interface TaskCardProps {
     occurrence: Occurrence;
     members: Member[];
