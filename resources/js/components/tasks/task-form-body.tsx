@@ -60,7 +60,7 @@ export function isoDay(offset = 0): string {
  */
 export default function TaskFormBody({ members, task, templates = [], defaultDue = '', onSaved }: TaskFormBodyProps) {
     const isEdit = Boolean(task);
-    const [showMore, setShowMore] = useState(Boolean(task?.description));
+    const [showMore, setShowMore] = useState(Boolean(task?.description) || Boolean(task?.is_private) || (task !== undefined && task.priority !== 1));
     const { auth } = usePage<SharedData>().props;
 
     const form = useForm({
@@ -369,43 +369,7 @@ export default function TaskFormBody({ members, task, templates = [], defaultDue
                 </div>
             )}
 
-            <div className="grid gap-2">
-                <Label htmlFor="priority">{t('task.priority')}</Label>
-                <Select value={String(data.priority)} onValueChange={(v) => setData('priority', Number(v))}>
-                    <SelectTrigger id="priority">
-                        <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="0">{t('priority.low')}</SelectItem>
-                        <SelectItem value="1">{t('priority.normal')}</SelectItem>
-                        <SelectItem value="2">{t('priority.high')}</SelectItem>
-                        <SelectItem value="3">{t('priority.urgent')}</SelectItem>
-                    </SelectContent>
-                </Select>
-            </div>
-
-            <label className="flex items-center gap-3 rounded-lg border p-3">
-                <Checkbox
-                    aria-label={t('task.private')}
-                    checked={data.is_private}
-                    onClick={() => {
-                        const next = !data.is_private;
-                        setData({
-                            ...data,
-                            is_private: next,
-                            // Ensure an assignee is set the moment privacy is turned on; leave it
-                            // untouched otherwise (turning privacy back off shouldn't unassign it).
-                            default_assignee_id: next && !data.default_assignee_id ? auth.user.id : data.default_assignee_id,
-                        });
-                    }}
-                />
-                <span className="flex flex-col">
-                    <span className="text-sm font-medium">{t('task.private')}</span>
-                    <span className="text-muted-foreground text-xs">{t('task.privateHint')}</span>
-                </span>
-            </label>
-
-            {/* Rarely needed, so folded; opens by itself when editing a task that has a description. */}
+            {/* Less common choices, folded so the sheet ends at its button; opens by itself when editing a task that uses any of them. */}
             <Collapsible open={showMore} onOpenChange={setShowMore}>
                 <CollapsibleTrigger asChild>
                     <Button type="button" variant="ghost" size="sm" className="justify-start px-0">
@@ -415,6 +379,41 @@ export default function TaskFormBody({ members, task, templates = [], defaultDue
                 </CollapsibleTrigger>
                 <CollapsibleContent className="grid gap-4 pt-2">
                     <div className="grid gap-2">
+                        <Label htmlFor="priority">{t('task.priority')}</Label>
+                        <Select value={String(data.priority)} onValueChange={(v) => setData('priority', Number(v))}>
+                            <SelectTrigger id="priority">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="0">{t('priority.low')}</SelectItem>
+                                <SelectItem value="1">{t('priority.normal')}</SelectItem>
+                                <SelectItem value="2">{t('priority.high')}</SelectItem>
+                                <SelectItem value="3">{t('priority.urgent')}</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    <label className="flex items-center gap-3 rounded-lg border p-3">
+                        <Checkbox
+                            aria-label={t('task.private')}
+                            checked={data.is_private}
+                            onClick={() => {
+                                const next = !data.is_private;
+                                setData({
+                                    ...data,
+                                    is_private: next,
+                                    // Ensure an assignee is set the moment privacy is turned on; leave it
+                                    // untouched otherwise (turning privacy back off shouldn't unassign it).
+                                    default_assignee_id: next && !data.default_assignee_id ? auth.user.id : data.default_assignee_id,
+                                });
+                            }}
+                        />
+                        <span className="flex flex-col">
+                            <span className="text-sm font-medium">{t('task.private')}</span>
+                            <span className="text-muted-foreground text-xs">{t('task.privateHint')}</span>
+                        </span>
+                    </label>
+                    <div className="grid gap-2">
                         <Label htmlFor="description">{t('task.description')}</Label>
                         <Input id="description" value={data.description} onChange={(e) => setData('description', e.target.value)} />
                         <InputError message={errors.description} />
@@ -422,7 +421,8 @@ export default function TaskFormBody({ members, task, templates = [], defaultDue
                 </CollapsibleContent>
             </Collapsible>
 
-            <DialogFooter>
+            {/* Pinned to the bottom of the sheet, so you never have to scroll past the options to save. */}
+            <DialogFooter className="bg-background sticky -bottom-[calc(env(safe-area-inset-bottom)+1.25rem)] -mx-5 px-5 pt-2 pb-[calc(env(safe-area-inset-bottom)+1.25rem)] sm:-bottom-6 sm:-mx-6 sm:px-6 sm:pb-6">
                 <Button type="submit" disabled={processing}>
                     {isEdit ? t('common.save') : 'Aufgabe anlegen'}
                 </Button>

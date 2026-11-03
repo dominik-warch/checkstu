@@ -1,5 +1,5 @@
 import { Link, router, usePage } from '@inertiajs/react';
-import { Check, Lock, Repeat, Trash2 } from 'lucide-react';
+import { Check, ChevronDown, Lock, Repeat, Trash2 } from 'lucide-react';
 import type { ReactNode } from 'react';
 
 import {
@@ -108,13 +108,73 @@ export const completeRingClass = (onColour: boolean) =>
     );
 
 /** A faint check at rest says what the ring does on touch (no hover there); it firms up on hover, focus and press. */
-export function RingCheck() {
+export function RingCheck({ onColour = false }: { onColour?: boolean }) {
     return (
         <Check
-            className="size-5 opacity-25 transition-opacity group-hover/done:opacity-60 group-focus-visible/done:opacity-60 group-active/done:opacity-100"
+            className={cn(
+                'size-5 transition-opacity group-hover/done:opacity-60 group-focus-visible/done:opacity-60 group-active/done:opacity-100',
+                // On a member colour a quarter-strength check reads as decoration; it needs more to say "tap to finish".
+                onColour ? 'opacity-45' : 'opacity-25',
+            )}
             strokeWidth={3}
             aria-hidden
         />
+    );
+}
+
+/**
+ * Parents hand a task out right from the card: the name in the meta line opens "Wer ist dran?"
+ * ("Für alle" or a member, the current one ticked), with the undo toast. Not for private tasks.
+ */
+function AssigneeMenu({ occurrence, members }: { occurrence: Occurrence; members: Member[] }) {
+    const current = occurrence.assignee?.id ?? null;
+    const label = occurrence.assignee ? occurrence.assignee.name : t('task.unassigned');
+
+    const assign = (id: number | null, name: string) => {
+        if (id === current) return;
+        router.patch(
+            route('tasks.assign', occurrence.task_id),
+            { default_assignee_id: id },
+            {
+                preserveScroll: true,
+                onSuccess: () =>
+                    showUndo({
+                        title: occurrence.title,
+                        note: id === null ? 'Jetzt für alle' : `Jetzt bei ${name}`,
+                        undo: () =>
+                            router.patch(route('tasks.assign', occurrence.task_id), { default_assignee_id: current }, { preserveScroll: true }),
+                    }),
+            },
+        );
+    };
+
+    return (
+        <DropdownMenu>
+            {/* The ::after stretches the tap area to 44px without moving the meta line. */}
+            <DropdownMenuTrigger
+                aria-label={`${t('task.assignee')}: ${label}, ändern`}
+                className="relative inline-flex items-center gap-0.5 rounded-sm font-medium underline-offset-4 after:absolute after:-inset-x-2 after:-inset-y-3 hover:underline"
+            >
+                {label}
+                <ChevronDown className="size-3.5" aria-hidden />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+                <DropdownMenuLabel>Wer ist dran?</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => assign(null, '')}>
+                    <span className="border-muted-foreground size-3 rounded-full border border-dashed" />
+                    {t('task.unassigned')}
+                    {current === null && <Check className="ml-auto size-4" />}
+                </DropdownMenuItem>
+                {members.map((m) => (
+                    <DropdownMenuItem key={m.id} onClick={() => assign(m.id, m.name)}>
+                        <span className="size-3 rounded-full" style={{ background: m.color ?? 'var(--muted-foreground)' }} />
+                        {m.name}
+                        {current === m.id && <Check className="ml-auto size-4" />}
+                    </DropdownMenuItem>
+                ))}
+            </DropdownMenuContent>
+        </DropdownMenu>
     );
 }
 
@@ -150,7 +210,7 @@ export default function TaskCard({ occurrence, members, canCompleteOnBehalf, sho
             onClick={asksWho ? undefined : () => complete()}
             className={completeRingClass(Boolean(ink))}
         >
-            <RingCheck />
+            <RingCheck onColour={Boolean(ink)} />
         </button>
     );
 
@@ -212,7 +272,11 @@ export default function TaskCard({ occurrence, members, canCompleteOnBehalf, sho
                                 {t(priorityLabel[occurrence.priority])}
                             </span>
                         )}
-                        <span>{occurrence.assignee ? occurrence.assignee.name : t('task.unassigned')}</span>
+                        {occurrence.can_delete && !occurrence.is_private ? (
+                            <AssigneeMenu occurrence={occurrence} members={members} />
+                        ) : (
+                            <span>{occurrence.assignee ? occurrence.assignee.name : t('task.unassigned')}</span>
+                        )}
                         {occurrence.categories.map((c) => (
                             <span key={c.id} className="inline-flex items-center gap-1">
                                 <span className="size-2 rounded-full ring-1 ring-current/30" style={{ background: c.color ?? '#999' }} />

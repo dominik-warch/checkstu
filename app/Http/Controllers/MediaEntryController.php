@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Actions\Media\CreateMediaEntryAction;
 use App\Actions\Media\DeleteMediaEntryAction;
+use App\Actions\Media\RecomputeMediaEntryStatusAction;
 use App\Actions\Media\UpdateMediaEntryAction;
 use App\Http\Requests\Media\StoreMediaEntryRequest;
 use App\Http\Requests\Media\UpdateMediaEntryRequest;
@@ -26,6 +27,16 @@ class MediaEntryController extends Controller
     public function update(UpdateMediaEntryRequest $request, MediaEntry $entry, UpdateMediaEntryAction $action): RedirectResponse
     {
         $action->handle($entry, $request->validated());
+
+        return back();
+    }
+
+    /** Undo "Serie ist durch / abbrechen": drop the manual override and let the episodes decide again. */
+    public function recompute(Request $request, MediaEntry $entry, RecomputeMediaEntryStatusAction $action): RedirectResponse
+    {
+        Gate::authorize('update', $entry);
+
+        $action->handle($request->user(), $entry->mediaItem);
 
         return back();
     }

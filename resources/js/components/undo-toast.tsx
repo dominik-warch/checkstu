@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 interface Undoable {
     title: string;
@@ -10,6 +10,15 @@ interface Undoable {
 }
 
 const EVENT = 'checkstu:undo';
+
+// Whether the last input was a key press. A keyboard user's focus falls to <body> when the card
+// they just finished disappears, so the toast takes focus for them (and stays open while focused);
+// for touch and mouse it would only pin the toast open, so it doesn't.
+let lastInputWasKeyboard = false;
+if (typeof window !== 'undefined') {
+    window.addEventListener('keydown', () => (lastInputWasKeyboard = true), true);
+    window.addEventListener('pointerdown', () => (lastInputWasKeyboard = false), true);
+}
 
 /** Offer five seconds to take back what just happened (a completion, a delete). */
 export function showUndo(undoable: Undoable) {
@@ -23,12 +32,17 @@ export function showUndo(undoable: Undoable) {
 export function UndoToast() {
     const [shown, setShown] = useState<Undoable | null>(null);
     const [held, setHeld] = useState(false);
+    const actionRef = useRef<HTMLButtonElement>(null);
 
     useEffect(() => {
         const show = (e: Event) => setShown((e as CustomEvent<Undoable>).detail);
         window.addEventListener(EVENT, show);
         return () => window.removeEventListener(EVENT, show);
     }, []);
+
+    useEffect(() => {
+        if (shown && lastInputWasKeyboard) actionRef.current?.focus();
+    }, [shown]);
 
     useEffect(() => {
         if (!shown || held) return;
@@ -61,6 +75,7 @@ export function UndoToast() {
                         <p className="text-sm">{shown.note}</p>
                     </div>
                     <button
+                        ref={actionRef}
                         type="button"
                         onClick={undo}
                         className="bg-background text-foreground min-h-11 shrink-0 rounded-full px-4 text-sm font-bold"

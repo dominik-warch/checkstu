@@ -70,7 +70,7 @@ export default function Home({ nextEpisodes, filters }: HomeProps) {
                             <MediaPoster path={entry.media_item.poster_path} alt={entry.media_item.title_de} className="h-20 w-14" />
                             <div className="min-w-0 flex-1">
                                 <p className="truncate font-medium">{entry.media_item.title_de}</p>
-                                <p className="text-muted-foreground text-sm">
+                                <p className="text-muted-foreground text-sm text-pretty">
                                     {t('media.season', { number: entry.next_episode.season_number })} ·{' '}
                                     {t('media.episode', { number: entry.next_episode.episode_number })} · {entry.next_episode.name}
                                 </p>

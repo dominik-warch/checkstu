@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Actions\Tasks\CreateTaskAction;
+use App\Actions\Tasks\NotifyTaskAssignmentAction;
 use App\Actions\Tasks\ResolveDependenciesAction;
 use App\Actions\Tasks\UpdateTaskAction;
 use App\Enums\RecurrenceType;
@@ -119,6 +120,30 @@ class TaskController extends Controller
         return url()->previous() === route('tasks.show', $task)
             ? redirect()->route('tasks.index')
             : back();
+    }
+
+    /**
+     * Hand a task to someone (or to "Für alle") straight from the list. Parents only, like deleting;
+     * never for a private task, which would reveal it to whoever it was handed to.
+     */
+    public function assign(Request $request, Task $task, NotifyTaskAssignmentAction $notify): RedirectResponse
+    {
+        Gate::authorize('delete', $task);
+        abort_if($task->is_private, 403);
+
+        $assigneeId = $request->validate([
+            'default_assignee_id' => ['nullable', 'integer', 'exists:users,id'],
+        ])['default_assignee_id'] ?? null;
+
+        $previous = $task->default_assignee_id;
+        $task->update(['default_assignee_id' => $assigneeId]);
+        $task->openOccurrence?->update(['assignee_id' => $assigneeId]);
+
+        if ($assigneeId !== null && $assigneeId !== $previous) {
+            $notify->handle($task, $assigneeId);
+        }
+
+        return back();
     }
 
     /** Undo a delete, from the toast or from "Gelöscht" in the archive. Whoever could delete it can bring it back. */

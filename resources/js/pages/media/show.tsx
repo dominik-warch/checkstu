@@ -62,8 +62,23 @@ export default function Show({ item }: ShowProps) {
 
     function setTvStatus(status: 'completed' | 'dropped') {
         if (!item.entry) return;
+        const entryId = item.entry.id;
         setProcessing(true);
-        router.patch(route('media.entries.update', item.entry.id), { status }, { preserveScroll: true, onFinish: () => setProcessing(false) });
+        router.patch(
+            route('media.entries.update', entryId),
+            { status },
+            {
+                preserveScroll: true,
+                onSuccess: () =>
+                    showUndo({
+                        title: item.title_de,
+                        note: status === 'completed' ? 'Als durch markiert' : 'Abgebrochen',
+                        // A show's status otherwise follows its episodes, so undo hands it back to them.
+                        undo: () => router.post(route('media.entries.recompute', entryId), {}, { preserveScroll: true }),
+                    }),
+                onFinish: () => setProcessing(false),
+            },
+        );
     }
 
     function toggleWatched() {

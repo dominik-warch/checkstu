@@ -209,6 +209,47 @@ class TaskTest extends TestCase
             ->assertRedirect(route('home'));
     }
 
+    public function test_a_parent_can_hand_a_task_to_someone_from_the_list(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $leo = User::factory()->create();
+        $task = Task::factory()->create(['default_assignee_id' => null]);
+        $occurrence = TaskOccurrence::factory()->for($task)->create(['assignee_id' => null]);
+
+        $this->actingAs($admin)
+            ->patch(route('tasks.assign', $task), ['default_assignee_id' => $leo->id])
+            ->assertRedirect();
+
+        $this->assertSame($leo->id, $task->fresh()->default_assignee_id);
+        $this->assertSame($leo->id, $occurrence->fresh()->assignee_id);
+
+        $this->actingAs($admin)->patch(route('tasks.assign', $task), ['default_assignee_id' => null]);
+        $this->assertNull($occurrence->fresh()->assignee_id);
+    }
+
+    public function test_a_child_cannot_hand_out_tasks(): void
+    {
+        $member = User::factory()->create();
+        $task = Task::factory()->create();
+
+        $this->actingAs($member)
+            ->patch(route('tasks.assign', $task), ['default_assignee_id' => $member->id])
+            ->assertForbidden();
+    }
+
+    public function test_a_private_task_cannot_be_handed_to_someone_else(): void
+    {
+        $owner = User::factory()->create();
+        $other = User::factory()->create();
+        $task = Task::factory()->create(['is_private' => true, 'default_assignee_id' => $owner->id]);
+
+        $this->actingAs($owner)
+            ->patch(route('tasks.assign', $task), ['default_assignee_id' => $other->id])
+            ->assertForbidden();
+
+        $this->assertSame($owner->id, $task->fresh()->default_assignee_id);
+    }
+
     public function test_admin_can_restore_a_deleted_task(): void
     {
         $admin = User::factory()->admin()->create();

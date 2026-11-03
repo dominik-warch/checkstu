@@ -38,6 +38,7 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('tasks/{task}', [TaskController::class, 'update'])->name('tasks.update');
     Route::delete('tasks/{task}', [TaskController::class, 'destroy'])->name('tasks.destroy');
     Route::post('tasks/{task}/restore', [TaskController::class, 'restore'])->withTrashed()->name('tasks.restore');
+    Route::patch('tasks/{task}/assignee', [TaskController::class, 'assign'])->name('tasks.assign');
 
     // Demnächst was folded into Aufgaben (grouped by day); old links and installed shortcuts land there.
     Route::redirect('upcoming', '/tasks')->name('upcoming');
@@ -68,6 +69,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('search', [MediaSearchController::class, 'index'])->name('search');
         Route::post('entries', [MediaEntryController::class, 'store'])->name('entries.store');
         Route::patch('entries/{entry}', [MediaEntryController::class, 'update'])->name('entries.update');
+        Route::post('entries/{entry}/recompute', [MediaEntryController::class, 'recompute'])->name('entries.recompute');
         Route::delete('entries/{entry}', [MediaEntryController::class, 'destroy'])->name('entries.destroy');
         Route::post('entries/{entry}/watches', [MediaEntryWatchController::class, 'store'])->name('entries.watches.store');
         Route::patch('entry-watches/{watch}', [MediaEntryWatchController::class, 'update'])->name('entryWatches.update');

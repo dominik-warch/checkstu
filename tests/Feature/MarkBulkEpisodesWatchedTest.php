@@ -223,4 +223,27 @@ class MarkBulkEpisodesWatchedTest extends TestCase
 
         $this->assertModelExists($theirs);
     }
+
+    public function test_undoing_a_manual_show_status_lets_the_episodes_decide_again(): void
+    {
+        $user = User::factory()->create();
+        $item = MediaItem::factory()->tv()->create();
+        $season = $this->makeCachedSeason($item, 1, 2);
+        $entry = MediaEntry::factory()->for($user)->for($item, 'mediaItem')->create(['status' => WatchStatus::Watching]);
+        MediaEpisodeWatch::create(['user_id' => $user->id, 'media_episode_id' => $season->episodes()->first()->id, 'watched_at' => null]);
+
+        $this->actingAs($user)->patch(route('media.entries.update', $entry), ['status' => 'dropped']);
+        $this->assertSame(WatchStatus::Dropped, $entry->fresh()->status);
+
+        $this->actingAs($user)->post(route('media.entries.recompute', $entry))->assertRedirect();
+
+        $this->assertSame(WatchStatus::Watching, $entry->fresh()->status);
+    }
+
+    public function test_only_the_owner_can_recompute_an_entry(): void
+    {
+        $entry = MediaEntry::factory()->for(User::factory())->for(MediaItem::factory()->tv(), 'mediaItem')->create();
+
+        $this->actingAs(User::factory()->create())->post(route('media.entries.recompute', $entry))->assertForbidden();
+    }
 }
