@@ -77,7 +77,10 @@ class CreateTaskAction
                 $this->materialize->handle($task);
             }
 
-            $this->recordTitleUsage->handle($data['title'], $creator);
+            // The catalogue is shared as suggestions with everyone; a private title ("Geschenk für Mama") must not end up there.
+            if (! ($data['is_private'] ?? false)) {
+                $this->recordTitleUsage->handle($data['title'], $creator);
+            }
 
             $this->notifyAssignment->handle($task, $data['default_assignee_id'] ?? null);
 

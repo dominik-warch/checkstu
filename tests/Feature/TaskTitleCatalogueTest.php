@@ -41,6 +41,33 @@ class TaskTitleCatalogueTest extends TestCase
         $this->assertSame(1, TaskTemplate::where('name', 'Staubsaugen')->count());
     }
 
+    public function test_creating_a_private_task_keeps_its_title_out_of_the_catalogue(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)
+            ->post(route('tasks.store'), ['title' => 'Geschenk für Mama', 'is_private' => true, 'default_assignee_id' => $user->id])
+            ->assertRedirect();
+
+        $this->assertDatabaseHas('tasks', ['title' => 'Geschenk für Mama', 'is_private' => true]);
+        $this->assertSame(0, TaskTemplate::count());
+    }
+
+    public function test_cleanup_migration_removes_titles_only_private_tasks_used(): void
+    {
+        $user = User::factory()->create();
+        Task::factory()->create(['title' => 'Geschenk für Mama', 'is_private' => true, 'default_assignee_id' => $user->id]);
+        Task::factory()->create(['title' => 'Müll', 'is_private' => true, 'default_assignee_id' => $user->id]);
+        Task::factory()->create(['title' => 'Müll']); // also used by a shared task: stays
+        TaskTemplate::factory()->create(['name' => 'geschenk für mama', 'created_by' => $user->id]);
+        TaskTemplate::factory()->create(['name' => 'Müll', 'created_by' => $user->id]);
+        TaskTemplate::factory()->create(['name' => 'Staubsaugen', 'created_by' => null]);
+
+        (require database_path('migrations/2026_11_03_000000_remove_private_task_titles_from_catalogue.php'))->up();
+
+        $this->assertSame(['Müll', 'Staubsaugen'], TaskTemplate::orderBy('name')->pluck('name')->all());
+    }
+
     public function test_matching_is_case_insensitive(): void
     {
         $user = User::factory()->create();
