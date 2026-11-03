@@ -179,7 +179,7 @@ export default function CheckstuLayout({ children, navItems = tasksNavItems, con
                     </div>
                 </header>
 
-                <main className="mx-auto w-full max-w-3xl flex-1 px-4 pt-4 pb-32 md:max-w-5xl lg:max-w-6xl lg:px-10 lg:pt-10 lg:pb-16">
+                <main className="mx-auto w-full max-w-3xl flex-1 px-4 pt-4 pb-[calc(env(safe-area-inset-bottom)+9.5rem)] md:max-w-5xl lg:max-w-6xl lg:px-10 lg:pt-10 lg:pb-16">
                     <PullToRefresh>{children}</PullToRefresh>
                 </main>
 

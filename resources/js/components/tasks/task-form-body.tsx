@@ -130,7 +130,8 @@ export default function TaskFormBody({ members, task, templates = [], onSaved }:
                 <InputError message={errors.description} />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            {/* minmax(0, …): a native date input has an intrinsic minimum width that would push past the sheet at 375px. */}
+            <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-4">
                 <div className="grid gap-2">
                     <Label>{t('task.priority')}</Label>
                     <Select value={String(data.priority)} onValueChange={(v) => setData('priority', Number(v))}>
